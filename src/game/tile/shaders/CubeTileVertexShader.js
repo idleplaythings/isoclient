@@ -6,10 +6,10 @@ const CubeTileVertexShader = `
     attribute vec3 offset;
     attribute float opacity;
     attribute vec2 uv;
-    attribute float textureNumber;
+    attribute vec3 textureNumber;
     varying vec2 vUv;
     varying float vOpacity;
-    varying float vTextureNumber;
+    varying vec3 vTextureNumber;
 
     void main() {
         vUv = uv;

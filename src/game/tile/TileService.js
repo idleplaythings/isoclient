@@ -1,150 +1,141 @@
-import * as THREE from "three";
-import CubeTileFragmentShader from "./shaders/CubeTileFragmentShader";
-import CubeTileVertexShader from "./shaders/CubeTileVertexShader";
-import GLTFLoader from "three-gltf-loader";
-import TileContainer from "./TileContainer";
-
-let loadedCube = null;
+import InstanceFactory from "./InstanceFactory";
 
 class TileService {
-  constructor(scene) {
-    this.scene = scene;
-    this.loader = new GLTFLoader();
-    this.ready = this.init();
-    this.creating = false;
+  constructor(scene, gameCamera) {
+    this.instanceFactory = new InstanceFactory(scene);
+    this.tiles = [];
+    this.allTiles = [];
+    this.capacity = 0;
+    this.needsSorting = false;
     this.containers = [];
-
-    this.material = new THREE.RawShaderMaterial({
-      uniforms: {
-        map: { value: new THREE.TextureLoader().load("img/spritesheet.png") }
-      },
-      //wireframe: true,
-      depthWrite: false,
-      transparent: true,
-      vertexShader: CubeTileVertexShader,
-      fragmentShader: CubeTileFragmentShader
-    });
+    this.gameCamera = gameCamera;
+    this.renderArea = {
+      x1: 0,
+      y1: 0,
+      x2: 0,
+      y3: 0
+    };
   }
 
-  async init() {
-    if (!loadedCube) {
-      loadedCube = await this.loadCube();
+  add(tile) {
+    this.allTiles.push(tile);
+    if (
+      tile.position.x >= this.renderArea.x1 &&
+      tile.position.y >= this.renderArea.y1 &&
+      tile.position.x <= this.renderArea.x2 &&
+      tile.position.y <= this.renderArea.y2
+    ) {
+      this.needsSorting = true;
     }
-
-    return true;
   }
 
-  async add(tile) {
-    await this.ready;
-    if (!this.hasFree()) {
-      this.create();
-
-      this.add(tile);
-      return;
-    }
-
-    this.containers[this.containers.length - 1].add(tile);
-    this.sortContainers();
+  remove(tile) {
+    this.tiles = this.tiles.filter(otherTile => tile !== otherTile);
+    this.allTiles = this.allTiles.filter(otherTile => tile !== otherTile);
+    tile.update();
   }
 
-  hasFree() {
-    return (
-      this.containers.length > 0 &&
-      this.containers[this.containers.length - 1].hasFree()
-    );
+  removeAll() {
+    this.tiles = [];
+    this.allTiles = [];
+    this.needsSorting = true;
   }
 
-  sortContainers() {
-    this.containers.sort((a, b) => a.free.length > b.free.length);
-  }
+  sortTiles() {
+    this.needsSorting = false;
 
-  create() {
-    console.log("create contaier");
-    this.containers.push(this.makeInstanced(loadedCube, 1000));
-    this.creating = false;
-    return true;
-  }
+    const start = new Date().getTime();
 
-  async loadCube() {
-    if (loadedCube) {
-      return loadedCube;
-    }
-
-    const cube = await this.load("img/halfcubeUvReversed.glb");
-    const cubeGeometry = cube.scene.children[0].geometry;
-    cubeGeometry.rotateY((90 * Math.PI) / 180);
-    cubeGeometry.scale(0.5, 0.5, 0.5);
-
-    loadedCube = cubeGeometry;
-    return loadedCube;
-  }
-
-  makeInstanced(original, amount) {
-    original = original.clone();
-
-    let offsetAttribute, opacityAttribute, textureNumberAttribute;
-
-    const geometry = new THREE.InstancedBufferGeometry();
-    geometry.index = original.index;
-    geometry.attributes.position = original.attributes.position;
-    geometry.attributes.uv = original.attributes.uv;
-
-    const offsets = [];
-    const opacitys = [];
-    const textureNumbers = [];
-
-    for (let i = 0; i < amount; i++) {
-      offsets.push(0, 0, 0.5);
-      opacitys.push(0);
-      textureNumbers.push(0);
-    }
-
-    offsetAttribute = new THREE.InstancedBufferAttribute(
-      new Float32Array(offsets),
-      3
-    ).setDynamic(true);
-
-    opacityAttribute = new THREE.InstancedBufferAttribute(
-      new Float32Array(opacitys),
-      1
-    ).setDynamic(true);
-
-    textureNumberAttribute = new THREE.InstancedBufferAttribute(
-      new Float32Array(textureNumbers),
-      1
-    ).setDynamic(true);
-
-    geometry.addAttribute("offset", offsetAttribute);
-    geometry.addAttribute("opacity", opacityAttribute);
-    geometry.addAttribute("textureNumber", textureNumberAttribute);
-
-    const mesh = new THREE.Mesh(geometry, this.material);
-    mesh.frustumCulled = false;
-
-    this.scene.add(mesh);
-    return new TileContainer(
-      offsetAttribute,
-      opacityAttribute,
-      textureNumberAttribute,
-      amount,
-      mesh,
-      this.scene
-    );
-  }
-
-  async load(path) {
-    return new Promise((resolve, reject) => {
-      this.loader.load(
-        path,
-        gltf => {
-          resolve(gltf);
-        },
-        xhr => {},
-        error => {
-          console.error("An error happened", error);
+    this.tiles = this.allTiles
+      .filter(
+        tile =>
+          tile.position.x >= this.renderArea.x1 &&
+          tile.position.y >= this.renderArea.y1 &&
+          tile.position.x <= this.renderArea.x2 &&
+          tile.position.y <= this.renderArea.y2
+      )
+      .sort((a, b) => {
+        if (a.position.x < b.position.x) {
+          return -1;
         }
-      );
+
+        if (b.position.x < a.position.x) {
+          return 1;
+        }
+
+        if (a.position.y > b.position.y) {
+          return -1;
+        }
+
+        if (b.position.y > a.position.y) {
+          return 1;
+        }
+
+        if (a.position.z > b.position.z) {
+          return 1;
+        }
+
+        if (b.position.z > a.position.z) {
+          return -1;
+        }
+
+        return 0;
+      });
+
+    console.log("sorted tiles, took", new Date().getTime() - start, "ms");
+  }
+
+  async assignTiles() {
+    await this.instanceFactory.ready;
+
+    const start = new Date().getTime();
+
+    while (this.capacity < this.tiles.length) {
+      const newContainer = this.instanceFactory.create();
+      this.containers.push(newContainer);
+      this.capacity += newContainer.amount;
+    }
+
+    let tileIndex = 0;
+    this.containers.forEach(container => {
+      container.unassignEverything();
+
+      for (let i = 0; i < container.amount; i++) {
+        if (tileIndex >= this.tiles.length - 1) {
+          break;
+        }
+
+        container.add(this.tiles[tileIndex], i);
+        tileIndex++;
+      }
     });
+
+    //console.log("assigned tiles, took", new Date().getTime() - start, "ms");
+  }
+
+  hasRenderAreaChanged() {
+    const newArea = this.gameCamera.getRenderArea();
+
+    return (
+      this.renderArea.x1 !== newArea.x1 ||
+      this.renderArea.y1 !== newArea.y1 ||
+      this.renderArea.x2 !== newArea.x2 ||
+      this.renderArea.y2 !== newArea.y2
+    );
+  }
+
+  filterTilesForRender() {}
+
+  render() {
+    if (this.hasRenderAreaChanged()) {
+      this.renderArea = this.gameCamera.getRenderArea();
+      this.needsSorting = true;
+    }
+
+    if (this.needsSorting) {
+      this.sortTiles();
+      this.assignTiles();
+    }
   }
 }
 

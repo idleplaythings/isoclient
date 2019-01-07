@@ -5,23 +5,27 @@ class TileContainer {
     textureNumberAttribute,
     amount,
     mesh,
-    scene
+    scene,
+    numberCreated
   ) {
-    this.free = [];
-    this.used = [];
+    this.amount = amount;
+    this.used = 0;
     this.offsetAttribute = offsetAttribute;
     this.opacityAttribute = opacityAttribute;
     this.textureNumberAttribute = textureNumberAttribute;
     this.mesh = mesh;
     this.scene = scene;
+    this.numberCreated = numberCreated;
 
+    /*
     for (let i = 0; i < amount; i++) {
       this.free.push(i);
     }
+    */
   }
 
   hasFree() {
-    return this.free.length > 0;
+    return this.used < this.amount;
   }
 
   discard() {
@@ -30,17 +34,27 @@ class TileContainer {
 
   remove(tile) {
     this.opacityAttribute.setX(tile.index, 0);
-    this.free.push(tile.index);
+    this.used--;
   }
 
-  add(tile) {
-    const index = this.free.pop();
-
-    if (index === undefined) {
-      throw new Error("RAN OUT OF INDEXED CUBES");
+  unassignEverything() {
+    for (let i = 0; i < this.amount; i++) {
+      this.opacityAttribute.setX(i, 0);
     }
 
-    this.used.push(index);
+    this.used = 0;
+  }
+
+  add(tile, index) {
+    if (this.used >= this.amount) {
+      throw new Error("Container is full");
+    }
+
+    if (!tile) {
+      throw new Error("Trying to add null tile, index: " + index);
+    }
+
+    this.used++;
     tile.allocate(index, this);
     this.update(tile);
   }
@@ -59,7 +73,12 @@ class TileContainer {
     );
     this.offsetAttribute.needsUpdate = true;
 
-    this.textureNumberAttribute.setX(index, tile.texture);
+    this.textureNumberAttribute.setXYZ(
+      index,
+      tile.texture,
+      Math.floor(Math.random() * 2) + 16,
+      0
+    );
     this.textureNumberAttribute.needsUpdate = true;
   }
 }
