@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { RenderArea } from "./tile";
 
 class GameCamera {
   constructor() {
@@ -94,21 +95,25 @@ class GameCamera {
   getLookAtPosition() {
     return this.implementation.position
       .clone()
-      .add(new THREE.Vector3(-50, 50, -50));
+      .add(new THREE.Vector3(-25, 25, -50));
   }
 
-  getRenderRadius() {}
+  getRenderRadius() {
+    return 30;
+  }
 
   getRenderArea() {
-    const radius = 50;
+    const radius = this.getRenderRadius();
     const position = this.getLookAtPosition();
 
-    return {
-      x1: this.floorToTens(position.x) - radius,
-      y1: this.floorToTens(position.y) - radius,
-      x2: this.floorToTens(position.x) + radius,
-      y2: this.floorToTens(position.y) + radius
-    };
+    return new RenderArea(
+      new THREE.Vector3(
+        this.floorToTens(position.x) - radius,
+        this.floorToTens(position.y) - radius,
+        0
+      ),
+      radius * 2
+    );
   }
 
   floorToTens(number) {

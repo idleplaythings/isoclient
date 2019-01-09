@@ -3,6 +3,8 @@ class TileContainer {
     offsetAttribute,
     opacityAttribute,
     textureNumberAttribute,
+    brushNumberAttribute,
+    typeAttribute,
     amount,
     mesh,
     scene,
@@ -13,6 +15,8 @@ class TileContainer {
     this.offsetAttribute = offsetAttribute;
     this.opacityAttribute = opacityAttribute;
     this.textureNumberAttribute = textureNumberAttribute;
+    this.brushNumberAttribute = brushNumberAttribute;
+    this.typeAttribute = typeAttribute;
     this.mesh = mesh;
     this.scene = scene;
     this.numberCreated = numberCreated;
@@ -73,13 +77,26 @@ class TileContainer {
     );
     this.offsetAttribute.needsUpdate = true;
 
-    this.textureNumberAttribute.setXYZ(
+    this.textureNumberAttribute.setXYZW(
       index,
-      tile.texture,
-      Math.floor(Math.random() * 2) + 16,
+      tile.surfaceTexture,
+      tile.groundTexture,
+      0,
       0
     );
     this.textureNumberAttribute.needsUpdate = true;
+
+    this.brushNumberAttribute.setXYZW(
+      index,
+      tile.surfaceBrush,
+      tile.groundBrush,
+      tile.shadowBrush,
+      tile.highlightBrush
+    );
+    this.brushNumberAttribute.needsUpdate = true;
+
+    this.typeAttribute.setX(index, tile.type);
+    this.typeAttribute.needsUpdate = true;
   }
 }
 

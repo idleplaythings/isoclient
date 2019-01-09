@@ -1,4 +1,8 @@
-import TileService from "./TileService";
+import TileRenderer from "./TileRenderer";
 import Tile from "./Tile";
+import TileFactory from "./TileFactory";
+import TileChunk from "./TileChunk";
+import TileLibrary from "./TileLibrary";
+import RenderArea from "./RenderArea";
 
-export { TileService, Tile };
+export { TileRenderer, Tile, TileFactory, TileChunk, TileLibrary, RenderArea };

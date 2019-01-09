@@ -31,7 +31,7 @@ THREE.LinearMipMapLinearFilter
       },
       blending: THREE.NormalBlending,
       opacity: 1,
-      //side: THREE.DoubleSide,
+      side: THREE.DoubleSide,
       //wireframe: true,
       alphaTest: 0.5,
       depthWrite: false,
@@ -60,7 +60,7 @@ THREE.LinearMipMapLinearFilter
       return loadedCube;
     }
 
-    const cube = await this.load("img/halfcubeUvReversed.glb");
+    const cube = await this.load("img/halfCubeNonIsometric.glb");
     const cubeGeometry = cube.scene.children[0].geometry;
     cubeGeometry.rotateY((90 * Math.PI) / 180);
     cubeGeometry.scale(0.5, 0.5, 0.5);
@@ -72,7 +72,11 @@ THREE.LinearMipMapLinearFilter
   makeInstanced(original, amount) {
     original = original.clone();
 
-    let offsetAttribute, opacityAttribute, textureNumberAttribute;
+    let offsetAttribute,
+      opacityAttribute,
+      textureNumberAttribute,
+      brushNumberAttribute,
+      typeAttribute;
 
     const geometry = new THREE.InstancedBufferGeometry();
     geometry.index = original.index;
@@ -82,11 +86,15 @@ THREE.LinearMipMapLinearFilter
     const offsets = [];
     const opacitys = [];
     const textureNumbers = [];
+    const brushNumbers = [];
+    const types = [];
 
     for (let i = 0; i < amount; i++) {
       offsets.push(0, 0, 0.5);
       opacitys.push(0);
-      textureNumbers.push(0, 0, 0);
+      textureNumbers.push(0, 0, 0, 0);
+      brushNumbers.push(0, 0, 0, 0);
+      types.push(0);
     }
 
     offsetAttribute = new THREE.InstancedBufferAttribute(
@@ -101,12 +109,24 @@ THREE.LinearMipMapLinearFilter
 
     textureNumberAttribute = new THREE.InstancedBufferAttribute(
       new Float32Array(textureNumbers),
-      3
+      4
+    ).setDynamic(true);
+
+    brushNumberAttribute = new THREE.InstancedBufferAttribute(
+      new Float32Array(textureNumbers),
+      4
+    ).setDynamic(true);
+
+    typeAttribute = new THREE.InstancedBufferAttribute(
+      new Float32Array(types),
+      1
     ).setDynamic(true);
 
     geometry.addAttribute("offset", offsetAttribute);
     geometry.addAttribute("opacity", opacityAttribute);
     geometry.addAttribute("textureNumber", textureNumberAttribute);
+    geometry.addAttribute("brushNumber", brushNumberAttribute);
+    geometry.addAttribute("type", typeAttribute);
 
     const mesh = new THREE.Mesh(geometry, this.material);
     mesh.frustumCulled = false;
@@ -119,6 +139,8 @@ THREE.LinearMipMapLinearFilter
       offsetAttribute,
       opacityAttribute,
       textureNumberAttribute,
+      brushNumberAttribute,
+      typeAttribute,
       amount,
       mesh,
       this.scene,
