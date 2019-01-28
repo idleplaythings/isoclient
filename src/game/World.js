@@ -1,40 +1,31 @@
 import { Tile } from "./tile";
 import * as THREE from "three";
+import { TileBinarySet } from "../model/tile";
+import ndarray from "ndarray";
 
 import TerrainTester from "./test/TerrainTester";
 
 class World {
-  constructor(tileLibrary) {
+  constructor(tileLibrary, tileRenderer) {
     this.tileLibrary = tileLibrary;
-    this.chunks = {};
-
-    window.tileLibrary = tileLibrary;
-
-    this.lastRender = 0;
-    this.rocks = [];
-    this.grass = [];
-    this.soil = [];
+    this.tileRenderer = tileRenderer;
 
     this.tester = new TerrainTester(this.tileLibrary);
     this.create();
   }
 
-  create() {
-    this.tester.createGround();
-    this.tester.createBoxHill();
-    this.tester.createSlopeHill();
-    //tester.createTestCube();
-  }
-
-  render() {
-    this.tester.createTestCube(
-      new THREE.Vector3(
-        Math.floor(Math.random() * 200) - 100,
-        Math.floor(Math.random() * 200) - 100,
-        1
-      )
+  getTileChunksForRenderArea(chunkPositions, chunkSize, tileRenderer) {
+    //get props, items, characters too
+    this.tileLibrary.getTileChunksForRenderArea(
+      chunkPositions,
+      chunkSize,
+      tileRenderer
     );
   }
+
+  create() {}
+
+  render() {}
 }
 
 export default World;

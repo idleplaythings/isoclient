@@ -1,148 +1,82 @@
-import * as THREE from "three";
+import ndarray from "ndarray";
+import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
+import TileBinaryChunk from "./TileBinaryChunk";
+import { TileFactory } from ".";
 import TileChunk from "./TileChunk";
 
 class TileLibrary {
   constructor() {
-    this.chunks = [];
-    this.chunkSize = 24;
-    this.renderArea = null;
-    this.changed = false;
-    this.forRender = [];
-    this.renderChunks = [];
-    this.chunksByLocation = {};
+    this.binaryChunkSize = 1024;
+    this.tileBinaryChunks = {}; //promises of binary chunks
+    this.tileFactory = new TileFactory();
   }
 
-  getChunkForTile(tile) {
-    const key = this.getChunkKeyForTile(tile);
-    return this.chunksByLocation[key];
-  }
-
-  getChunkKeyForTile(tile) {
-    const position = this.getChunkPosition(tile);
-    return position.x + ":" + position.y;
-  }
-
-  createChunkForTile(tile) {
-    if (this.getChunkForTile(tile)) {
-      throw new Error("This tile already has a TileChunk");
-    }
-
-    const chunk = new TileChunk(this.getChunkPosition(tile), this.chunkSize);
-    this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
-    this.chunks.push(chunk);
-
-    return chunk;
-  }
-
-  getChunkPosition(tile) {
-    let x = null;
-    let y = null;
-
-    if (tile.position.x < 0) {
-      const mod = tile.position.x % this.chunkSize;
-      if (mod !== 0) {
-        x = tile.position.x - mod - this.chunkSize;
-      } else {
-        x = tile.position.x;
-      }
-    } else {
-      x = tile.position.x - (tile.position.x % this.chunkSize);
-    }
-
-    if (tile.position.y < 0) {
-      y = tile.position.y - (tile.position.y % this.chunkSize);
-    } else {
-      const mod = tile.position.y % this.chunkSize;
-      if (mod !== 0) {
-        y = tile.position.y + (this.chunkSize - mod);
-      } else {
-        y = tile.position.y;
-      }
-    }
-    return new THREE.Vector3(x, y, 0);
-  }
-
-  add(tile) {
-    let chunk = this.getChunkForTile(tile);
-
-    if (!chunk) {
-      chunk = this.createChunkForTile(tile);
-    }
-
-    chunk.addTile(tile);
-    if (this.renderArea && this.renderArea.containsChunk(chunk)) {
-      this.changed = true;
-    }
-  }
-
-  remove(tile) {
-    const chunk = this.getChunkForTile(tile);
-
-    if (!chunk) {
-      return;
-    }
-
-    chunk.removeTile(tile);
-  }
-
-  hasChanged(renderArea) {
-    return !renderArea.equals(this.renderArea) || this.changed === true;
-  }
-
-  sortChunks(a, b) {
-    if (a.position.x < b.position.x) {
-      return -1;
-    }
-
-    if (b.position.x < a.position.x) {
-      return 1;
-    }
-
-    if (a.position.y > b.position.y) {
-      return -1;
-    }
-
-    if (b.position.y > a.position.y) {
-      return 1;
-    }
-
-    return 0;
-  }
-
-  getForRendering(renderArea) {
-    //const start = new Date().getTime();
-    if (!renderArea.equals(this.renderArea)) {
-      this.renderChunks = this.chunks.filter(chunk =>
-        renderArea.containsChunk(chunk)
-      );
-
-      this.renderChunks = this.renderChunks.sort(this.sortChunks);
-    }
-
-    //const chunksortEnd = new Date().getTime();
-
-    this.renderChunks.forEach(chunk => chunk.sort());
-
-    const forRender = this.renderChunks.map(chunk => chunk.getForRender());
-    this.forRender = [].concat(...forRender);
-
-    //const ready = new Date().getTime();
-
-    /*
-    console.log(
-      "sorting chunks took",
-      chunksortEnd - start,
-      "sorting tiles took",
-      ready - chunksortEnd
+  getTileChunksForRenderArea(chunkPositions, chunkSize, tileRenderer) {
+    chunkPositions.forEach(chunkPosition =>
+      this.buildChunk(chunkPosition, chunkSize, tileRenderer)
     );
-    */
+  }
 
-    this.changed = false;
+  async buildChunk(position, chunkSize, tileRenderer) {
+    const binaryChunkPosition = getChunkPosition(
+      position,
+      this.binaryChunkSize
+    );
 
-    this.renderArea = renderArea;
-    return this.forRender;
+    const key = getChunkKey(binaryChunkPosition);
+
+    if (!this.tileBinaryChunks[key]) {
+      this.tileBinaryChunks[key] = this.loadBinaryChunk(binaryChunkPosition);
+    }
+
+    const binaryChunk = await this.tileBinaryChunks[key];
+    this.touchBinaryChunk(binaryChunk, position);
+    const chunk = this.createChunk(position, chunkSize, binaryChunk);
+    tileRenderer.addChunk(chunk);
+  }
+
+  touchBinaryChunk(chunk, position) {
+    chunk.touch();
+
+    //if position is close to edge of the chunk, preload next binary chunk and touch edge chunks to keep them alive
+  }
+
+  createChunk(position, chunkSize, binaryChunk) {
+    binaryChunk.zoomToChunk(position, chunkSize);
+    const tiles = this.tileFactory.create(position, chunkSize, binaryChunk);
+    binaryChunk.resetZoom();
+    return new TileChunk(position, chunkSize, tiles);
+  }
+
+  loadBinaryChunk(binaryChunkPosition) {
+    return new Promise((resolve, reject) => {
+      const oReq = new XMLHttpRequest();
+      oReq.open("GET", "data/result.bin", true);
+      oReq.responseType = "arraybuffer";
+
+      oReq.onload = oEvent => {
+        console.log("hi=");
+        const arrayBuffer = oReq.response; // Note: not oReq.responseText
+        if (arrayBuffer) {
+          const data = ndarray(new Uint8Array(arrayBuffer), [1024, 1024, 4]);
+          console.log(data);
+          const tileSet = new TileBinaryChunk(data);
+          resolve(tileSet);
+        }
+      };
+
+      oReq.onerror = error => {
+        console.log("Error loading binary chunk", error);
+        reject(error);
+      };
+
+      oReq.send(null);
+    });
+  }
+
+  render() {
+    //forget those that have not been used for a while
   }
 }
 
-window.TileLibrary = TileLibrary;
 export default TileLibrary;

@@ -1,23 +1,88 @@
 import Tile from "./Tile";
+import { TileTypes } from "../../model/tile";
+import * as THREE from "three";
 
 class TileFactory {
-  getSECorner(position, surfaceBrush, surfaceTexture, groundTexture = 80) {
-    return new Tile(position, surfaceBrush, surfaceTexture, 52, groundTexture);
+  create(position, chunkSize, binaryChunk) {
+    let tiles = [];
+    for (let x = 0; x < chunkSize; x++) {
+      for (let y = 0; y < chunkSize; y++) {
+        const tilePosition = {
+          x: position.x + x,
+          y: position.y + y
+        };
+
+        const tileSetPosition = { x, y };
+
+        tiles = tiles.concat(
+          this.createTile(
+            tilePosition,
+            binaryChunk.getHeight(tileSetPosition),
+            binaryChunk.getType(tileSetPosition),
+            binaryChunk.getProp(tileSetPosition),
+            binaryChunk.getVisual(tileSetPosition)
+          )
+        );
+      }
+    }
+
+    return tiles;
   }
 
-  getRandomGround(position) {
+  createTile(position, height, type, prop, visual) {
+    switch (type) {
+      case TileTypes.type.WATER:
+        return null; //water
+      case TileTypes.type.REGULAR:
+        return this.createGround(position, height, prop, visual);
+      case TileTypes.type.SLOPE_SOUTH:
+      case TileTypes.type.SLOPE_WEST:
+      case TileTypes.type.SLOPE_EAST:
+      case TileTypes.type.SLOPE_NORTH:
+      case TileTypes.type.SLOPE_NORTHWEST:
+      case TileTypes.type.SLOPE_NORTHEAST:
+      case TileTypes.type.SLOPE_SOUTHWEST:
+      case TileTypes.type.SLOPE_SOUTHEAST:
+      case TileTypes.type.SLOPE_NORTHWEST_INVERTED:
+      case TileTypes.type.SLOPE_NORTHEAST_INVERTED:
+      case TileTypes.type.SLOPE_SOUTHWEST_INVERTED:
+      case TileTypes.type.SLOPE_SOUTHEAST_INVERTED:
+        return this.createGround(position, height, prop, visual);
+      //return this.createSlope(position, height, type, prop, visual);
+      default:
+        console.log(position, height, type, prop, visual);
+        throw new Error("Unrecognized tiletype '" + type + "'");
+    }
+  }
+
+  createGround(position, height, prop, visual) {
     return new Tile(
-      position,
-      Math.floor(Math.random() * 4) + 0,
-      this.getSurfacetexture()
+      new THREE.Vector3(position.x, position.y, height),
+      this.getSurfaceBrush(visual),
+      this.getSurfacetexture(visual)
     );
   }
 
-  getSurfacetexture() {
-    if (Math.random() > 0.9) {
-      return Math.floor(Math.random() * 4) + 64;
+  createSlope(position, height, type, prop, visual) {}
+
+  getSurfaceBrush(visual) {
+    switch (visual) {
+      case TileTypes.visual.GRASS:
+      default:
+        return Math.floor(Math.random() * 4);
     }
-    return Math.floor(Math.random() * 4) + 66;
+  }
+
+  getSurfacetexture(visual) {
+    switch (visual) {
+      case TileTypes.visual.GRASS:
+      default:
+        if (Math.random() > 0.9) {
+          return Math.floor(Math.random() * 4) + 64;
+        }
+
+        return Math.floor(Math.random() * 4) + 66;
+    }
   }
 }
 

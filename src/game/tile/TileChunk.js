@@ -1,5 +1,5 @@
-import * as THREE from "three";
 import TileStack from "./TileStack";
+import Chunk from "../../model/tile/Chunk";
 
 const initDirectory = size => {
   const directory = [];
@@ -17,33 +17,14 @@ const initDirectory = size => {
   return directory;
 };
 
-class TileChunk {
+class TileChunk extends Chunk {
   constructor(position, size, tiles = []) {
-    this.position = position;
-    this.size = size;
+    super(position, size);
     this.directory = initDirectory(size);
     this.addTiles(tiles);
     this.forRender = [];
     this.changed = false;
     this.tiles = tiles;
-  }
-
-  getPositionInChunk(position) {
-    let y = this.position.y - position.y;
-    let x = position.x - this.position.x;
-
-    return new THREE.Vector3(x, y, 0);
-  }
-
-  contains(position) {
-    const chunkPosition = this.getPositionInChunk(position);
-
-    return (
-      chunkPosition.y >= 0 &&
-      chunkPosition.y < this.size &&
-      chunkPosition.x >= 0 &&
-      chunkPosition.x < this.size
-    );
   }
 
   getStack(position) {
@@ -67,7 +48,8 @@ class TileChunk {
   }
 
   addTiles(tiles) {
-    tiles.forEach(this.addTile);
+    console.log(tiles);
+    tiles.forEach(this.addTile.bind(this));
   }
 
   addTile(tile) {
@@ -156,29 +138,6 @@ class TileChunk {
 
     this.changed = false;
     return this.forRender;
-  }
-
-  getNWCorner() {
-    return this.position.clone();
-  }
-
-  getNECorner() {
-    const position = this.position.clone();
-    position.x += this.size;
-    return position;
-  }
-
-  getSECorner() {
-    const position = this.position.clone();
-    position.x += this.size;
-    position.y -= this.size;
-    return position;
-  }
-
-  getSWCorner() {
-    const position = this.position.clone();
-    position.y -= this.size;
-    return position;
   }
 }
 

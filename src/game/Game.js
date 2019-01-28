@@ -2,18 +2,20 @@ import GameScene from "./GameScene";
 import World from "./World";
 import GameCamera from "./GameCamera";
 import { TileRenderer, TileLibrary } from "./tile";
+import WorldServerConnection from "../worldServer/WorldServerConnection";
 
 class Game {
   constructor() {
     this.camera = new GameCamera();
     this.gameScene = new GameScene(this.camera);
     this.tileLibrary = new TileLibrary();
+    this.world = new World(this.tileLibrary);
+
     this.tileRenderer = new TileRenderer(
       this.gameScene,
       this.camera,
-      this.tileLibrary
+      this.world
     );
-    this.world = new World(this.tileLibrary);
     this.gameloop();
 
     this.lastRenderTime = null;

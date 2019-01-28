@@ -1,3 +1,5 @@
+import { getChunkPosition } from "../../model/tile/Chunk";
+
 class RenderArea {
   constructor(position, size) {
     this.position = position;
@@ -32,6 +34,25 @@ class RenderArea {
       this.contains(chunk.getSECorner()) ||
       this.contains(chunk.getSWCorner())
     );
+  }
+
+  requiresChunks(chunkSize, extra = 2) {
+    const chunkPosition = getChunkPosition(this.position, chunkSize);
+    const corner = {
+      x: chunkPosition.x - extra * chunkSize,
+      y: chunkPosition.x - extra * chunkSize
+    };
+
+    const width = Math.ceil(this.size / chunkSize) + extra * 2;
+    let positions = [];
+
+    for (let y = corner.y; y < corner.y + width * chunkSize; y += chunkSize) {
+      for (let x = corner.x; x < corner.x + width * chunkSize; x += chunkSize) {
+        positions.push({ x, y });
+      }
+    }
+
+    return positions;
   }
 }
 
