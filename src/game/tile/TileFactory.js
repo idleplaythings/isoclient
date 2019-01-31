@@ -9,8 +9,9 @@ class TileFactory {
       for (let y = 0; y < chunkSize; y++) {
         const tilePosition = {
           x: position.x + x,
-          y: position.y + y
+          y: position.y - y
         };
+        //console.log(position, tilePosition, tileSetPosition);
 
         const tileSetPosition = { x, y };
 

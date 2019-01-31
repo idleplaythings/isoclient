@@ -16,7 +16,7 @@ class GameScene {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0, 0, 0);
 
-    const d = 150;
+    const d = 50;
     this.camera = new THREE.OrthographicCamera(
       (this.zoom * window.innerWidth) / -d,
       (this.zoom * window.innerWidth) / d,

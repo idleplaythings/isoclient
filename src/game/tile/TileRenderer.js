@@ -15,6 +15,7 @@ class TileRenderer {
     this.chunkSize = 32;
     this.renderArea = null;
     this.changed = false;
+    this.chunksChanged = false;
     this.forRender = [];
     this.renderChunks = [];
     this.chunksByLocation = {};
@@ -51,7 +52,6 @@ class TileRenderer {
   render() {
     const renderArea = this.gameCamera.getRenderArea();
     if (this.hasChanged(renderArea)) {
-      console.log("changed");
       this.getChunkPositionsForNewRenderArea(renderArea);
       this.assignTiles(this.getForRendering(renderArea));
       this.renderArea = renderArea;
@@ -62,12 +62,10 @@ class TileRenderer {
 
   getChunkPositionsForNewRenderArea(renderArea) {
     const positions = renderArea.requiresChunks(this.chunkSize);
-    console.log("all positions", positions);
     const need = positions.filter(
       position => !Boolean(this.chunksByLocation[position.x + ":" + position.y])
     );
 
-    console.log("need these", need);
     this.world.getTileChunksForRenderArea(need, this.chunkSize, this);
   }
 
@@ -96,7 +94,7 @@ class TileRenderer {
     return chunk;
   }
 
-  addChunks(chunks) {
+  addChunk(chunks) {
     if (!chunks || chunks.length === 0) {
       return;
     }
@@ -109,6 +107,7 @@ class TileRenderer {
     });
 
     this.changed = true;
+    this.chunksChanged = true;
   }
 
   add(tile) {
@@ -159,8 +158,8 @@ class TileRenderer {
   }
 
   getForRendering(renderArea) {
-    //const start = new Date().getTime();
-    if (!renderArea.equals(this.renderArea)) {
+    //const start = performance.now();
+    if (!renderArea.equals(this.renderArea) || this.chunksChanged) {
       this.renderChunks = this.chunks.filter(chunk =>
         renderArea.containsChunk(chunk)
       );
@@ -168,25 +167,27 @@ class TileRenderer {
       this.renderChunks = this.renderChunks.sort(this.sortChunks);
     }
 
-    //const chunksortEnd = new Date().getTime();
+    //const chunksortEnd = performance.now();
 
     this.renderChunks.forEach(chunk => chunk.sort());
 
     const forRender = this.renderChunks.map(chunk => chunk.getForRender());
     this.forRender = [].concat(...forRender);
 
-    //const ready = new Date().getTime();
-
     /*
+    const ready = performance.now();
+
     console.log(
       "sorting chunks took",
       chunksortEnd - start,
       "sorting tiles took",
       ready - chunksortEnd
     );
+
     */
 
     this.changed = false;
+    this.chunksChanged = false;
     return this.forRender;
   }
 }

@@ -20,11 +20,11 @@ const initDirectory = size => {
 class TileChunk extends Chunk {
   constructor(position, size, tiles = []) {
     super(position, size);
+    this.tiles = [];
     this.directory = initDirectory(size);
     this.addTiles(tiles);
     this.forRender = [];
-    this.changed = false;
-    this.tiles = tiles;
+    this.changed = true;
   }
 
   getStack(position) {
@@ -35,7 +35,12 @@ class TileChunk extends Chunk {
           position.x +
           "," +
           position.y +
-          " is not in this directory"
+          " is not in this directory. Chunk position " +
+          this.position.x +
+          "," +
+          this.position.y +
+          " chunk size: " +
+          this.size
       );
     }
 
@@ -48,7 +53,6 @@ class TileChunk extends Chunk {
   }
 
   addTiles(tiles) {
-    console.log(tiles);
     tiles.forEach(this.addTile.bind(this));
   }
 

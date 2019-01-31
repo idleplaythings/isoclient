@@ -42,10 +42,14 @@ class TileLibrary {
   }
 
   createChunk(position, chunkSize, binaryChunk) {
+    const start = performance.now();
     binaryChunk.zoomToChunk(position, chunkSize);
     const tiles = this.tileFactory.create(position, chunkSize, binaryChunk);
     binaryChunk.resetZoom();
-    return new TileChunk(position, chunkSize, tiles);
+    const tileChunk = new TileChunk(position, chunkSize, tiles);
+
+    console.log("constructing tilechunk took", performance.now() - start);
+    return tileChunk;
   }
 
   loadBinaryChunk(binaryChunkPosition) {
@@ -55,11 +59,9 @@ class TileLibrary {
       oReq.responseType = "arraybuffer";
 
       oReq.onload = oEvent => {
-        console.log("hi=");
         const arrayBuffer = oReq.response; // Note: not oReq.responseText
         if (arrayBuffer) {
           const data = ndarray(new Uint8Array(arrayBuffer), [1024, 1024, 4]);
-          console.log(data);
           const tileSet = new TileBinaryChunk(data);
           resolve(tileSet);
         }

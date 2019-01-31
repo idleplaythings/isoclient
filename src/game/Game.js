@@ -16,6 +16,9 @@ class Game {
       this.camera,
       this.world
     );
+
+    window.tileRenderer = this.tileRenderer;
+
     this.gameloop();
 
     this.lastRenderTime = null;
