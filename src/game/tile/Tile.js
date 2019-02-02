@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 class Tile {
   constructor(
     position,
@@ -21,9 +23,39 @@ class Tile {
     const { flipped, scale } = this.parseType(this.type);
     this.scale = scale;
     this.flipped = flipped;
+  }
 
-    this.index = null;
-    this.container = null;
+  serialize() {
+    return [
+      this.position.x,
+      this.position.y,
+      this.position.z,
+      this.surfaceBrush,
+      this.groundBrush,
+      this.surfaceTexture,
+      this.groundTexture,
+      this.shadowBrush,
+      this.highlightBrush,
+      this.type
+    ];
+  }
+
+  deserialize(data) {
+    this.position = { x: data[0], y: data[1], z: data[2] };
+
+    this.surfaceBrush = data[3];
+    this.groundBrush = data[4];
+    this.surfaceTexture = data[5];
+    this.groundTexture = data[6];
+    this.shadowBrush = data[7];
+    this.highlightBrush = data[8];
+    this.type = data[9];
+
+    const { flipped, scale } = this.parseType(this.type);
+    this.scale = scale;
+    this.flipped = flipped;
+
+    return this;
   }
 
   setDoubleScale(scale) {
@@ -56,23 +88,6 @@ class Tile {
 
     return { flipped, scale };
   }
-
-  allocate(index, container) {
-    this.index = index;
-    this.container = container;
-  }
-
-  remove() {
-    this.container.remove(this);
-    this.index = null;
-    this.container = null;
-  }
-
-  update() {
-    if (this.container) this.container.update(this);
-  }
 }
-
-window.Tile = Tile;
 
 export default Tile;

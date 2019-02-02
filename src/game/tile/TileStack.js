@@ -1,3 +1,8 @@
+import Tile from "./Tile";
+
+const aTile = new Tile();
+const bTile = new Tile();
+
 class TileStack {
   constructor() {
     this.tiles = [];
@@ -19,11 +24,14 @@ class TileStack {
     }
 
     this.tiles = this.tiles.sort((a, b) => {
-      if (a.position.z > b.position.z) {
+      aTile.deserialize(a);
+      bTile.deserialize(b);
+
+      if (aTile.position.z > bTile.position.z) {
         return 1;
       }
 
-      if (b.position.z > a.position.z) {
+      if (bTile.position.z > aTile.position.z) {
         return -1;
       }
 

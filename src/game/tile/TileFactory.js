@@ -1,5 +1,5 @@
 import Tile from "./Tile";
-import { TileTypes } from "../../model/tile";
+import * as TileTypes from "../../model/tile/TileTypes";
 import * as THREE from "three";
 
 class TileFactory {
@@ -57,14 +57,27 @@ class TileFactory {
   }
 
   createGround(position, height, prop, visual) {
-    return new Tile(
-      new THREE.Vector3(position.x, position.y, height),
-      this.getSurfaceBrush(visual),
-      this.getSurfacetexture(visual)
-    );
+    return [
+      new Tile(
+        new THREE.Vector3(position.x, position.y, height),
+        this.getSurfaceBrush(visual),
+        this.getSurfacetexture(visual)
+      ).serialize(),
+      new Tile(
+        new THREE.Vector3(position.x, position.y, height + 1),
+        -1,
+        this.getSurfaceClutter(),
+        -1,
+        -1
+      ).serialize()
+    ];
   }
 
   createSlope(position, height, type, prop, visual) {}
+
+  getSurfaceClutter(visual) {
+    return Math.floor(Math.random() * 7) + 245;
+  }
 
   getSurfaceBrush(visual) {
     switch (visual) {

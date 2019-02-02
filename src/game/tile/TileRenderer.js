@@ -1,5 +1,5 @@
 import TileChunk from "./TileChunk";
-import { getChunkPosition } from "../../model/tile/Chunk";
+import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
 
 class TileRenderer {
@@ -19,6 +19,9 @@ class TileRenderer {
     this.forRender = [];
     this.renderChunks = [];
     this.chunksByLocation = {};
+    this.pendingChunksByLocation = {};
+
+    window.testTileRenderer = this;
   }
 
   async assignTiles(tiles) {
@@ -50,7 +53,7 @@ class TileRenderer {
   }
 
   render() {
-    const renderArea = this.gameCamera.getRenderArea();
+    const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
     if (this.hasChanged(renderArea)) {
       this.getChunkPositionsForNewRenderArea(renderArea);
       this.assignTiles(this.getForRendering(renderArea));
@@ -61,12 +64,32 @@ class TileRenderer {
   }
 
   getChunkPositionsForNewRenderArea(renderArea) {
-    const positions = renderArea.requiresChunks(this.chunkSize);
+    const positions = renderArea.requiresChunks();
+
     const need = positions.filter(
-      position => !Boolean(this.chunksByLocation[position.x + ":" + position.y])
+      position =>
+        !Boolean(this.chunksByLocation[getChunkKey(position)]) &&
+        !Boolean(this.pendingChunksByLocation[getChunkKey(position)])
     );
 
-    this.world.getTileChunksForRenderArea(need, this.chunkSize, this);
+    need.forEach(async needPosition => {
+      const needKey = getChunkKey(needPosition);
+
+      if (needPosition.x === 32 && needPosition.y === -32) {
+        //console.log("requesting 32, -32");
+      }
+
+      this.pendingChunksByLocation[needKey] = true;
+
+      const chunk = await this.world.getTileChunkForRenderArea(
+        needPosition,
+        this.chunkSize
+      );
+
+      delete this.pendingChunksByLocation[needKey];
+
+      this.addChunk(chunk);
+    });
   }
 
   getChunkForTile(tile) {

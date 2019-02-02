@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { RenderArea } from "./tile";
+import { getChunkPosition } from "../model/tile/Chunk";
 
 class GameCamera {
   constructor() {
@@ -98,22 +99,15 @@ class GameCamera {
       .add(new THREE.Vector3(-25, 25, -50));
   }
 
-  getRenderRadius() {
-    return 30;
-  }
+  getRenderArea(chunkSize, renderSize = 2) {
+    const chunkPosition = getChunkPosition(this.getLookAtPosition(), chunkSize);
 
-  getRenderArea() {
-    const radius = this.getRenderRadius();
-    const position = this.getLookAtPosition();
+    const corner = {
+      x: chunkPosition.x - (renderSize / 2) * chunkSize,
+      y: chunkPosition.y + (renderSize / 2) * chunkSize
+    };
 
-    return new RenderArea(
-      new THREE.Vector3(
-        this.floorToTens(position.x) - radius,
-        this.floorToTens(position.y) - radius,
-        0
-      ),
-      radius * 2
-    );
+    return new RenderArea(corner, renderSize, chunkSize);
   }
 
   floorToTens(number) {

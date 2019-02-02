@@ -1,5 +1,8 @@
 import TileStack from "./TileStack";
 import Chunk from "../../model/tile/Chunk";
+import Tile from "./Tile";
+
+const flyTile = new Tile();
 
 const initDirectory = size => {
   const directory = [];
@@ -57,7 +60,8 @@ class TileChunk extends Chunk {
   }
 
   addTile(tile) {
-    const tileStack = this.getStack(tile.position);
+    flyTile.deserialize(tile);
+    const tileStack = this.getStack(flyTile.position);
     tileStack.add(tile);
     this.changed = true;
     this.tiles.push(tile);
@@ -68,7 +72,8 @@ class TileChunk extends Chunk {
   }
 
   removeTile(tile) {
-    const tileStack = this.getStack(tile.position);
+    flyTile.deserialize(tile);
+    const tileStack = this.getStack(flyTile.position);
     tileStack.remove(tile);
     this.changed = true;
   }
@@ -77,6 +82,7 @@ class TileChunk extends Chunk {
     this.directory.forEach(row => row.forEach(stack => stack.sort()));
   }
 
+  /*
   getForRenderBypassStacks() {
     if (!this.changed) {
       return this.forRender;
@@ -112,6 +118,7 @@ class TileChunk extends Chunk {
 
     return this.forRender;
   }
+  */
 
   getForRender() {
     if (!this.changed) {

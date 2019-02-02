@@ -14,12 +14,11 @@ class World {
     this.create();
   }
 
-  getTileChunksForRenderArea(chunkPositions, chunkSize, tileRenderer) {
+  getTileChunkForRenderArea(chunkPosition, chunkSize) {
     //get props, items, characters too
-    this.tileLibrary.getTileChunksForRenderArea(
-      chunkPositions,
-      chunkSize,
-      tileRenderer
+    return this.tileLibrary.getTileChunksForRenderArea(
+      chunkPosition,
+      chunkSize
     );
   }
 

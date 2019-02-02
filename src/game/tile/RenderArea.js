@@ -1,9 +1,10 @@
 import { getChunkPosition } from "../../model/tile/Chunk";
 
 class RenderArea {
-  constructor(position, size) {
+  constructor(position, size, chunkSize) {
     this.position = position;
     this.size = size;
+    this.chunkSize = chunkSize;
   }
 
   equals(renderArea) {
@@ -21,36 +22,36 @@ class RenderArea {
   contains(position) {
     return (
       position.x >= this.position.x &&
-      position.y >= this.position.y &&
-      position.x < this.position.x + this.size &&
-      position.y < this.position.y + this.size
+      position.y <= this.position.y &&
+      position.x <= this.position.x + this.size * this.chunkSize &&
+      position.y >= this.position.y - this.size * this.chunkSize
     );
   }
 
   containsChunk(chunk) {
-    return (
-      this.contains(chunk.getNWCorner()) ||
-      this.contains(chunk.getNECorner()) ||
-      this.contains(chunk.getSECorner()) ||
-      this.contains(chunk.getSWCorner())
-    );
+    return this.contains(chunk.position);
   }
 
-  requiresChunks(chunkSize, extra = 2) {
-    const chunkPosition = getChunkPosition(this.position, chunkSize);
+  requiresChunks(extra = 0) {
     const corner = {
-      x: chunkPosition.x - extra * chunkSize,
-      y: chunkPosition.x - extra * chunkSize
+      x: this.position.x - extra * this.chunkSize,
+      y: this.position.y + extra * this.chunkSize
     };
 
-    const width = Math.ceil(this.size / chunkSize) + extra * 2;
+    const width = this.size + extra * 2;
     let positions = [];
 
-    for (let y = corner.y; y < corner.y + width * chunkSize; y += chunkSize) {
-      for (let x = corner.x; x < corner.x + width * chunkSize; x += chunkSize) {
-        positions.push({ x, y });
+    for (let y = 0; y <= width; y++) {
+      for (let x = 0; x <= width; x++) {
+        positions.push({
+          x: corner.x + x * this.chunkSize,
+          y: corner.y - y * this.chunkSize
+        });
       }
     }
+
+    //console.log(this.position, corner);
+    //console.log(positions);
 
     return positions;
   }

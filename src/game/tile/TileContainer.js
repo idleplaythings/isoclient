@@ -1,3 +1,7 @@
+import Tile from "./Tile";
+
+const tile = new Tile();
+
 class TileContainer {
   constructor(
     offsetAttribute,
@@ -45,6 +49,7 @@ class TileContainer {
     for (let i = 0; i < this.amount; i++) {
       this.opacityAttribute.setX(i, 0);
     }
+    this.opacityAttribute.needsUpdate = true;
 
     this.used = 0;
   }
@@ -59,12 +64,11 @@ class TileContainer {
     }
 
     this.used++;
-    tile.allocate(index, this);
-    this.update(tile);
+    this.update(tile, index);
   }
 
-  update(tile) {
-    const index = tile.index;
+  update(data, index) {
+    tile.deserialize(data);
 
     this.opacityAttribute.setX(index, 1.0);
     this.opacityAttribute.needsUpdate = true;
