@@ -131,6 +131,7 @@ THREE.LinearMipMapLinearFilter
     geometry.addAttribute("type", typeAttribute);
 
     const mesh = new THREE.Mesh(geometry, this.material);
+    mesh.renderOrder = -1;
     mesh.frustumCulled = false;
 
     this.scene.add(mesh);

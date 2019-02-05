@@ -79,7 +79,7 @@ class TileRenderer {
         render
       );
     }
-/*
+    /*
     if (Math.random() > 0.9) {
         const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
 
@@ -165,7 +165,7 @@ class TileRenderer {
     }
 
     const chunk = new TileChunk(
-      getChunkPosition({x: tile[0], y:tile[1], z:tile[2]}, this.chunkSize),
+      getChunkPosition({ x: tile[0], y: tile[1], z: tile[2] }, this.chunkSize),
       this.chunkSize
     );
     this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
@@ -191,7 +191,7 @@ class TileRenderer {
   }
 
   add(tile) {
-    let chunk = this.getChunkForTile({x: tile[0], y:tile[1], z:tile[2]});
+    let chunk = this.getChunkForTile({ x: tile[0], y: tile[1], z: tile[2] });
 
     if (!chunk) {
       chunk = this.createChunkForTile(tile);

@@ -39,16 +39,19 @@ class GameScene {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.autoClear = false;
-    this.renderer.sortObjects = false;
+    //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
 
     var geometry = new THREE.BoxGeometry(1, 1, 1);
     var material = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0.25,
       color: 0x00ff00,
-      wireframe: true
+      wireframe: false
     });
     this.cube = new THREE.Mesh(geometry, material);
     this.cube.position.set(0, 0, 1.5);
+    this.cube.renderOrder = 1;
     this.scene.add(this.cube);
 
     this.stats = new window.Stats();
