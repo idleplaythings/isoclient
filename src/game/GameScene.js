@@ -44,14 +44,14 @@ class GameScene {
 
     var geometry = new THREE.BoxGeometry(1, 1, 1);
     var material = new THREE.MeshBasicMaterial({
-      transparent: true,
-      opacity: 0.25,
+      //transparent: true,
+      //opacity: 0.25,
       color: 0x00ff00,
-      wireframe: false
+      wireframe: true
     });
     this.cube = new THREE.Mesh(geometry, material);
     this.cube.position.set(0, 0, 1.5);
-    this.cube.renderOrder = 1;
+    this.cube.renderOrder = 3;
     this.scene.add(this.cube);
 
     this.stats = new window.Stats();

@@ -36,7 +36,7 @@ THREE.LinearMipMapLinearFilter
       side: THREE.DoubleSide,
       //wireframe: true,
       alphaTest: 0.5,
-      depthWrite: false,
+      //depthWrite: false,
       //depthTest: false,
       transparent: true,
       vertexShader: CubeTileVertexShader,
@@ -131,7 +131,6 @@ THREE.LinearMipMapLinearFilter
     geometry.addAttribute("type", typeAttribute);
 
     const mesh = new THREE.Mesh(geometry, this.material);
-    mesh.renderOrder = -1;
     mesh.frustumCulled = false;
 
     this.scene.add(mesh);

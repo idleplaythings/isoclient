@@ -27,6 +27,12 @@ class TileContainer {
     */
   }
 
+  setRenderOrder(order) {
+    console.log(this.mesh.renderOrder);
+    console.log("setting renderOrder ", order);
+    this.mesh.renderOrder = order;
+  }
+
   hasFree() {
     return this.used < this.amount;
   }
@@ -89,7 +95,6 @@ class TileContainer {
       data[6]
     );
 
-
     this.textureNumber2Attribute.setXYZW(
       index,
       data[7],
@@ -97,7 +102,6 @@ class TileContainer {
       data[9],
       data[10]
     );
-
 
     this.typeAttribute.setXYZ(index, data[11], data[12], data[13]);
   }

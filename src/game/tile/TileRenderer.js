@@ -1,6 +1,7 @@
 import TileChunk from "./TileChunk";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
+import Tile from "./Tile";
 
 class TileRenderer {
   constructor(scene, gameCamera, world) {
@@ -22,6 +23,21 @@ class TileRenderer {
     this.pendingChunksByLocation = {};
 
     window.testTileRenderer = this;
+    /*
+    this.add(
+      new Tile()
+        .setPosition(1, 0, 0.5)
+        .setSurfaceTexture(232)
+        .serialize()
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(-1, 0, 0.5)
+        .setSurfaceTexture(232)
+        .serialize()
+    );
+    */
   }
 
   async assignTiles(tiles) {
@@ -35,7 +51,8 @@ class TileRenderer {
     }
 
     let tileIndex = 0;
-    this.containers.forEach(container => {
+
+    this.containers.forEach((container, containerIndex) => {
       container.unassignEverything();
 
       for (let i = 0; i < container.amount && tileIndex < tiles.length; i++) {
@@ -45,6 +62,7 @@ class TileRenderer {
         tileIndex++;
       }
 
+      //container.setRenderOrder(this.containers.length - containerIndex);
       container.markUpdated();
     });
 
@@ -58,6 +76,7 @@ class TileRenderer {
     }
 
     performance.mark("renderStart");
+
     const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
 
     if (this.hasChanged(renderArea)) {
@@ -151,6 +170,7 @@ class TileRenderer {
 
   getChunkForTile(position) {
     const key = this.getChunkKeyForTile(position);
+    console.log("chunk key", position, key);
     return this.chunksByLocation[key];
   }
 
@@ -165,9 +185,10 @@ class TileRenderer {
     }
 
     const chunk = new TileChunk(
-      getChunkPosition({ x: tile[0], y: tile[1], z: tile[2] }, this.chunkSize),
+      getChunkPosition(tile, this.chunkSize),
       this.chunkSize
     );
+
     this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
     this.chunks.push(chunk);
 
@@ -191,7 +212,7 @@ class TileRenderer {
   }
 
   add(tile) {
-    let chunk = this.getChunkForTile({ x: tile[0], y: tile[1], z: tile[2] });
+    let chunk = this.getChunkForTile(tile);
 
     if (!chunk) {
       chunk = this.createChunkForTile(tile);
