@@ -42,7 +42,7 @@ class TileContainer {
 
   unassignEverything() {
     this.used = 0;
-/*
+    /*
 
     for (let i = 0; i < this.amount; i++) {
       this.opacityAttribute.setX(i, 0);
@@ -55,16 +55,15 @@ class TileContainer {
     this.opacityAttribute.setArray(lists[0]);
     this.offsetAttribute.setArray(lists[1]);
     this.textureNumber1Attribute.setArray(lists[2]);
-    this.textureNumber2Attribute.setArray(lists[3]);
-    this.typeAttribute.setArray(lists[4]);
+    //this.textureNumber2Attribute.setArray(lists[3]);
+    //this.typeAttribute.setArray(lists[4]);
 
     this.opacityAttribute.needsUpdate = true;
     this.offsetAttribute.needsUpdate = true;
     this.textureNumber1Attribute.needsUpdate = true;
-    this.textureNumber2Attribute.needsUpdate = true;
-    this.typeAttribute.needsUpdate = true;
+    //this.textureNumber2Attribute.needsUpdate = true;
+    //this.typeAttribute.needsUpdate = true;
   }
-
 
   add(tile, index) {
     if (this.used >= this.amount) {
@@ -102,7 +101,6 @@ class TileContainer {
       data[6]
     );
 
-
     this.textureNumber2Attribute.setXYZW(
       index,
       data[7],
@@ -110,7 +108,6 @@ class TileContainer {
       data[9],
       data[10]
     );
-
 
     this.typeAttribute.setXYZ(index, data[11], data[12], data[13]);
   }

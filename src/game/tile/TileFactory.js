@@ -62,7 +62,6 @@ class TileFactory {
 
   createGround(position, height, prop, visual) {
     return [
-        /*
       flyTile
         .reset()
         .setPosition(position.x, position.y, height - 3)
@@ -70,7 +69,7 @@ class TileFactory {
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
         .serialize(),
-        
+
       flyTile
         .reset()
         .setPosition(position.x, position.y, height - 2)
@@ -78,7 +77,7 @@ class TileFactory {
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
         .serialize(),
-        
+
       flyTile
         .reset()
         .setPosition(position.x, position.y, height - 1)
@@ -86,8 +85,7 @@ class TileFactory {
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
         .serialize(),
-        */
-        
+
       flyTile
         .reset()
         .setPosition(position.x, position.y, height)
