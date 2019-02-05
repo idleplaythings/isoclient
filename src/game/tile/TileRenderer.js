@@ -1,13 +1,16 @@
 import TileChunk from "./TileChunk";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
+import TileAssignmentWorker from "./TileAssignment.worker";
+import WorkerPool from "../../util/WorkerPool";
 
 class TileRenderer {
   constructor(scene, gameCamera, world) {
     //This will need a some link to the hotspot: what this area of game is actually following
     //Good practice to code this so that the game allows multiple cameras to be active at the same time: follow adventurers and home same time
     this.world = world;
-    this.instanceFactory = new InstanceFactory(scene);
+    this.instanceCount = 5000;
+    this.instanceFactory = new InstanceFactory(scene, this.instanceCount);
     this.capacity = 0;
     this.containers = [];
     this.gameCamera = gameCamera;
@@ -21,12 +24,19 @@ class TileRenderer {
     this.chunksByLocation = {};
     this.pendingChunksByLocation = {};
 
+    this.tileWorkerPool = new WorkerPool([new TileAssignmentWorker()]);
+
+    //this.tileWorkerPool.debug = true;
+
     window.testTileRenderer = this;
   }
 
   async assignTiles(tiles) {
-    performance.mark("assignStart");
     console.log("assign");
+
+    if (!tiles || tiles.length === 0) {
+      return;
+    }
 
     while (this.capacity < tiles.length) {
       const newContainer = this.instanceFactory.create();
@@ -34,20 +44,26 @@ class TileRenderer {
       this.capacity += newContainer.amount;
     }
 
-    let tileIndex = 0;
-    this.containers.forEach(container => {
+    const { lists } = await this.tileWorkerPool.work({
+      tiles,
+      size: this.instanceCount,
+      containerCount: this.containers.length
+    });
+
+    performance.mark("assignStart");
+    //const start = performance.now();
+
+    this.containers.forEach((container, i) => {
       container.unassignEverything();
 
-      for (let i = 0; i < container.amount && tileIndex < tiles.length; i++) {
-        const tile = tiles[tileIndex];
-
-        container.add(tile, i);
-        tileIndex++;
+      if (lists[i]) {
+        container.setArrays(lists[i]);
       }
 
       container.markUpdated();
     });
 
+    //console.log("assign time", performance.now() - start);
     performance.mark("assignEnd");
     performance.measure("assign", "assignStart", "assignEnd");
   }
@@ -79,7 +95,7 @@ class TileRenderer {
         render
       );
     }
-/*
+    /*
     if (Math.random() > 0.9) {
         const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
 
@@ -165,7 +181,7 @@ class TileRenderer {
     }
 
     const chunk = new TileChunk(
-      getChunkPosition({x: tile[0], y:tile[1], z:tile[2]}, this.chunkSize),
+      getChunkPosition({ x: tile[0], y: tile[1], z: tile[2] }, this.chunkSize),
       this.chunkSize
     );
     this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
@@ -191,7 +207,7 @@ class TileRenderer {
   }
 
   add(tile) {
-    let chunk = this.getChunkForTile({x: tile[0], y:tile[1], z:tile[2]});
+    let chunk = this.getChunkForTile({ x: tile[0], y: tile[1], z: tile[2] });
 
     if (!chunk) {
       chunk = this.createChunkForTile(tile);

@@ -42,16 +42,29 @@ class TileContainer {
 
   unassignEverything() {
     this.used = 0;
-
-    return;
+/*
 
     for (let i = 0; i < this.amount; i++) {
       this.opacityAttribute.setX(i, 0);
     }
     this.opacityAttribute.needsUpdate = true;
-
-    this.used = 0;
+*/
   }
+
+  setArrays(lists) {
+    this.opacityAttribute.setArray(lists[0]);
+    this.offsetAttribute.setArray(lists[1]);
+    this.textureNumber1Attribute.setArray(lists[2]);
+    this.textureNumber2Attribute.setArray(lists[3]);
+    this.typeAttribute.setArray(lists[4]);
+
+    this.opacityAttribute.needsUpdate = true;
+    this.offsetAttribute.needsUpdate = true;
+    this.textureNumber1Attribute.needsUpdate = true;
+    this.textureNumber2Attribute.needsUpdate = true;
+    this.typeAttribute.needsUpdate = true;
+  }
+
 
   add(tile, index) {
     if (this.used >= this.amount) {

@@ -87,6 +87,7 @@ class TileFactory {
         .setBrushedType()
         .serialize(),
         */
+        
       flyTile
         .reset()
         .setPosition(position.x, position.y, height)

@@ -46,9 +46,13 @@ const CubeTileVertexShader = `
         vTextureNumber1 = textureNumber1;
         vTextureNumber2 = textureNumber2;
 
-        vec3 vPosition = applyQuaternionToVector(position );
-
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + vPosition * getScale(), 1.0 );
+        if (opacity == 0.0){
+            gl_Position = vec4(0.0);
+        } else {
+            vec3 vPosition = applyQuaternionToVector(position );
+    
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + vPosition * getScale(), 1.0 );
+        }
     }
 
 `;

@@ -6,11 +6,23 @@ class WorkerPool {
       .concat(workers)
       .map((worker, i) => new WorkerContext(worker, i));
     this.workerPromises = [];
+    this.debug = false;
   }
 
   async work(input) {
+    if (this.debug) {
+        console.log("workerpool work", this.workerPromises);
+    }
     const worker = await this.getWorker();
+    if (this.debug) {
+        console.log("workerpool got worker, now working");
+    }
     const data = await worker.work(input);
+
+    if (this.debug) {
+        console.log("workerpool work done");
+    }
+
     worker.free();
 
     if (this.workerPromises.length > 0) {

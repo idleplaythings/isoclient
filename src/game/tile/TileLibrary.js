@@ -14,8 +14,6 @@ class TileLibrary {
     this.tileFactoryPool = new WorkerPool([
       new TileFactoryWorker(),
       new TileFactoryWorker(),
-      new TileFactoryWorker(),
-      new TileFactoryWorker()
     ]);
   }
 
