@@ -11,8 +11,10 @@ class InstanceFactory {
   constructor(scene, size) {
     this.scene = scene;
     this.loader = new GLTFLoader();
-    this.ready = this.init();
-    this.size = size || 2000;
+    this.ready = false;
+
+    this.init();
+    this.size = size || 5000;
 
     const texture = new THREE.TextureLoader().load("img/spritesheet.png");
     //texture.minFilter = THREE.LinearMipMapNearestFilter;
@@ -47,7 +49,7 @@ THREE.LinearMipMapLinearFilter
       loadedCube = await this.loadCube();
     }
 
-    return true;
+    this.ready = true;
   }
 
   create() {
@@ -74,8 +76,8 @@ THREE.LinearMipMapLinearFilter
 
     let offsetAttribute,
       opacityAttribute,
-      textureNumberAttribute,
-      brushNumberAttribute,
+      textureNumber1Attribute,
+      textureNumber2Attribute,
       typeAttribute;
 
     const geometry = new THREE.InstancedBufferGeometry();
@@ -92,9 +94,9 @@ THREE.LinearMipMapLinearFilter
     for (let i = 0; i < amount; i++) {
       offsets.push(0, 0, 0.5);
       opacitys.push(0);
-      textureNumbers.push(0, 0, 0, 0);
-      brushNumbers.push(0, 0, 0, 0);
-      types.push(0);
+      textureNumbers.push(-1, -1, -1, -1);
+      brushNumbers.push(-1, -1, -1, -1);
+      types.push(0, 1, 0);
     }
 
     offsetAttribute = new THREE.InstancedBufferAttribute(
@@ -107,25 +109,25 @@ THREE.LinearMipMapLinearFilter
       1
     ).setDynamic(true);
 
-    textureNumberAttribute = new THREE.InstancedBufferAttribute(
+    textureNumber1Attribute = new THREE.InstancedBufferAttribute(
       new Float32Array(textureNumbers),
       4
     ).setDynamic(true);
 
-    brushNumberAttribute = new THREE.InstancedBufferAttribute(
-      new Float32Array(textureNumbers),
+    textureNumber2Attribute = new THREE.InstancedBufferAttribute(
+      new Float32Array(brushNumbers),
       4
     ).setDynamic(true);
 
     typeAttribute = new THREE.InstancedBufferAttribute(
       new Float32Array(types),
-      1
+      3
     ).setDynamic(true);
 
     geometry.addAttribute("offset", offsetAttribute);
     geometry.addAttribute("opacity", opacityAttribute);
-    geometry.addAttribute("textureNumber", textureNumberAttribute);
-    geometry.addAttribute("brushNumber", brushNumberAttribute);
+    geometry.addAttribute("textureNumber1", textureNumber1Attribute);
+    geometry.addAttribute("textureNumber2", textureNumber2Attribute);
     geometry.addAttribute("type", typeAttribute);
 
     const mesh = new THREE.Mesh(geometry, this.material);
@@ -138,8 +140,8 @@ THREE.LinearMipMapLinearFilter
     return new TileContainer(
       offsetAttribute,
       opacityAttribute,
-      textureNumberAttribute,
-      brushNumberAttribute,
+      textureNumber1Attribute,
+      textureNumber2Attribute,
       typeAttribute,
       amount,
       mesh,

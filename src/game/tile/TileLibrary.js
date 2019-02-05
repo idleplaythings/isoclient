@@ -1,7 +1,7 @@
 import ndarray from "ndarray";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import TileBinaryChunk from "./TileBinaryChunk";
-import { TileFactory, Tile } from ".";
+import { TileFactory } from ".";
 import TileChunk from "./TileChunk";
 import TileFactoryWorker from "./TileFactory.worker";
 import WorkerPool from "../../util/WorkerPool";
@@ -43,7 +43,7 @@ class TileLibrary {
   }
 
   async createChunk(position, chunkSize, binaryChunk) {
-    const { tiles, position: cPosition } = await this.tileFactoryPool.work({
+    const { tiles } = await this.tileFactoryPool.work({
       position,
       chunkSize,
       data: binaryChunk.getData()

@@ -1,28 +1,19 @@
 import * as THREE from "three";
 
 class Tile {
-  constructor(
-    position,
-    surfaceBrush,
-    surfaceTexture,
-    groundBrush = -1,
-    groundTexture = -1,
-    shadowBrush = -1,
-    highlightBrush = -1,
-    type = 0
-  ) {
-    this.position = position;
-    this.surfaceBrush = surfaceBrush;
-    this.groundBrush = groundBrush;
-    this.surfaceTexture = surfaceTexture;
-    this.groundTexture = groundTexture;
-    this.shadowBrush = shadowBrush;
-    this.highlightBrush = highlightBrush;
-    this.type = type;
+  constructor() {
+    this.reset();
+  }
 
-    const { flipped, scale } = this.parseType(this.type);
-    this.scale = scale;
-    this.flipped = flipped;
+  reset() {
+    this.position = null;
+    this.textures1 = [-1, -1, -1, -1];
+    this.textures2 = [-1, -1, -1, -1];
+    this.type = 0;
+    this.scale = 1;
+    this.flipped = 0;
+
+    return this;
   }
 
   serialize() {
@@ -30,63 +21,151 @@ class Tile {
       this.position.x,
       this.position.y,
       this.position.z,
-      this.surfaceBrush,
-      this.groundBrush,
-      this.surfaceTexture,
-      this.groundTexture,
-      this.shadowBrush,
-      this.highlightBrush,
-      this.type
+      this.textures1[0],
+      this.textures1[1],
+      this.textures1[2],
+      this.textures1[3],
+      this.textures2[0],
+      this.textures2[1],
+      this.textures2[2],
+      this.textures2[3],
+      this.type,
+      this.scale,
+      this.flipped
     ];
   }
 
   deserialize(data) {
     this.position = { x: data[0], y: data[1], z: data[2] };
-
-    this.surfaceBrush = data[3];
-    this.groundBrush = data[4];
-    this.surfaceTexture = data[5];
-    this.groundTexture = data[6];
-    this.shadowBrush = data[7];
-    this.highlightBrush = data[8];
-    this.type = data[9];
-
-    const { flipped, scale } = this.parseType(this.type);
-    this.scale = scale;
-    this.flipped = flipped;
+    this.textures1 = [data[3], data[4], data[5], data[6]];
+    this.textures2 = [data[7], data[8], data[9], data[10]];
+    this.type = data[11];
+    this.scale = data[12];
+    this.flipped = data[13];
 
     return this;
   }
 
-  setDoubleScale(scale) {
+  /* update(data, index) {
+    tile.deserialize(data);
+
+    this.opacityAttribute.setX(index, 1.0);
+    this.opacityAttribute.needsUpdate = true;
+
+    this.offsetAttribute.setXYZ(
+      index,
+      tile.position.x,
+      tile.position.y,
+      tile.position.z + 0.5
+    );
+    this.offsetAttribute.needsUpdate = true;
+
+    this.textureNumberAttribute.setXYZW(
+      index,
+      tile.surfaceTexture,
+      tile.groundTexture,
+      0,
+      0
+    );
+    this.textureNumberAttribute.needsUpdate = true;
+
+    this.brushNumberAttribute.setXYZW(
+      index,
+      tile.surfaceBrush,
+      tile.groundBrush,
+      tile.shadowBrush,
+      tile.highlightBrush
+    );
+    this.brushNumberAttribute.needsUpdate = true;
+
+    this.typeAttribute.setXYZ(index, tile.type, tile.scale, tile.flipped);
+    this.typeAttribute.needsUpdate = true;
+  }
+  */
+
+  setPosition(x, y, z) {
+    this.position = new THREE.Vector3(x, y, z);
+    return this;
+  }
+
+  setTexture(index, number) {
+    if (index < 4) {
+      this.textures1[index] = number;
+    } else {
+      this.textures2[index - 4] = number;
+    }
+
+    return this;
+  }
+
+  setSurfaceBrush(number) {
+    this.textures2[0] = number;
+    return this;
+  }
+
+  setGroundBrush(number) {
+    this.textures2[1] = number;
+    return this;
+  }
+
+  setSurfaceTexture(number) {
+    this.textures1[0] = number;
+    return this;
+  }
+
+  setGroundTexture(number) {
+    this.textures1[1] = number;
+    return this;
+  }
+
+  setShadowBrush(number) {
+    this.textures2[2] = number;
+    return this;
+  }
+
+  setHighlightBrush(number) {
+    this.textures2[3] = number;
+    return this;
+  }
+
+  setBrushedType() {
+    this.setType(1);
+    return this;
+  }
+
+  setNormalType() {
+    this.setType(0);
+    return this;
+  }
+
+  setType(number) {
+    if (number < 0 || number > 15) {
+      throw new Error("Tile type must be 0 to 15");
+    }
+
+    this.type = number;
+    return this;
+  }
+
+  setScale(scale) {
+    if (scale < 1 || scale > 3) {
+      throw new Error("Tile scale must be 1 to 3");
+    }
+
     this.scale = scale;
-    this.composeType(this.flipped, scale);
+    return this;
   }
 
   setFlipped(flipped) {
-    this.flipped = flipped;
-    this.composeType(flipped, this.scale);
-  }
-
-  composeType(flipped, scale) {
-    let value = 0;
-
-    if (flipped) {
-      value += 10;
+    if (flipped === true) {
+      this.flipped = 1;
+    } else if (flipped === false) {
+      this.flipped = 0;
+    } else {
+      throw new Error("tile flipped must be a boolean");
     }
 
-    if (scale) {
-      value += 1;
-    }
-
-    this.type = parseInt(value, 2);
-  }
-
-  parseType() {
-    const flipped = Boolean(this.type & 2);
-    const scale = Boolean(this.type & 1);
-
-    return { flipped, scale };
+    return this;
   }
 }
 

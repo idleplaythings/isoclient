@@ -2,7 +2,6 @@ import GameScene from "./GameScene";
 import World from "./World";
 import GameCamera from "./GameCamera";
 import { TileRenderer, TileLibrary } from "./tile";
-import WorldServerConnection from "../worldServer/WorldServerConnection";
 
 class Game {
   constructor() {
@@ -29,13 +28,13 @@ class Game {
   }
 
   gameloop() {
-    const now = new Date().getTime();
+    const now = Date.now();
     const delta = this.lastRenderTime !== null ? now - this.lastRenderTime : 0;
     this.lastRenderTime = now;
 
     this.gameScene.render();
     this.world.render();
-    this.tileRenderer.render();
+    this.tileRenderer.render(delta);
     this.camera.render(delta);
     requestAnimationFrame(this.gameloop.bind(this));
   }

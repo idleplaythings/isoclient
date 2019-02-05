@@ -1,13 +1,9 @@
-import Tile from "./Tile";
-
-const tile = new Tile();
-
 class TileContainer {
   constructor(
     offsetAttribute,
     opacityAttribute,
-    textureNumberAttribute,
-    brushNumberAttribute,
+    textureNumber1Attribute,
+    textureNumber2Attribute,
     typeAttribute,
     amount,
     mesh,
@@ -18,13 +14,12 @@ class TileContainer {
     this.used = 0;
     this.offsetAttribute = offsetAttribute;
     this.opacityAttribute = opacityAttribute;
-    this.textureNumberAttribute = textureNumberAttribute;
-    this.brushNumberAttribute = brushNumberAttribute;
+    this.textureNumber1Attribute = textureNumber1Attribute;
+    this.textureNumber2Attribute = textureNumber2Attribute;
     this.typeAttribute = typeAttribute;
     this.mesh = mesh;
     this.scene = scene;
     this.numberCreated = numberCreated;
-
     /*
     for (let i = 0; i < amount; i++) {
       this.free.push(i);
@@ -46,6 +41,10 @@ class TileContainer {
   }
 
   unassignEverything() {
+    this.used = 0;
+
+    return;
+
     for (let i = 0; i < this.amount; i++) {
       this.opacityAttribute.setX(i, 0);
     }
@@ -68,38 +67,35 @@ class TileContainer {
   }
 
   update(data, index) {
-    tile.deserialize(data);
+    //tile.deserialize(data);
 
     this.opacityAttribute.setX(index, 1.0);
     this.opacityAttribute.needsUpdate = true;
 
-    this.offsetAttribute.setXYZ(
-      index,
-      tile.position.x,
-      tile.position.y,
-      tile.position.z + 0.5
-    );
+    this.offsetAttribute.setXYZ(index, data[0], data[1], data[2] + 0.5);
     this.offsetAttribute.needsUpdate = true;
 
-    this.textureNumberAttribute.setXYZW(
+    this.textureNumber1Attribute.setXYZW(
       index,
-      tile.surfaceTexture,
-      tile.groundTexture,
-      0,
-      0
+      data[3],
+      data[4],
+      data[5],
+      data[6]
     );
-    this.textureNumberAttribute.needsUpdate = true;
 
-    this.brushNumberAttribute.setXYZW(
+    this.textureNumber1Attribute.needsUpdate = true;
+
+    this.textureNumber2Attribute.setXYZW(
       index,
-      tile.surfaceBrush,
-      tile.groundBrush,
-      tile.shadowBrush,
-      tile.highlightBrush
+      data[7],
+      data[8],
+      data[9],
+      data[10]
     );
-    this.brushNumberAttribute.needsUpdate = true;
 
-    this.typeAttribute.setX(index, tile.type);
+    this.textureNumber2Attribute.needsUpdate = true;
+
+    this.typeAttribute.setXYZ(index, data[11], data[12], data[13]);
     this.typeAttribute.needsUpdate = true;
   }
 }

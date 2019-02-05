@@ -6,31 +6,26 @@ const CubeTileVertexShader = `
     attribute vec3 offset;
     attribute float opacity;
     attribute vec2 uv;
-    attribute vec4 textureNumber;
-    attribute vec4 brushNumber;
-    attribute float type;
+    attribute vec4 textureNumber1;
+    attribute vec4 textureNumber2;
+    attribute vec3 type;
     varying vec2 vUv;
     varying float vOpacity;
-    varying vec4 vTextureNumber;
-    varying vec4 vBrushNumber;
-    varying float vType;
+    varying vec4 vTextureNumber1;
+    varying vec4 vTextureNumber2;
+    varying vec3 vType;
 
     
     float isFlipped() {
-        if (type == 2.0 || type == 3.0) {
+        if (type.z > 0.0) {
             return 1.0;
-        } 
-
-        return 0.0;
+        } else {
+            return 0.0;
+        }
     }
 
-    //type => 00 normal, 01 scale 2, 10 flipped, 11 scale 2 and flipped
     float getScale() {
-        if (type == 1.0 || type == 3.0) {
-            return 2.0;
-        } 
-
-        return 1.0;
+        return type.y;
     }
 
     // http://www.geeks3d.com/20141201/how-to-rotate-a-vertex-by-a-quaternion-in-glsl/
@@ -48,8 +43,8 @@ const CubeTileVertexShader = `
         vType = type;
         vUv = uv;
         vOpacity = opacity;
-        vTextureNumber = textureNumber;
-        vBrushNumber = brushNumber;
+        vTextureNumber1 = textureNumber1;
+        vTextureNumber2 = textureNumber2;
 
         vec3 vPosition = applyQuaternionToVector(position );
 

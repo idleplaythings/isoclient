@@ -25,9 +25,7 @@ class TileRenderer {
   }
 
   async assignTiles(tiles) {
-    await this.instanceFactory.ready;
-
-    //const start = new Date().getTime();
+    performance.mark("assignStart");
 
     while (this.capacity < tiles.length) {
       const newContainer = this.instanceFactory.create();
@@ -47,13 +45,18 @@ class TileRenderer {
       }
     });
 
-    //console.log("current capacity", this.capacity);
-
-    //console.log("ASSIGNED tiles, took", new Date().getTime() - start, "ms");
+    performance.mark("assignEnd");
+    performance.measure("assign", "assignStart", "assignEnd");
   }
 
-  render() {
+  render(delta) {
+    if (!this.instanceFactory.ready) {
+      return;
+    }
+
+    performance.mark("renderStart");
     const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
+
     if (this.hasChanged(renderArea)) {
       this.getChunkPositionsForNewRenderArea(renderArea);
       this.assignTiles(this.getForRendering(renderArea));
@@ -61,6 +64,22 @@ class TileRenderer {
     }
 
     //forget chunks that have not been touched for a while
+    performance.mark("renderEnd");
+    performance.measure("render", "renderStart", "renderEnd");
+    const render = performance.getEntriesByName("render")[0].duration;
+    if (render > 5) {
+      const assign = performance.getEntriesByName("assign")[0];
+      console.log(
+        "assign:",
+        assign ? assign.duration : "null",
+        "render:",
+        render
+      );
+    }
+
+    // Clean up the stored markers.
+    performance.clearMarks();
+    performance.clearMeasures();
   }
 
   getChunkPositionsForNewRenderArea(renderArea) {
@@ -72,12 +91,21 @@ class TileRenderer {
         !Boolean(this.pendingChunksByLocation[getChunkKey(position)])
     );
 
+    this.chunks = this.chunks.filter(chunk => {
+      const found = positions.find(
+        position =>
+          chunk.position.x === position.x && chunk.position.y === position.y
+      );
+
+      if (!found) {
+        delete this.chunksByLocation[getChunkKey(chunk.position)];
+      }
+
+      return found;
+    });
+
     need.forEach(async needPosition => {
       const needKey = getChunkKey(needPosition);
-
-      if (needPosition.x === 32 && needPosition.y === -32) {
-        //console.log("requesting 32, -32");
-      }
 
       this.pendingChunksByLocation[needKey] = true;
 
@@ -98,7 +126,7 @@ class TileRenderer {
   }
 
   getChunkKeyForTile(tile) {
-    const position = getChunkPosition(tile, this.chunkSize);
+    const position = getChunkPosition(tile.position, this.chunkSize);
     return position.x + ":" + position.y;
   }
 
@@ -108,7 +136,7 @@ class TileRenderer {
     }
 
     const chunk = new TileChunk(
-      getChunkPosition(tile, this.chunkSize),
+      getChunkPosition(tile.position, this.chunkSize),
       this.chunkSize
     );
     this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;

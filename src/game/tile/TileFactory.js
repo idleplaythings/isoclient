@@ -1,6 +1,10 @@
 import Tile from "./Tile";
 import * as TileTypes from "../../model/tile/TileTypes";
-import * as THREE from "three";
+import * as tileTextures from "../texture/TextureTypes";
+
+const flyTile = new Tile();
+
+const getRandom = type => Math.floor(Math.random() * type.amount) + type.start;
 
 class TileFactory {
   create(position, chunkSize, binaryChunk) {
@@ -58,32 +62,66 @@ class TileFactory {
 
   createGround(position, height, prop, visual) {
     return [
-      new Tile(
-        new THREE.Vector3(position.x, position.y, height),
-        this.getSurfaceBrush(visual),
-        this.getSurfacetexture(visual)
-      ).serialize(),
-      new Tile(
-        new THREE.Vector3(position.x, position.y, height + 1),
-        -1,
-        this.getSurfaceClutter(),
-        -1,
-        -1
-      ).serialize()
+      flyTile
+        .reset()
+        .setPosition(position.x, position.y, height - 3)
+        .setSurfaceBrush(this.getSurfaceBrush(visual))
+        .setSurfaceTexture(this.getSurfacetexture(visual))
+        .setBrushedType()
+        .serialize(),
+      flyTile
+        .reset()
+        .setPosition(position.x, position.y, height - 2)
+        .setSurfaceBrush(this.getSurfaceBrush(visual))
+        .setSurfaceTexture(this.getSurfacetexture(visual))
+        .setBrushedType()
+        .serialize(),
+      flyTile
+        .reset()
+        .setPosition(position.x, position.y, height - 1)
+        .setSurfaceBrush(this.getSurfaceBrush(visual))
+        .setSurfaceTexture(this.getSurfacetexture(visual))
+        .setBrushedType()
+        .serialize(),
+
+      flyTile
+        .reset()
+        .setPosition(position.x, position.y, height)
+        .setSurfaceBrush(this.getSurfaceBrush(visual))
+        .setSurfaceTexture(this.getSurfacetexture(visual))
+        .setBrushedType()
+        .serialize(),
+
+      flyTile
+        .reset()
+        .setPosition(position.x, position.y, height + 1)
+        .setTexture(0, this.getSurfaceClutter())
+        .setTexture(1, this.getSurfaceClutterTwigs())
+        //.setTexture(2, this.getSurfaceClutterRocks())
+        .setFlipped(true)
+        .serialize()
     ];
   }
 
   createSlope(position, height, type, prop, visual) {}
 
   getSurfaceClutter(visual) {
-    return Math.floor(Math.random() * 7) + 245;
+    return getRandom(tileTextures.grassClutter);
+  }
+
+  getSurfaceClutterTwigs(visual) {
+    return getRandom(tileTextures.twigClutter);
+  }
+
+  getSurfaceClutterRocks(visual) {
+    return getRandom(tileTextures.rocks);
   }
 
   getSurfaceBrush(visual) {
     switch (visual) {
       case TileTypes.visual.GRASS:
       default:
-        return Math.floor(Math.random() * 4);
+        return getRandom(tileTextures.groundBrush);
     }
   }
 
@@ -92,10 +130,10 @@ class TileFactory {
       case TileTypes.visual.GRASS:
       default:
         if (Math.random() > 0.9) {
-          return Math.floor(Math.random() * 4) + 64;
+          return getRandom(tileTextures.darkGrass);
         }
 
-        return Math.floor(Math.random() * 4) + 66;
+        return getRandom(tileTextures.grass);
     }
   }
 }

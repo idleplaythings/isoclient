@@ -1,5 +1,3 @@
-import { getChunkPosition } from "../../model/tile/Chunk";
-
 class RenderArea {
   constructor(position, size, chunkSize) {
     this.position = position;

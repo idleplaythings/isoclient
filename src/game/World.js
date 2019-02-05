@@ -1,14 +1,10 @@
 import { Tile } from "./tile";
-import * as THREE from "three";
-import { TileBinarySet } from "../model/tile";
-import ndarray from "ndarray";
 
 import TerrainTester from "./test/TerrainTester";
 
 class World {
-  constructor(tileLibrary, tileRenderer) {
+  constructor(tileLibrary) {
     this.tileLibrary = tileLibrary;
-    this.tileRenderer = tileRenderer;
 
     this.tester = new TerrainTester(this.tileLibrary);
     this.create();
@@ -22,7 +18,9 @@ class World {
     );
   }
 
-  create() {}
+  create() {
+    window.test = new Tile();
+  }
 
   render() {}
 }
