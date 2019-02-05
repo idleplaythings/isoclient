@@ -26,6 +26,7 @@ class TileRenderer {
 
   async assignTiles(tiles) {
     performance.mark("assignStart");
+    console.log("assign");
 
     while (this.capacity < tiles.length) {
       const newContainer = this.instanceFactory.create();
@@ -43,6 +44,8 @@ class TileRenderer {
         container.add(tile, i);
         tileIndex++;
       }
+
+      container.markUpdated();
     });
 
     performance.mark("assignEnd");
@@ -76,7 +79,7 @@ class TileRenderer {
         render
       );
     }
-
+/*
     if (Math.random() > 0.9) {
         const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
 
@@ -102,7 +105,7 @@ class TileRenderer {
             );
         }
     }
-
+*/
     // Clean up the stored markers.
     performance.clearMarks();
     performance.clearMeasures();

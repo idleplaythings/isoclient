@@ -66,14 +66,20 @@ class TileContainer {
     this.update(tile, index);
   }
 
+  markUpdated() {
+    this.opacityAttribute.needsUpdate = true;
+    this.typeAttribute.needsUpdate = true;
+    this.offsetAttribute.needsUpdate = true;
+    this.textureNumber1Attribute.needsUpdate = true;
+    this.textureNumber2Attribute.needsUpdate = true;
+  }
+
   update(data, index) {
     //tile.deserialize(data);
 
     this.opacityAttribute.setX(index, 1.0);
-    this.opacityAttribute.needsUpdate = true;
 
     this.offsetAttribute.setXYZ(index, data[0], data[1], data[2] + 0.5);
-    this.offsetAttribute.needsUpdate = true;
 
     this.textureNumber1Attribute.setXYZW(
       index,
@@ -83,7 +89,6 @@ class TileContainer {
       data[6]
     );
 
-    this.textureNumber1Attribute.needsUpdate = true;
 
     this.textureNumber2Attribute.setXYZW(
       index,
@@ -93,10 +98,8 @@ class TileContainer {
       data[10]
     );
 
-    this.textureNumber2Attribute.needsUpdate = true;
 
     this.typeAttribute.setXYZ(index, data[11], data[12], data[13]);
-    this.typeAttribute.needsUpdate = true;
   }
 }
 
