@@ -48,7 +48,7 @@ class GameScene {
       wireframe: true
     });
     this.cube = new THREE.Mesh(geometry, material);
-    this.cube.position.set(0, 0, 0.5);
+    this.cube.position.set(0, 0, 1.5);
     this.scene.add(this.cube);
 
     this.stats = new window.Stats();

@@ -120,10 +120,12 @@ const CubeTileFragmentShader = `
 
 
     vec4 handleNormal() {
+
         vec4 color = sampleTexture(vTextureNumber1.r);
         color = combineTextureToColor(color, vTextureNumber1.g);
         color = combineTextureToColor(color, vTextureNumber1.b);
         color = combineTextureToColor(color, vTextureNumber1.a);
+
         return color;
     }
 
@@ -132,6 +134,10 @@ const CubeTileFragmentShader = `
             discard;
         }
 
+
+        gl_FragColor = handleNormal();
+
+        /*
         if (vType.x == 0.0) {
             gl_FragColor = handleNormal();
         } else if (vType.x == 1.0) {
@@ -139,6 +145,7 @@ const CubeTileFragmentShader = `
         } else {
             discard;
         }
+        */
     }
 `;
 

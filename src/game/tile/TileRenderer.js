@@ -77,6 +77,32 @@ class TileRenderer {
       );
     }
 
+    if (Math.random() > 0.9) {
+        const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
+
+        if (chunk) {
+            const position = {
+                x: chunk.position.x + Math.floor(Math.random()*31),
+                y: chunk.position.y - Math.floor(Math.random()*31),
+                z: 1
+            }
+
+            this.add([position.x, position.y, position.z,
+                Math.floor(Math.random() * 5) + 231,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                0,
+                1,
+                0]
+            );
+        }
+    }
+
     // Clean up the stored markers.
     performance.clearMarks();
     performance.clearMeasures();
@@ -120,14 +146,14 @@ class TileRenderer {
     });
   }
 
-  getChunkForTile(tile) {
-    const key = this.getChunkKeyForTile(tile);
+  getChunkForTile(position) {
+    const key = this.getChunkKeyForTile(position);
     return this.chunksByLocation[key];
   }
 
-  getChunkKeyForTile(tile) {
-    const position = getChunkPosition(tile.position, this.chunkSize);
-    return position.x + ":" + position.y;
+  getChunkKeyForTile(position) {
+    const cPosition = getChunkPosition(position, this.chunkSize);
+    return cPosition.x + ":" + cPosition.y;
   }
 
   createChunkForTile(tile) {
@@ -136,7 +162,7 @@ class TileRenderer {
     }
 
     const chunk = new TileChunk(
-      getChunkPosition(tile.position, this.chunkSize),
+      getChunkPosition({x: tile[0], y:tile[1], z:tile[2]}, this.chunkSize),
       this.chunkSize
     );
     this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
@@ -162,7 +188,7 @@ class TileRenderer {
   }
 
   add(tile) {
-    let chunk = this.getChunkForTile(tile);
+    let chunk = this.getChunkForTile({x: tile[0], y:tile[1], z:tile[2]});
 
     if (!chunk) {
       chunk = this.createChunkForTile(tile);
