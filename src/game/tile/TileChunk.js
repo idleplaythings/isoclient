@@ -47,7 +47,7 @@ class TileChunk extends Chunk {
   }
 
   hibernate() {
-    this.containers.forEach(container => container.resetIndex());
+    this.containers.forEach(container => container.unassignEverything());
     this.changed = false;
     this.hibernating = true;
   }

@@ -70,7 +70,7 @@ class TileFactory {
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
         .serialize(),
-        
+
       flyTile
         .reset()
         .setChunkPosition(position.x, position.y, height - 2)
@@ -78,7 +78,7 @@ class TileFactory {
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
         .serialize(),
-        
+
       flyTile
         .reset()
         .setChunkPosition(position.x, position.y, height - 1)
@@ -86,6 +86,7 @@ class TileFactory {
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
         .serialize(),
+
         */
       flyTile
         .reset()

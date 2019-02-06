@@ -63,6 +63,20 @@ const CubeTileFragmentShader = `
         return combineColorByAlpha(color, sampleTexture(textureNumber));
     }
 
+    vec4 combineTextureToColorWithBrush(vec4 color, float brushNumber, float textureNumber){
+
+        if (textureNumber < 1.0 || brushNumber < 1.0) {
+            return color;
+        }
+
+        vec4 textureColor = sampleTexture(textureNumber);
+        float brushAlpha = sampleTexture(brushNumber).a;
+        textureColor.a -= 1.0 - brushAlpha;
+
+        return combineColorByAlpha(color, textureColor);
+    }
+
+
     vec4 applyShadowAndHighligh(vec4 color, vec4 guideColor, float shadowTextureNumber) {
         vec4 lightColor = vec4(1, 0.83, 0.56, 1);
 
@@ -135,9 +149,7 @@ const CubeTileFragmentShader = `
         }
 
 
-        gl_FragColor = handleNormal();
-
-        /*
+        
         if (vType.x == 0.0) {
             gl_FragColor = handleNormal();
         } else if (vType.x == 1.0) {
@@ -145,7 +157,6 @@ const CubeTileFragmentShader = `
         } else {
             discard;
         }
-        */
     }
 `;
 
