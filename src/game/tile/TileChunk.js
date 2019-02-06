@@ -2,29 +2,13 @@ import TileStack from "./TileStack";
 import Chunk from "../../model/tile/Chunk";
 import * as THREE from "three";
 
-const initDirectory = size => {
-  const directory = [];
-
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      if (!directory[y]) {
-        directory[y] = [];
-      }
-
-      directory[y].push(new TileStack());
-    }
-  }
-
-  return directory;
-};
-
 class TileChunk extends Chunk {
   constructor(position, size, instanceFactory) {
     super(position, size);
-    this.directory = initDirectory(size);
     this.forRender = [];
     this.changed = true;
     this.instanceFactory = instanceFactory;
+    this.tiles = [];
 
     this.capacity = 0;
     this.containers = [];
@@ -64,8 +48,7 @@ class TileChunk extends Chunk {
   }
 
   hibernate() {
-    this.tiles = [];
-    this.directory = initDirectory(this.size);
+    //this.directory = initDirectory(this.size);
     this.containers.forEach(container => container.resetIndex());
     this.changed = false;
     this.hibernating = true;
@@ -81,7 +64,8 @@ class TileChunk extends Chunk {
       throw new Error("This chunk is hibernating");
     }
 
-    tiles.forEach(this.addTile.bind(this));
+    this.tiles = tiles;
+    this.changed = true;
   }
 
   addTile(tile) {
@@ -89,12 +73,7 @@ class TileChunk extends Chunk {
       throw new Error("This chunk is hibernating");
     }
 
-    if (tile[0] === 0 || tile[1] === 0) {
-      return;
-    }
-
-    const tileStack = this.getStack({ x: tile[0], y: tile[1], z: tile[2] });
-    tileStack.add(tile);
+    this.tiles.push(tile);
     this.changed = true;
   }
 
@@ -112,11 +91,12 @@ class TileChunk extends Chunk {
     this.directory.forEach(row => row.forEach(stack => stack.sort()));
   }
 
-  render() {
-    if (!this.changed || this.hibernating) {
+  render(nomore) {
+    if (!this.changed || this.hibernating || nomore) {
       return;
     }
 
+    /*
     this.sort();
 
     const tiles = [].concat(
@@ -125,7 +105,9 @@ class TileChunk extends Chunk {
       )
     );
 
-    while (this.capacity < tiles.length) {
+    */
+
+    while (this.capacity < this.tiles.length) {
       const newContainer = this.instanceFactory.create(
         this.size * this.size * 3
       );
@@ -139,8 +121,12 @@ class TileChunk extends Chunk {
     this.containers.forEach((container, containerIndex) => {
       container.resetIndex();
 
-      for (let i = 0; i < container.amount && tileIndex < tiles.length; i++) {
-        const tile = tiles[tileIndex];
+      for (
+        let i = 0;
+        i < container.amount && tileIndex < this.tiles.length;
+        i++
+      ) {
+        const tile = this.tiles[tileIndex];
 
         container.add(tile, i);
         tileIndex++;

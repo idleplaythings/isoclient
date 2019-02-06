@@ -10,12 +10,7 @@ class TileLibrary {
     this.binaryChunkSize = 1024;
     this.tileBinaryChunks = {}; //promises of binary chunks
     this.tileFactory = new TileFactory();
-    this.tileFactoryPool = new WorkerPool([
-      new TileFactoryWorker(),
-      new TileFactoryWorker(),
-      new TileFactoryWorker(),
-      new TileFactoryWorker()
-    ]);
+    this.tileFactoryPool = new WorkerPool([new TileFactoryWorker()]);
   }
 
   async getTileChunksForRenderArea(position, chunkSize) {
@@ -49,6 +44,7 @@ class TileLibrary {
   }
 
   loadBinaryChunk(binaryChunkPosition) {
+    console.log("LOAD BINARY CHUNK");
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       oReq.open("GET", "data/result.bin", true);

@@ -3,6 +3,7 @@ import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
 import Tile from "./Tile";
 
+let once = false;
 class TileRenderer {
   constructor(scene, gameCamera, world) {
     //This will need a some link to the hotspot: what this area of game is actually following
@@ -21,6 +22,7 @@ class TileRenderer {
     this.freeChunks = [];
 
     window.testTileRenderer = this;
+    this.nomore = false;
 
     //this.add(new Tile().setPosition(0, 0, 0.5).setSurfaceTexture(232));
     //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
@@ -31,19 +33,20 @@ class TileRenderer {
       return;
     }
 
+    this.renderChunks.forEach(chunk => chunk.render(this.nomore));
+
     const now = performance.now();
     const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
-
-    if (!renderArea.equals(this.renderArea)) {
-      this.getChunkPositionsForNewRenderArea(renderArea);
-      this.renderArea = renderArea;
-    }
 
     if (this.changed) {
       this.setRenderChunks(renderArea);
     }
 
-    this.renderChunks.forEach(chunk => chunk.render());
+    if (!renderArea.equals(this.renderArea)) {
+      this.getChunkPositionsForNewRenderArea(renderArea);
+      this.renderArea = renderArea;
+      once = true;
+    }
 
     const render = performance.now() - now;
 
@@ -71,7 +74,6 @@ class TileRenderer {
   }
 
   getChunkPositionsForNewRenderArea(renderArea) {
-    const start = performance.now();
     const positions = renderArea.requiresChunks();
 
     const need = positions.filter(
@@ -95,24 +97,25 @@ class TileRenderer {
       return found;
     });
 
-    console.log("hibernating chunks took", performance.now() - start);
     need.forEach(async needPosition => {
       const needKey = getChunkKey(needPosition);
 
       this.pendingChunksByLocation[needKey] = true;
 
-      const tiles = await this.world.getTileChunkForRenderArea(
-        needPosition,
-        this.chunkSize
-      );
+      let tiles = null;
+      if (this.nomore) {
+        tiles = this.chunks[0].tiles;
+      } else {
+        tiles = await this.world.getTileChunkForRenderArea(
+          needPosition,
+          this.chunkSize
+        );
+      }
 
-      const chunkStart = performance.now();
       delete this.pendingChunksByLocation[needKey];
 
       const chunk = this.getChunk(needPosition);
       chunk.addTiles(tiles);
-
-      console.log("adding chunk took", performance.now() - chunkStart);
     });
   }
 

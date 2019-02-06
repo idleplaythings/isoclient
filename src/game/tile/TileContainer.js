@@ -32,8 +32,8 @@ class TileContainer {
   }
 
   setRenderOrder(order) {
-    console.log(this.mesh.renderOrder);
-    console.log("setting renderOrder ", order);
+    //console.log(this.mesh.renderOrder);
+    //console.log("setting renderOrder ", order);
     this.mesh.renderOrder = order;
   }
 
@@ -83,8 +83,6 @@ class TileContainer {
   }
 
   update(data, index) {
-    //tile.deserialize(data);
-
     this.opacityAttribute.setX(index, 1.0);
 
     this.offsetAttribute.setXYZ(index, data[0], -data[1], data[2] + 0.5);

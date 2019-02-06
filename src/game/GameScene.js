@@ -30,7 +30,7 @@ class GameScene {
     //this.camera.rotation.z = (90 * Math.PI) / 180;
     this.camera.lookAt(0, 0, 0);
     this.camera.rotation.z += (50.77 * Math.PI) / 180;
-    //this.createGround();
+
     this.gameCamera.init(this.camera);
   }
 
@@ -57,19 +57,6 @@ class GameScene {
     this.stats = new window.Stats();
     this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
     document.body.appendChild(this.stats.dom);
-  }
-
-  createGround() {
-    const texture = new THREE.TextureLoader().load("img/grass02.png");
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(99, 99);
-    const geometry = new THREE.PlaneGeometry(99, 99, 99, 99);
-    const material = new THREE.MeshBasicMaterial({
-      map: texture
-    });
-    const ground = new THREE.Mesh(geometry, material);
-    this.scene.add(ground);
   }
 
   add(element) {
