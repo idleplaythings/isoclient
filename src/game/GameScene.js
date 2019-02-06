@@ -53,10 +53,6 @@ class GameScene {
     this.cube.position.set(0, 0, 1.5);
     this.cube.renderOrder = 3;
     //this.scene.add(this.cube);
-
-    this.stats = new window.Stats();
-    this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-    document.body.appendChild(this.stats.dom);
   }
 
   add(element) {
@@ -72,15 +68,11 @@ class GameScene {
       return;
     }
 
-    this.stats.begin();
-
     //this.camera.position.x += 0.05;
     //this.camera.position.y -= 0.05;
     //this.cube.position.y += 0.01;
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
-
-    this.stats.end();
   }
 }
 

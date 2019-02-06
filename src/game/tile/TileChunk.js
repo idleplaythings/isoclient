@@ -47,7 +47,6 @@ class TileChunk extends Chunk {
   }
 
   hibernate() {
-    //this.directory = initDirectory(this.size);
     this.containers.forEach(container => container.resetIndex());
     this.changed = false;
     this.hibernating = true;
