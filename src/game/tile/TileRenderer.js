@@ -3,7 +3,6 @@ import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
 import Tile from "./Tile";
 
-let once = false;
 class TileRenderer {
   constructor(scene, gameCamera, world) {
     //This will need a some link to the hotspot: what this area of game is actually following
@@ -22,7 +21,6 @@ class TileRenderer {
     this.freeChunks = [];
 
     window.testTileRenderer = this;
-    this.nomore = false;
 
     //this.add(new Tile().setPosition(0, 0, 0.5).setSurfaceTexture(232));
     //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
@@ -45,7 +43,6 @@ class TileRenderer {
     if (!renderArea.equals(this.renderArea)) {
       this.getChunkPositionsForNewRenderArea(renderArea);
       this.renderArea = renderArea;
-      once = true;
     }
 
     const render = performance.now() - now;
@@ -54,7 +51,6 @@ class TileRenderer {
       console.log("render", render);
     }
 
-    /*
     if (Math.random() > 0.9) {
       const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
 
@@ -70,7 +66,6 @@ class TileRenderer {
         this.add(new Tile().setPosition(position).setSurfaceTexture(232));
       }
     }
-    */
   }
 
   getChunkPositionsForNewRenderArea(renderArea) {
@@ -102,15 +97,10 @@ class TileRenderer {
 
       this.pendingChunksByLocation[needKey] = true;
 
-      let tiles = null;
-      if (this.nomore) {
-        tiles = this.chunks[0].tiles;
-      } else {
-        tiles = await this.world.getTileChunkForRenderArea(
-          needPosition,
-          this.chunkSize
-        );
-      }
+      const tiles = await this.world.getTileChunkForRenderArea(
+        needPosition,
+        this.chunkSize
+      );
 
       delete this.pendingChunksByLocation[needKey];
 

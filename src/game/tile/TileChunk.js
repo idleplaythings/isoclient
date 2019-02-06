@@ -1,4 +1,3 @@
-import TileStack from "./TileStack";
 import Chunk from "../../model/tile/Chunk";
 import * as THREE from "three";
 
@@ -88,7 +87,35 @@ class TileChunk extends Chunk {
   }
 
   sort() {
-    this.directory.forEach(row => row.forEach(stack => stack.sort()));
+    this.tiles = this.tiles.sort((a, b) => {
+      if (a[1] > b[1]) {
+        return 1;
+      }
+
+      if (b[1] > a[1]) {
+        return -1;
+      }
+
+      if (a[0] > b[0]) {
+        return 1;
+      }
+
+      if (b[0] > a[0]) {
+        return -1;
+      }
+
+      if (a[2] > b[2]) {
+        return 1;
+      }
+
+      if (b[2] > a[2]) {
+        return -1;
+      }
+
+      return 0;
+    });
+
+    this.needSorting = false;
   }
 
   render(nomore) {
@@ -96,16 +123,7 @@ class TileChunk extends Chunk {
       return;
     }
 
-    /*
     this.sort();
-
-    const tiles = [].concat(
-      ...[].concat(
-        this.directory.map(row => [].concat(...row.map(stack => stack.tiles)))
-      )
-    );
-
-    */
 
     while (this.capacity < this.tiles.length) {
       const newContainer = this.instanceFactory.create(
