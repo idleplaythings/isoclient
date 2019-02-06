@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { GameSceneContainer, Game } from "./game";
 
+const game = new Game();
+
 class App extends Component {
   render() {
-    const game = new Game();
     return <GameSceneContainer game={game} />;
   }
 }

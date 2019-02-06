@@ -52,7 +52,7 @@ class GameScene {
     this.cube = new THREE.Mesh(geometry, material);
     this.cube.position.set(0, 0, 1.5);
     this.cube.renderOrder = 3;
-    this.scene.add(this.cube);
+    //this.scene.add(this.cube);
 
     this.stats = new window.Stats();
     this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom

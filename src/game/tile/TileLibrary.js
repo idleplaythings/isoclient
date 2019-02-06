@@ -2,7 +2,6 @@ import ndarray from "ndarray";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import TileBinaryChunk from "./TileBinaryChunk";
 import { TileFactory } from ".";
-import TileChunk from "./TileChunk";
 import TileFactoryWorker from "./TileFactory.worker";
 import WorkerPool from "../../util/WorkerPool";
 
@@ -33,24 +32,20 @@ class TileLibrary {
 
     const binaryChunk = await this.tileBinaryChunks[key];
     this.touchBinaryChunk(binaryChunk, position);
-    return this.createChunk(position, chunkSize, binaryChunk);
-  }
 
-  touchBinaryChunk(chunk, position) {
-    chunk.touch();
-
-    //if position is close to edge of the chunk, preload next binary chunk and touch edge chunks to keep them alive
-  }
-
-  async createChunk(position, chunkSize, binaryChunk) {
     const { tiles } = await this.tileFactoryPool.work({
       position,
       chunkSize,
       data: binaryChunk.getData()
     });
 
-    const tileChunk = new TileChunk(position, chunkSize, tiles);
-    return tileChunk;
+    return tiles;
+  }
+
+  touchBinaryChunk(chunk, position) {
+    chunk.touch();
+
+    //if position is close to edge of the chunk, preload next binary chunk and touch edge chunks to keep them alive
   }
 
   loadBinaryChunk(binaryChunkPosition) {

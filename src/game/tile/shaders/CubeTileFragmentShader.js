@@ -17,7 +17,7 @@ const CubeTileFragmentShader = `
 
     vec4 sampleTexture(float number) {
 
-        if (number < 0.0) {
+        if (number < 1.0) {
             return vec4(0,0,0,0);
         }
         
@@ -56,7 +56,7 @@ const CubeTileFragmentShader = `
 
     vec4 combineTextureToColor(vec4 color, float textureNumber) {
 
-        if (textureNumber < 0.0) {
+        if (textureNumber < 1.0) {
             return color;
         }
 

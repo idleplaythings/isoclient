@@ -9,65 +9,21 @@ class TileRenderer {
     //Good practice to code this so that the game allows multiple cameras to be active at the same time: follow adventurers and home same time
     this.world = world;
     this.instanceFactory = new InstanceFactory(scene);
-    this.capacity = 0;
-    this.containers = [];
     this.gameCamera = gameCamera;
     this.chunks = [];
-    this.chunkSize = 32;
+    this.chunkSize = 16;
     this.renderArea = null;
     this.changed = false;
-    this.chunksChanged = false;
     this.forRender = [];
     this.renderChunks = [];
     this.chunksByLocation = {};
     this.pendingChunksByLocation = {};
+    this.freeChunks = [];
 
     window.testTileRenderer = this;
-    /*
-    this.add(
-      new Tile()
-        .setPosition(1, 0, 0.5)
-        .setSurfaceTexture(232)
-        .serialize()
-    );
 
-    this.add(
-      new Tile()
-        .setPosition(-1, 0, 0.5)
-        .setSurfaceTexture(232)
-        .serialize()
-    );
-    */
-  }
-
-  async assignTiles(tiles) {
-    performance.mark("assignStart");
-    console.log("assign");
-
-    while (this.capacity < tiles.length) {
-      const newContainer = this.instanceFactory.create();
-      this.containers.push(newContainer);
-      this.capacity += newContainer.amount;
-    }
-
-    let tileIndex = 0;
-
-    this.containers.forEach((container, containerIndex) => {
-      container.unassignEverything();
-
-      for (let i = 0; i < container.amount && tileIndex < tiles.length; i++) {
-        const tile = tiles[tileIndex];
-
-        container.add(tile, i);
-        tileIndex++;
-      }
-
-      //container.setRenderOrder(this.containers.length - containerIndex);
-      container.markUpdated();
-    });
-
-    performance.mark("assignEnd");
-    performance.measure("assign", "assignStart", "assignEnd");
+    //this.add(new Tile().setPosition(0, 0, 0.5).setSurfaceTexture(232));
+    //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
   }
 
   render(delta) {
@@ -75,62 +31,47 @@ class TileRenderer {
       return;
     }
 
-    performance.mark("renderStart");
-
+    const now = performance.now();
     const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
 
-    if (this.hasChanged(renderArea)) {
+    if (!renderArea.equals(this.renderArea)) {
       this.getChunkPositionsForNewRenderArea(renderArea);
-      this.assignTiles(this.getForRendering(renderArea));
       this.renderArea = renderArea;
     }
 
-    //forget chunks that have not been touched for a while
-    performance.mark("renderEnd");
-    performance.measure("render", "renderStart", "renderEnd");
-    const render = performance.getEntriesByName("render")[0].duration;
-    if (render > 5) {
-      const assign = performance.getEntriesByName("assign")[0];
-      console.log(
-        "assign:",
-        assign ? assign.duration : "null",
-        "render:",
-        render
-      );
+    if (this.changed) {
+      this.setRenderChunks(renderArea);
     }
+
+    this.renderChunks.forEach(chunk => chunk.render());
+
+    const render = performance.now() - now;
+
+    if (render > 5) {
+      console.log("render", render);
+    }
+
     /*
     if (Math.random() > 0.9) {
-        const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
+      const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
 
-        if (chunk) {
-            const position = {
-                x: chunk.position.x + Math.floor(Math.random()*31),
-                y: chunk.position.y - Math.floor(Math.random()*31),
-                z: 1
-            }
+      if (chunk) {
+        const position = {
+          x:
+            chunk.position.x + Math.floor(Math.random() * (this.chunkSize - 1)),
+          y:
+            chunk.position.y - Math.floor(Math.random() * (this.chunkSize - 1)),
+          z: 1
+        };
 
-            this.add([position.x, position.y, position.z,
-                Math.floor(Math.random() * 5) + 231,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                0,
-                1,
-                0]
-            );
-        }
+        this.add(new Tile().setPosition(position).setSurfaceTexture(232));
+      }
     }
-*/
-    // Clean up the stored markers.
-    performance.clearMarks();
-    performance.clearMeasures();
+    */
   }
 
   getChunkPositionsForNewRenderArea(renderArea) {
+    const start = performance.now();
     const positions = renderArea.requiresChunks();
 
     const need = positions.filter(
@@ -147,149 +88,131 @@ class TileRenderer {
 
       if (!found) {
         delete this.chunksByLocation[getChunkKey(chunk.position)];
+        this.freeChunks.push(chunk);
+        chunk.hibernate();
       }
 
       return found;
     });
 
+    console.log("hibernating chunks took", performance.now() - start);
     need.forEach(async needPosition => {
       const needKey = getChunkKey(needPosition);
 
       this.pendingChunksByLocation[needKey] = true;
 
-      const chunk = await this.world.getTileChunkForRenderArea(
+      const tiles = await this.world.getTileChunkForRenderArea(
         needPosition,
         this.chunkSize
       );
 
+      const chunkStart = performance.now();
       delete this.pendingChunksByLocation[needKey];
 
-      this.addChunk(chunk);
+      const chunk = this.getChunk(needPosition);
+      chunk.addTiles(tiles);
+
+      console.log("adding chunk took", performance.now() - chunkStart);
     });
   }
 
-  getChunkForTile(position) {
-    const key = this.getChunkKeyForTile(position);
-    console.log("chunk key", position, key);
-    return this.chunksByLocation[key];
-  }
+  getChunk(position) {
+    const key = getChunkKey(position);
 
-  getChunkKeyForTile(position) {
-    const cPosition = getChunkPosition(position, this.chunkSize);
-    return cPosition.x + ":" + cPosition.y;
-  }
-
-  createChunkForTile(tile) {
-    if (this.getChunkForTile(tile)) {
-      throw new Error("This tile already has a TileChunk");
+    if (this.chunksByLocation[key]) {
+      return this.chunksByLocation[key];
     }
 
-    const chunk = new TileChunk(
-      getChunkPosition(tile, this.chunkSize),
-      this.chunkSize
+    let chunk = this.freeChunks.pop();
+
+    if (!chunk) {
+      chunk = new TileChunk(position, this.chunkSize, this.instanceFactory);
+      this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
+      this.chunks.push(chunk);
+      //console.log("created chunk", chunk.position.x, chunk.position.y);
+    } else {
+      chunk.setPosition(position);
+      this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
+      chunk.wakeUp();
+      this.chunks.push(chunk);
+    }
+
+    /*
+    console.log(
+      "Chunk gotten, chunks",
+      this.chunks.length,
+      "free",
+      this.freeChunks.length
     );
+    */
 
-    this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
-    this.chunks.push(chunk);
-
+    this.changed = true;
     return chunk;
   }
 
-  addChunk(chunks) {
-    if (!chunks || chunks.length === 0) {
-      return;
-    }
-
-    chunks = [].concat(chunks);
-
-    chunks.forEach(chunk => {
-      this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
-      this.chunks.push(chunk);
-    });
-
-    this.changed = true;
-    this.chunksChanged = true;
+  getChunkForTile(tile) {
+    const position = getChunkPosition(tile.position, this.chunkSize);
+    //console.log("chunk position for tile", tile.position, position);
+    return this.getChunk(position);
   }
 
   add(tile) {
     let chunk = this.getChunkForTile(tile);
+    const positionInChunk = tile.position.clone().sub(chunk.position);
+    tile.setChunkPosition(
+      positionInChunk.x,
+      positionInChunk.y,
+      positionInChunk.z
+    );
 
-    if (!chunk) {
-      chunk = this.createChunkForTile(tile);
-    }
+    /*
+    console.log(
+      "tile to chunk",
+      tile.position,
+      positionInChunk,
+      chunk.position
+    );
+    */
 
-    chunk.addTile(tile);
-    if (this.renderArea && this.renderArea.containsChunk(chunk)) {
-      this.changed = true;
-    }
+    chunk.addTile(tile.serialize());
   }
 
   remove(tile) {
-    const chunk = this.getChunkForTile(tile);
-
-    if (!chunk) {
-      return;
-    }
-
-    chunk.removeTile(tile);
+    throw new Error("Removing tiles is not implemented yet");
   }
 
   hasChanged(renderArea) {
     return !renderArea.equals(this.renderArea) || this.changed === true;
   }
 
-  sortChunks(a, b) {
-    if (a.position.x < b.position.x) {
-      return -1;
-    }
+  setRenderChunks(renderArea) {
+    /*
+    this.chunks.forEach(chunk => {
+      if (chunk.hibernating) {
+        throw new Error("Hibernating chunk in  chunks");
+      }
+    });
 
-    if (b.position.x < a.position.x) {
-      return 1;
-    }
-
-    if (a.position.y > b.position.y) {
-      return -1;
-    }
-
-    if (b.position.y > a.position.y) {
-      return 1;
-    }
-
-    return 0;
-  }
-
-  getForRendering(renderArea) {
-    //const start = performance.now();
-    if (!renderArea.equals(this.renderArea) || this.chunksChanged) {
-      this.renderChunks = this.chunks.filter(chunk =>
-        renderArea.containsChunk(chunk)
+    this.chunks.forEach(chunk => {
+      const found = this.chunks.find(
+        other =>
+          other.position.x === chunk.position.x &&
+          other.position.y === chunk.position.y &&
+          chunk !== other
       );
 
-      this.renderChunks = this.renderChunks.sort(this.sortChunks);
-    }
-
-    //const chunksortEnd = performance.now();
-
-    this.renderChunks.forEach(chunk => chunk.sort());
-
-    const forRender = this.renderChunks.map(chunk => chunk.getForRender());
-    this.forRender = [].concat(...forRender);
-
-    /*
-    const ready = performance.now();
-
-    console.log(
-      "sorting chunks took",
-      chunksortEnd - start,
-      "sorting tiles took",
-      ready - chunksortEnd
-    );
-
+      if (found) {
+        console.log("duplicate chunk", chunk.position, found.position);
+        throw new Error("Duplicate chunk found!");
+      }
+    });
     */
 
+    this.renderChunks = this.chunks.filter(chunk =>
+      renderArea.containsChunk(chunk)
+    );
+
     this.changed = false;
-    this.chunksChanged = false;
-    return this.forRender;
   }
 }
 

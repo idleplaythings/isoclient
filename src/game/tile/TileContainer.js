@@ -27,6 +27,10 @@ class TileContainer {
     */
   }
 
+  setPosition(position) {
+    this.mesh.position.set(position.x, position.y, 0);
+  }
+
   setRenderOrder(order) {
     console.log(this.mesh.renderOrder);
     console.log("setting renderOrder ", order);
@@ -46,14 +50,12 @@ class TileContainer {
     this.used--;
   }
 
-  unassignEverything() {
+  resetIndex() {
     this.used = 0;
+  }
 
-    return;
-
-    for (let i = 0; i < this.amount; i++) {
-      this.opacityAttribute.setX(i, 0);
-    }
+  unassignEverything() {
+    this.opacityAttribute.setArray(new Float32Array(this.amount));
     this.opacityAttribute.needsUpdate = true;
 
     this.used = 0;
@@ -85,7 +87,7 @@ class TileContainer {
 
     this.opacityAttribute.setX(index, 1.0);
 
-    this.offsetAttribute.setXYZ(index, data[0], data[1], data[2] + 0.5);
+    this.offsetAttribute.setXYZ(index, data[0], -data[1], data[2] + 0.5);
 
     this.textureNumber1Attribute.setXYZW(
       index,

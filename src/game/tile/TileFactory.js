@@ -12,8 +12,8 @@ class TileFactory {
     for (let x = 0; x < chunkSize; x++) {
       for (let y = 0; y < chunkSize; y++) {
         const tilePosition = {
-          x: position.x + x,
-          y: position.y - y
+          x: x,
+          y: -y
         };
         //console.log(position, tilePosition, tileSetPosition);
 
@@ -62,10 +62,10 @@ class TileFactory {
 
   createGround(position, height, prop, visual) {
     return [
-        /*
+      /*
       flyTile
         .reset()
-        .setPosition(position.x, position.y, height - 3)
+        .setChunkPosition(position.x, position.y, height - 3)
         .setSurfaceBrush(this.getSurfaceBrush(visual))
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
@@ -73,7 +73,7 @@ class TileFactory {
         
       flyTile
         .reset()
-        .setPosition(position.x, position.y, height - 2)
+        .setChunkPosition(position.x, position.y, height - 2)
         .setSurfaceBrush(this.getSurfaceBrush(visual))
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
@@ -81,7 +81,7 @@ class TileFactory {
         
       flyTile
         .reset()
-        .setPosition(position.x, position.y, height - 1)
+        .setChunkPosition(position.x, position.y, height - 1)
         .setSurfaceBrush(this.getSurfaceBrush(visual))
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
@@ -89,7 +89,7 @@ class TileFactory {
         */
       flyTile
         .reset()
-        .setPosition(position.x, position.y, height)
+        .setChunkPosition(position.x, position.y, height)
         .setSurfaceBrush(this.getSurfaceBrush(visual))
         .setSurfaceTexture(this.getSurfacetexture(visual))
         .setBrushedType()
@@ -97,7 +97,7 @@ class TileFactory {
 
       flyTile
         .reset()
-        .setPosition(position.x, position.y, height + 1)
+        .setChunkPosition(position.x, position.y, height + 1)
         .setTexture(0, this.getSurfaceClutter())
         .setTexture(1, this.getSurfaceClutterTwigs())
         //.setTexture(2, this.getSurfaceClutterRocks())

@@ -8,13 +8,12 @@ let loadedCube = null;
 let numberCreated = 0;
 
 class InstanceFactory {
-  constructor(scene, size) {
+  constructor(scene) {
     this.scene = scene;
     this.loader = new GLTFLoader();
     this.ready = false;
 
     this.init();
-    this.size = size || 5000;
 
     const texture = new THREE.TextureLoader().load("img/spritesheet.png");
     //texture.minFilter = THREE.LinearMipMapNearestFilter;
@@ -52,9 +51,8 @@ THREE.LinearMipMapLinearFilter
     this.ready = true;
   }
 
-  create() {
-    console.log("create container");
-    return this.makeInstanced(loadedCube, this.size);
+  create(size = 2000) {
+    return this.makeInstanced(loadedCube, size);
   }
 
   async loadCube() {

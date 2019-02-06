@@ -99,7 +99,7 @@ class GameCamera {
       .add(new THREE.Vector3(-25, 25, -50));
   }
 
-  getRenderArea(chunkSize, renderSize = 2) {
+  getRenderArea(chunkSize, renderSize = 4) {
     const chunkPosition = getChunkPosition(this.getLookAtPosition(), chunkSize);
 
     const corner = {

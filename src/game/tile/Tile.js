@@ -7,8 +7,9 @@ class Tile {
 
   reset() {
     this.position = null;
-    this.textures1 = [-1, -1, -1, -1];
-    this.textures2 = [-1, -1, -1, -1];
+    this.chunkPosition = null;
+    this.textures1 = [0, 0, 0, 0];
+    this.textures2 = [0, 0, 0, 0];
     this.type = 0;
     this.scale = 1;
     this.flipped = 0;
@@ -17,10 +18,10 @@ class Tile {
   }
 
   serialize() {
-    return [
-      this.position.x,
-      this.position.y,
-      this.position.z,
+    const data = new Uint8Array([
+      this.chunkPosition.x,
+      Math.abs(this.chunkPosition.y),
+      this.chunkPosition.z,
       this.textures1[0],
       this.textures1[1],
       this.textures1[2],
@@ -32,11 +33,13 @@ class Tile {
       this.type,
       this.scale,
       this.flipped
-    ];
+    ]);
+
+    return data;
   }
 
   deserialize(data) {
-    this.position = { x: data[0], y: data[1], z: data[2] };
+    this.chunkPosition = { x: data[0], y: data[1], z: data[2] };
     this.textures1 = [data[3], data[4], data[5], data[6]];
     this.textures2 = [data[7], data[8], data[9], data[10]];
     this.type = data[11];
@@ -46,45 +49,22 @@ class Tile {
     return this;
   }
 
-  /* update(data, index) {
-    tile.deserialize(data);
-
-    this.opacityAttribute.setX(index, 1.0);
-    this.opacityAttribute.needsUpdate = true;
-
-    this.offsetAttribute.setXYZ(
-      index,
-      tile.position.x,
-      tile.position.y,
-      tile.position.z + 0.5
-    );
-    this.offsetAttribute.needsUpdate = true;
-
-    this.textureNumberAttribute.setXYZW(
-      index,
-      tile.surfaceTexture,
-      tile.groundTexture,
-      0,
-      0
-    );
-    this.textureNumberAttribute.needsUpdate = true;
-
-    this.brushNumberAttribute.setXYZW(
-      index,
-      tile.surfaceBrush,
-      tile.groundBrush,
-      tile.shadowBrush,
-      tile.highlightBrush
-    );
-    this.brushNumberAttribute.needsUpdate = true;
-
-    this.typeAttribute.setXYZ(index, tile.type, tile.scale, tile.flipped);
-    this.typeAttribute.needsUpdate = true;
+  setChunkPosition(x, y, z) {
+    if (x.x !== undefined && x.x !== null) {
+      this.chunkPosition = new THREE.Vector3(x.x, x.y, x.z);
+    } else {
+      this.chunkPosition = new THREE.Vector3(x, y, z);
+    }
+    return this;
   }
-  */
 
   setPosition(x, y, z) {
-    this.position = new THREE.Vector3(x, y, z);
+    if (x.x !== undefined && x.x !== null) {
+      this.position = new THREE.Vector3(x.x, x.y, x.z);
+    } else {
+      this.position = new THREE.Vector3(x, y, z);
+    }
+
     return this;
   }
 

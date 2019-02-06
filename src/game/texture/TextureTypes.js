@@ -1,4 +1,4 @@
-const groundBrush = { start: 0, amount: 4 };
+const groundBrush = { start: 1, amount: 4 };
 const darkGrass = { start: 64, amount: 4 };
 const grass = { start: 68, amount: 4 };
 

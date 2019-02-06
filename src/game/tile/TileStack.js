@@ -27,11 +27,11 @@ class TileStack {
       aTile.deserialize(a);
       bTile.deserialize(b);
 
-      if (aTile.position.z > bTile.position.z) {
+      if (aTile.chunkPosition.z > bTile.chunkPosition.z) {
         return 1;
       }
 
-      if (bTile.position.z > aTile.position.z) {
+      if (bTile.chunkPosition.z > aTile.chunkPosition.z) {
         return -1;
       }
 

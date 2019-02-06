@@ -1,8 +1,6 @@
 import TileStack from "./TileStack";
 import Chunk from "../../model/tile/Chunk";
-import Tile from "./Tile";
-
-const flyTile = new Tile();
+import * as THREE from "three";
 
 const initDirectory = size => {
   const directory = [];
@@ -21,50 +19,83 @@ const initDirectory = size => {
 };
 
 class TileChunk extends Chunk {
-  constructor(position, size, tiles = []) {
+  constructor(position, size, instanceFactory) {
     super(position, size);
-    this.tiles = [];
     this.directory = initDirectory(size);
-    this.addTiles(tiles);
     this.forRender = [];
     this.changed = true;
+    this.instanceFactory = instanceFactory;
+
+    this.capacity = 0;
+    this.containers = [];
+    this.hibernating = false;
   }
 
   getStack(position) {
-    if (!this.contains(position)) {
-      console.log(this.position, this.size);
-      throw new Error(
-        "Position, " +
-          position.x +
-          "," +
-          position.y +
-          " is not in this directory. Chunk position " +
-          this.position.x +
-          "," +
-          this.position.y +
-          " chunk size: " +
-          this.size
+    if (
+      position.x > this.size - 1 ||
+      position.x < 0 ||
+      position.y > this.size - 1 ||
+      position.y < 0
+    ) {
+      console.log(
+        "tile:",
+        position,
+        "is not in this directory:",
+        this.position,
+        this.size
       );
+      throw new Error("Not in this directory");
     }
+    const xRow = this.directory[position.y];
+    const stack = xRow[position.x];
 
-    const chunkPosition = this.getPositionInChunk(position);
-
-    const xRow = this.directory[chunkPosition.y];
-    const stack = xRow[chunkPosition.x];
+    if (!stack) {
+      throw new Error("TileChunk stack not found");
+    }
 
     return stack;
   }
 
+  setPosition(position) {
+    position = new THREE.Vector3(position.x, position.y, 0);
+    this.position = position;
+    this.containers.forEach(container => container.setPosition(position));
+  }
+
+  hibernate() {
+    this.tiles = [];
+    this.directory = initDirectory(this.size);
+    this.containers.forEach(container => container.resetIndex());
+    this.changed = false;
+    this.hibernating = true;
+  }
+
+  wakeUp() {
+    this.hibernating = false;
+    return this;
+  }
+
   addTiles(tiles) {
+    if (this.hibernating) {
+      throw new Error("This chunk is hibernating");
+    }
+
     tiles.forEach(this.addTile.bind(this));
   }
 
   addTile(tile) {
-    flyTile.deserialize(tile);
-    const tileStack = this.getStack(flyTile.position);
+    if (this.hibernating) {
+      throw new Error("This chunk is hibernating");
+    }
+
+    if (tile[0] === 0 || tile[1] === 0) {
+      return;
+    }
+
+    const tileStack = this.getStack({ x: tile[0], y: tile[1], z: tile[2] });
     tileStack.add(tile);
     this.changed = true;
-    this.tiles.push(tile);
   }
 
   removeTiles(tiles) {
@@ -72,8 +103,7 @@ class TileChunk extends Chunk {
   }
 
   removeTile(tile) {
-    flyTile.deserialize(tile);
-    const tileStack = this.getStack(flyTile.position);
+    const tileStack = this.getStack({ x: tile[0], y: tile[1], z: tile[2] });
     tileStack.remove(tile);
     this.changed = true;
   }
@@ -82,75 +112,47 @@ class TileChunk extends Chunk {
     this.directory.forEach(row => row.forEach(stack => stack.sort()));
   }
 
-  /*
-  getForRenderBypassStacks() {
-    if (!this.changed) {
-      return this.forRender;
+  render() {
+    if (!this.changed || this.hibernating) {
+      return;
     }
 
-    this.forRender = this.tiles.sort((a, b) => {
-      if (a.position.x < b.position.x) {
-        return -1;
-      }
-
-      if (b.position.x < a.position.x) {
-        return 1;
-      }
-
-      if (a.position.y > b.position.y) {
-        return -1;
-      }
-
-      if (b.position.y > a.position.y) {
-        return 1;
-      }
-
-      if (a.position.z > b.position.z) {
-        return 1;
-      }
-
-      if (b.position.z > a.position.z) {
-        return -1;
-      }
-
-      return 0;
-    });
-
-    return this.forRender;
-  }
-  */
-
-  getForRender() {
-    if (!this.changed) {
-      return this.forRender;
-    }
-
-    //return this.getForRenderBypassStacks();
-    //const start = new Date().getTime();
     this.sort();
 
-    //const sortEnd = new Date().getTime();
-
-    this.forRender = [].concat(
+    const tiles = [].concat(
       ...[].concat(
         this.directory.map(row => [].concat(...row.map(stack => stack.tiles)))
       )
     );
 
-    /*
-    const end = new Date().getTime();
-    console.log(
-      "sorting stacks took",
-      sortEnd - start,
-      "constructing array took",
-      end - sortEnd
-    );
-    */
+    while (this.capacity < tiles.length) {
+      const newContainer = this.instanceFactory.create(
+        this.size * this.size * 3
+      );
+      newContainer.setPosition(this.position);
+      this.containers.push(newContainer);
+      this.capacity += newContainer.amount;
+    }
+
+    let tileIndex = 0;
+
+    this.containers.forEach((container, containerIndex) => {
+      container.resetIndex();
+
+      for (let i = 0; i < container.amount && tileIndex < tiles.length; i++) {
+        const tile = tiles[tileIndex];
+
+        container.add(tile, i);
+        tileIndex++;
+      }
+
+      //container.setRenderOrder(this.containers.length - containerIndex);
+      container.markUpdated();
+    });
 
     this.changed = false;
     return this.forRender;
   }
 }
 
-window.TileChunk = TileChunk;
 export default TileChunk;
