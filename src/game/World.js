@@ -1,12 +1,9 @@
 import { Tile } from "./tile";
 
-import TerrainTester from "./test/TerrainTester";
-
 class World {
   constructor(tileLibrary) {
     this.tileLibrary = tileLibrary;
 
-    this.tester = new TerrainTester(this.tileLibrary);
     this.create();
   }
 

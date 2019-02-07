@@ -4,6 +4,9 @@ const grass = { start: 68, amount: 4 };
 
 const rocks = { start: 231, amount: 5 };
 
+const shadowBottomLeftToUpperRight = {start: 16, amount: 1};
+const shadowUpperLeftToBottomRight = {start: 17, amount: 1};
+
 const grassClutter = { start: 245, amount: 7 };
 const twigClutter = { start: 240, amount: 4 };
 const mushroomClutter = { start: 252, amount: 4 };
@@ -15,5 +18,7 @@ export {
   grassClutter,
   twigClutter,
   mushroomClutter,
-  rocks
+  rocks,
+  shadowBottomLeftToUpperRight,
+  shadowUpperLeftToBottomRight
 };

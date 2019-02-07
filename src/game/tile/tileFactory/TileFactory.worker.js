@@ -1,7 +1,6 @@
 import TileFactory from "./TileFactory";
-import TileBinaryChunk from "./TileBinaryChunk";
+import TileBinaryChunk from "../TileBinaryChunk";
 import ndarray from "ndarray";
-import Tile from "./Tile";
 
 const tileFactory = new TileFactory();
 

@@ -1,15 +1,13 @@
 import ndarray from "ndarray";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import TileBinaryChunk from "./TileBinaryChunk";
-import { TileFactory } from ".";
-import TileFactoryWorker from "./TileFactory.worker";
+import TileFactoryWorker from "./tileFactory/TileFactory.worker";
 import WorkerPool from "../../util/WorkerPool";
 
 class TileLibrary {
   constructor() {
     this.binaryChunkSize = 1024;
     this.tileBinaryChunks = {}; //promises of binary chunks
-    this.tileFactory = new TileFactory();
     this.tileFactoryPool = new WorkerPool([new TileFactoryWorker()]);
   }
 

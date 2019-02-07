@@ -22,7 +22,10 @@ class TileRenderer {
 
     window.testTileRenderer = this;
 
-    //this.add(new Tile().setPosition(0, 0, 0.5).setSurfaceTexture(232));
+    //this.add(new Tile().setPosition(0, 0, 1.5).setSurfaceTexture(68).setBrushedType().setSurfaceBrush(1).setShadowBrush(16));
+    //this.add(new Tile().setPosition(0, 3, 1.5).setSurfaceTexture(68).setBrushedType().setSurfaceBrush(1).setHighlightBrush(16));
+    
+    
     //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
   }
 
@@ -66,6 +69,7 @@ class TileRenderer {
         this.add(new Tile().setPosition(position).setSurfaceTexture(232));
       }
     }
+    
   }
 
   getChunkPositionsForNewRenderArea(renderArea) {

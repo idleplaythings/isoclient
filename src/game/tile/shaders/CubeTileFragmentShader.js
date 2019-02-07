@@ -73,66 +73,33 @@ const CubeTileFragmentShader = `
         float brushAlpha = sampleTexture(brushNumber).a;
         textureColor.a -= 1.0 - brushAlpha;
 
+        if (textureColor.a <= 0.0) {
+            return color;
+        }
+
         return combineColorByAlpha(color, textureColor);
     }
 
-
-    vec4 applyShadowAndHighligh(vec4 color, vec4 guideColor, float shadowTextureNumber) {
-        vec4 lightColor = vec4(1, 0.83, 0.56, 1);
-
-        if (guideColor.g > 0.0) {  
-            color.rgb += lightColor.rgb * guideColor.g * 0.2;
-          
-        } 
+    vec4 applyShadowAndHighligh(vec4 color, float shadowTextureNumber, float highlightTextureNumber) {
         
-        if (shadowTextureNumber >= 0.0 && guideColor.r > 0.0) {
-            vec4 shadowColor = sampleTexture(shadowTextureNumber);
-            color.rgb -= (shadowColor.rgb + 1.0) * (shadowColor.a - guideColor.g * 0.8) * 0.2;
+        if (shadowTextureNumber >= 1.0) {
+            vec4 shadowColor = vec4(0.0, 0.0, 0.0, 1);
+            vec4 guide = sampleTexture(shadowTextureNumber);
+
+            color.rgb -= (shadowColor.rgb + 1.0) * guide.a * 0.3;
         }
-        
+
+        if (highlightTextureNumber >= 1.0) {
+            vec4 lightColor = vec4(1, 0.83, 0.56, 1);
+            vec4 guide = sampleTexture(highlightTextureNumber);
+
+            color.rgb += lightColor.rgb * guide.a * 0.3;
+        }
         
         return color;
         
     }
-
-    vec4 handleBrushed() {
-
-        vec4 surfaceColor = vec4(0, 0, 0, 0);
-        vec4 groundColor = vec4(0, 0, 0, 0);
-
-        float surfaceTextureNumber = vTextureNumber1.x;
-        float groundTextureNumber = vTextureNumber1.y;
-        float shadowTextureNumber = vTextureNumber2.z;
-
-        vec4 guideColor = combineColorByAlpha(sampleTexture(vTextureNumber2.x), sampleTexture(vTextureNumber2.y));
-
-        if (guideColor.a == 0.0) {
-            discard;
-        }
-
-        if (guideColor.r > 0.0) {
-            surfaceColor = sampleGuide(surfaceTextureNumber, guideColor.r);
-        } 
-
-        if (guideColor.b > 0.0 ) {
-            groundColor = sampleGuide(groundTextureNumber, guideColor.b);
-        }
-
-        float totalColor = guideColor.r + guideColor.b;
-
-        vec4 finalColor = surfaceColor * guideColor.r / totalColor * surfaceColor.a + groundColor * guideColor.b / totalColor * groundColor.a;
-        finalColor.a *= guideColor.a;
-
-        if (finalColor.a == 0.0) {
-            discard;
-        }
-
-        finalColor = applyShadowAndHighligh(finalColor, guideColor, shadowTextureNumber);
-        
-        return finalColor;
-    }
-
-
+    
     vec4 handleNormal() {
 
         vec4 color = sampleTexture(vTextureNumber1.r);
@@ -143,19 +110,22 @@ const CubeTileFragmentShader = `
         return color;
     }
 
+    vec4 handleBrushed() {
+        vec4 color = combineTextureToColorWithBrush(vec4(0.0), vTextureNumber2.x, vTextureNumber1.x);
+        color = combineTextureToColorWithBrush(color, vTextureNumber2.y, vTextureNumber1.y);
+        color = applyShadowAndHighligh(color, vTextureNumber2.b, vTextureNumber2.a);
+        return color;
+    }
+
     void main() {
         if (vOpacity < 1.0) {
             discard;
         }
 
-
-        
-        if (vType.x == 0.0) {
-            gl_FragColor = handleNormal();
-        } else if (vType.x == 1.0) {
+        if (vType.x == 1.0) {
             gl_FragColor = handleBrushed();
         } else {
-            discard;
+            gl_FragColor = handleNormal();
         }
     }
 `;
