@@ -61,7 +61,11 @@ class TileChunk extends Chunk {
     if (this.hibernating) {
       throw new Error("This chunk is hibernating");
     }
-
+    /*
+    this.tiles = tiles.filter(
+      tile => tile[0] !== this.size - 1 && tile[1] !== this.size - 1
+    );
+*/
     this.tiles = tiles;
     this.changed = true;
   }

@@ -1,6 +1,6 @@
-import { TileBinarySet } from "../../model/tile/index.mjs";
+import { WorldTileBinarySet } from "../../model/tile/index.mjs";
 
-class TileBinaryChunk extends TileBinarySet {
+class TileBinaryChunk extends WorldTileBinarySet {
   constructor(tileList) {
     super(tileList);
     this.lastTouched = Date.now();

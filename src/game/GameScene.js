@@ -9,6 +9,8 @@ class GameScene {
     this.stats = null;
     this.gameCamera = gameCamera;
 
+    window.scene = this;
+
     this.create();
   }
 
@@ -31,6 +33,8 @@ class GameScene {
     this.camera.lookAt(0, 0, 0);
     this.camera.rotation.z += (50.77 * Math.PI) / 180;
 
+    this.camera.position.set(537, 491, 50);
+
     this.gameCamera.init(this.camera);
   }
 
@@ -42,7 +46,7 @@ class GameScene {
     //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var geometry = new THREE.BoxGeometry(1, 1, 2);
     var material = new THREE.MeshBasicMaterial({
       //transparent: true,
       //opacity: 0.25,
@@ -50,9 +54,9 @@ class GameScene {
       wireframe: true
     });
     this.cube = new THREE.Mesh(geometry, material);
-    this.cube.position.set(0, 0, 1.5);
+    this.cube.position.set(514, 517, 2);
     this.cube.renderOrder = 3;
-    //this.scene.add(this.cube);
+    this.scene.add(this.cube);
   }
 
   add(element) {
@@ -70,7 +74,7 @@ class GameScene {
 
     //this.camera.position.x += 0.05;
     //this.camera.position.y -= 0.05;
-    //this.cube.position.y += 0.01;
+    //this.cube.position.x += 0.01;
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
   }

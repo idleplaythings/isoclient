@@ -4,18 +4,14 @@ import * as tileTextures from "../../texture/TextureTypes";
 import GrassFactory from "./GrassFactory";
 
 class TileFactory {
-
-    constructor() {
-        this.grassFactory = new GrassFactory();
-    }
+  constructor() {
+    this.grassFactory = new GrassFactory();
+  }
   create(position, chunkSize, binaryChunk) {
     let tiles = [];
     for (let x = 0; x < chunkSize; x++) {
       for (let y = 0; y < chunkSize; y++) {
-        const tilePosition = {
-          x: x,
-          y: -y
-        };
+        const tilePosition = { x, y };
         //console.log(position, tilePosition, tileSetPosition);
 
         const tileSetPosition = { x, y };
@@ -26,7 +22,8 @@ class TileFactory {
             binaryChunk.getHeight(tileSetPosition),
             binaryChunk.getType(tileSetPosition),
             binaryChunk.getProp(tileSetPosition),
-            binaryChunk.getVisual(tileSetPosition)
+            binaryChunk.getVisual(tileSetPosition),
+            position
           )
         );
       }
@@ -35,10 +32,10 @@ class TileFactory {
     return tiles;
   }
 
-  createTile(position, height, type, prop, visual) {
+  createTile(position, height, type, prop, visual, chunkPosition) {
     switch (type) {
       case TileTypes.type.WATER:
-        return null; //water
+        return []; //water
       case TileTypes.type.REGULAR:
         return this.createGround(position, height, prop, visual);
       case TileTypes.type.SLOPE_SOUTH:
@@ -53,25 +50,43 @@ class TileFactory {
       case TileTypes.type.SLOPE_NORTHEAST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHWEST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHEAST_INVERTED:
-        return this.createGround(position, height, prop, visual);
-      //return this.createSlope(position, height, type, prop, visual);
+        return this.createSlope(position, height, type, prop, visual);
       default:
-        console.log(position, height, type, prop, visual);
+        console.log(
+          "chunkPosition:",
+          chunkPosition,
+          "position:",
+          position,
+          height,
+          type,
+          prop,
+          visual
+        );
         throw new Error("Unrecognized tiletype '" + type + "'");
     }
   }
 
   createGround(position, height, prop, visual) {
     switch (visual) {
-        case TileTypes.visual.GRASS:
-        default:
-          return this.grassFactory.createGround(position, height, prop, visual);
-      }
-    
+      case TileTypes.visual.GRASS:
+      default:
+        return this.grassFactory.createGround(position, height, prop, visual);
+    }
   }
 
-  createSlope(position, height, type, prop, visual) {}
-
+  createSlope(position, height, type, prop, visual) {
+    switch (visual) {
+      case TileTypes.visual.GRASS:
+      default:
+        return this.grassFactory.createSlope(
+          position,
+          height,
+          type,
+          prop,
+          visual
+        );
+    }
+  }
 }
 
 export default TileFactory;

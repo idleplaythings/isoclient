@@ -10,6 +10,13 @@ class GameCamera {
     this.scrollingDown = false;
     this.scrollingRight = false;
     this.scrollingSpeed = 0.02;
+
+    window.gameCamera = this;
+  }
+
+  moveTo(position) {
+    this.implementation.position.x = position.x;
+    this.implementation.position.y = position.y;
   }
 
   init(implementation) {

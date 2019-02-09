@@ -3,6 +3,9 @@ import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import TileBinaryChunk from "./TileBinaryChunk";
 import TileFactoryWorker from "./tileFactory/TileFactory.worker";
 import WorkerPool from "../../util/WorkerPool";
+import * as THREE from "three";
+
+window.TileBinaryChunk = TileBinaryChunk;
 
 class TileLibrary {
   constructor() {
@@ -26,8 +29,12 @@ class TileLibrary {
     const binaryChunk = await this.tileBinaryChunks[key];
     this.touchBinaryChunk(binaryChunk, position);
 
+    const positionInChunk = new THREE.Vector3(position.x, position.y, 0).sub(
+      new THREE.Vector3(binaryChunkPosition.x, binaryChunkPosition.y, 0)
+    );
+
     const { tiles } = await this.tileFactoryPool.work({
-      position,
+      position: positionInChunk,
       chunkSize,
       data: binaryChunk.getData()
     });
@@ -42,7 +49,7 @@ class TileLibrary {
   }
 
   loadBinaryChunk(binaryChunkPosition) {
-    console.log("LOAD BINARY CHUNK");
+    console.log("LOAD BINARY CHUNK", binaryChunkPosition);
     return new Promise((resolve, reject) => {
       const oReq = new XMLHttpRequest();
       oReq.open("GET", "data/result.bin", true);
@@ -51,6 +58,8 @@ class TileLibrary {
       oReq.onload = oEvent => {
         const arrayBuffer = oReq.response; // Note: not oReq.responseText
         if (arrayBuffer) {
+          window.testArray = new Uint8Array(arrayBuffer);
+          window.ndarray = ndarray;
           const data = ndarray(new Uint8Array(arrayBuffer), [1024, 1024, 4]);
           const tileSet = new TileBinaryChunk(data);
           resolve(tileSet);

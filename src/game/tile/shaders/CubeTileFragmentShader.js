@@ -81,21 +81,33 @@ const CubeTileFragmentShader = `
     }
 
     vec4 applyShadowAndHighligh(vec4 color, float shadowTextureNumber, float highlightTextureNumber) {
-        
+
+        float alpha = 0.0;
+
         if (shadowTextureNumber >= 1.0) {
             vec4 shadowColor = vec4(0.0, 0.0, 0.0, 1);
             vec4 guide = sampleTexture(shadowTextureNumber);
 
-            color.rgb -= (shadowColor.rgb + 1.0) * guide.a * 0.3;
+            color.rgb -= (shadowColor.rgb + 1.0) * guide.a * 0.1;
+            alpha = guide.a;
         }
 
         if (highlightTextureNumber >= 1.0) {
-            vec4 lightColor = vec4(1, 0.83, 0.56, 1);
+            //vec4 lightColor = vec4(1, 0.83, 0.56, 1);
+            
+            vec4 lightColor = vec4(1, 1, 1, 1);
             vec4 guide = sampleTexture(highlightTextureNumber);
 
-            color.rgb += lightColor.rgb * guide.a * 0.3;
+            color.rgb += lightColor.rgb * guide.a * 0.1;
+            if (alpha < guide.a) {
+                alpha = guide.a;
+            }
         }
         
+        if (highlightTextureNumber >= 1.0 || shadowTextureNumber >= 1.0) {
+            color.a *= alpha;
+        }
+
         return color;
         
     }
@@ -114,6 +126,7 @@ const CubeTileFragmentShader = `
         vec4 color = combineTextureToColorWithBrush(vec4(0.0), vTextureNumber2.x, vTextureNumber1.x);
         color = combineTextureToColorWithBrush(color, vTextureNumber2.y, vTextureNumber1.y);
         color = applyShadowAndHighligh(color, vTextureNumber2.b, vTextureNumber2.a);
+
         return color;
     }
 
