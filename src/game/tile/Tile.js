@@ -108,6 +108,17 @@ class Tile {
     return this;
   }
 
+  setMasks(mask1, mask2) {
+    this.textures1[2] = mask1;
+    this.textures1[3] = mask2;
+    return this;
+  }
+
+  setSlopeType() {
+    this.setType(2);
+    return this;
+  }
+
   setBrushedType() {
     this.setType(1);
     return this;
@@ -136,7 +147,7 @@ class Tile {
     return this;
   }
 
-  setFlipped(flipped) {
+  setFlipped(flipped = true) {
     if (flipped === true) {
       this.flipped = 1;
     } else if (flipped === false) {

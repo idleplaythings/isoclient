@@ -8,7 +8,7 @@ const create = event => {
   const { position, chunkSize, data, index } = event.data;
 
   const binaryChunk = new TileBinaryChunk(
-    ndarray(new Uint8Array(data), [1024, 1024, 4])
+    ndarray(new Uint8Array(data), [1026, 1026, 4])
   );
 
   binaryChunk.zoomToChunk(position, chunkSize);

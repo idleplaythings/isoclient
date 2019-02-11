@@ -59,8 +59,9 @@ class TileLibrary {
         const arrayBuffer = oReq.response; // Note: not oReq.responseText
         if (arrayBuffer) {
           window.testArray = new Uint8Array(arrayBuffer);
+          console.log(window.testArray.length);
           window.ndarray = ndarray;
-          const data = ndarray(new Uint8Array(arrayBuffer), [1024, 1024, 4]);
+          const data = ndarray(new Uint8Array(arrayBuffer), [1026, 1026, 4]);
           const tileSet = new TileBinaryChunk(data);
           resolve(tileSet);
         }

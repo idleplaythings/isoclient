@@ -33,7 +33,7 @@ class GameScene {
     this.camera.lookAt(0, 0, 0);
     this.camera.rotation.z += (50.77 * Math.PI) / 180;
 
-    this.camera.position.set(537, 491, 50);
+    this.camera.position.set(512 - 25, 512 + 25, 50);
 
     this.gameCamera.init(this.camera);
   }
@@ -57,6 +57,20 @@ class GameScene {
     this.cube.position.set(514, 517, 2);
     this.cube.renderOrder = 3;
     this.scene.add(this.cube);
+
+    /*
+    const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
+    const waterMaterial = new THREE.MeshBasicMaterial({
+      //transparent: true,
+      //opacity: 0.25,
+      color: 0x0000ff,
+      wireframe: false
+    });
+
+    const water = new THREE.Mesh(waterGeometry, waterMaterial);
+    water.position.set(0, 0, 0);
+    this.scene.add(water);
+    */
   }
 
   add(element) {

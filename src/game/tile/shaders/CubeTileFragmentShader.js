@@ -80,36 +80,44 @@ const CubeTileFragmentShader = `
         return combineColorByAlpha(color, textureColor);
     }
 
-    vec4 applyShadowAndHighligh(vec4 color, float shadowTextureNumber, float highlightTextureNumber) {
+    vec4 applyShadowAndHighligh(vec4 color, float highlightTextureNumber) {
 
-        float alpha = 0.0;
-
-        if (shadowTextureNumber >= 1.0) {
-            vec4 shadowColor = vec4(0.0, 0.0, 0.0, 1);
-            vec4 guide = sampleTexture(shadowTextureNumber);
-
-            color.rgb -= (shadowColor.rgb + 1.0) * guide.a * 0.1;
-            alpha = guide.a;
+        if (highlightTextureNumber < 0.0) {
+            return color;
         }
 
-        if (highlightTextureNumber >= 1.0) {
+        vec4 guideColor = sampleTexture(highlightTextureNumber);
+
+        if (guideColor.r > 0.0) {
+            vec4 shadowColor = vec4(0.0, 0.0, 0.0, 1);
+
+            color.rgb -= (shadowColor.rgb + 1.0) * guideColor.r * guideColor.a * 0.1;
+            //color.rgb *= (shadowColor.rgb + 1.0) * (1.0 - guideColor.r * guideColor.a * 0.5);
+        }
+
+        if (guideColor.b > 0.0) {
             //vec4 lightColor = vec4(1, 0.83, 0.56, 1);
             
             vec4 lightColor = vec4(1, 1, 1, 1);
-            vec4 guide = sampleTexture(highlightTextureNumber);
-
-            color.rgb += lightColor.rgb * guide.a * 0.1;
-            if (alpha < guide.a) {
-                alpha = guide.a;
-            }
+            color.rgb += lightColor.rgb * guideColor.b * guideColor.a * 0.1;
+            //color.rgb *= lightColor.rgb * guideColor.b * guideColor.a * 1.1;
         }
         
-        if (highlightTextureNumber >= 1.0 || shadowTextureNumber >= 1.0) {
-            color.a *= alpha;
-        }
-
+    
         return color;
         
+    }
+
+    vec4 applyMask(vec4 color, float textureNumber) {
+
+        if (textureNumber < 1.0) {
+            return color;
+        }
+
+        float maskAlpha = sampleTexture(textureNumber).a;
+
+        color.a *= 1.0 - maskAlpha;
+        return color;
     }
     
     vec4 handleNormal() {
@@ -125,8 +133,18 @@ const CubeTileFragmentShader = `
     vec4 handleBrushed() {
         vec4 color = combineTextureToColorWithBrush(vec4(0.0), vTextureNumber2.x, vTextureNumber1.x);
         color = combineTextureToColorWithBrush(color, vTextureNumber2.y, vTextureNumber1.y);
-        color = applyShadowAndHighligh(color, vTextureNumber2.b, vTextureNumber2.a);
+        color = applyShadowAndHighligh(color, vTextureNumber2.a);
+     
+        return color;
+    }
 
+    vec4 handleSlope() {
+        vec4 color = combineTextureToColorWithBrush(vec4(0.0), vTextureNumber2.x, vTextureNumber1.x);
+        color = combineTextureToColorWithBrush(color, vTextureNumber2.y, vTextureNumber1.y);
+        color = applyShadowAndHighligh(color, vTextureNumber2.a);
+        color = applyMask(color, vTextureNumber1.b);
+        color = applyMask(color, vTextureNumber1.a);
+     
         return color;
     }
 
@@ -135,8 +153,10 @@ const CubeTileFragmentShader = `
             discard;
         }
 
-        if (vType.x == 1.0) {
+        if (vType.x >= 1.0 && vType.x < 2.0) {
             gl_FragColor = handleBrushed();
+        } else if (vType.x >= 2.0 && vType.x < 3.0) {
+            gl_FragColor = handleSlope();
         } else {
             gl_FragColor = handleNormal();
         }

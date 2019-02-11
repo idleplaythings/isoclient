@@ -3,6 +3,10 @@ import * as TileTypes from "../../../model/tile/TileTypes";
 import * as tileTextures from "../../texture/TextureTypes";
 import GrassFactory from "./GrassFactory";
 
+const flyTile = new Tile();
+
+const getRandom = type => Math.floor(Math.random() * type.amount) + type.start;
+
 class TileFactory {
   constructor() {
     this.grassFactory = new GrassFactory();
@@ -14,7 +18,7 @@ class TileFactory {
         const tilePosition = { x, y };
         //console.log(position, tilePosition, tileSetPosition);
 
-        const tileSetPosition = { x, y };
+        const tileSetPosition = { x: x + 1, y: y + 1 };
 
         tiles = tiles.concat(
           this.createTile(
@@ -23,7 +27,9 @@ class TileFactory {
             binaryChunk.getType(tileSetPosition),
             binaryChunk.getProp(tileSetPosition),
             binaryChunk.getVisual(tileSetPosition),
-            position
+            position,
+            tileSetPosition,
+            binaryChunk
           )
         );
       }
@@ -32,10 +38,28 @@ class TileFactory {
     return tiles;
   }
 
-  createTile(position, height, type, prop, visual, chunkPosition) {
+  createTile(
+    position,
+    height,
+    type,
+    prop,
+    visual,
+    chunkPosition,
+    tileSetPosition,
+    binaryChunk
+  ) {
     switch (type) {
       case TileTypes.type.WATER:
-        return []; //water
+        return this.grassFactory.createWater(
+          position,
+          height,
+          type,
+          prop,
+          visual,
+          chunkPosition,
+          tileSetPosition,
+          binaryChunk
+        );
       case TileTypes.type.REGULAR:
         return this.createGround(position, height, prop, visual);
       case TileTypes.type.SLOPE_SOUTH:
@@ -50,7 +74,16 @@ class TileFactory {
       case TileTypes.type.SLOPE_NORTHEAST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHWEST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHEAST_INVERTED:
-        return this.createSlope(position, height, type, prop, visual);
+        return this.createSlope(
+          position,
+          height,
+          type,
+          prop,
+          visual,
+          chunkPosition,
+          tileSetPosition,
+          binaryChunk
+        );
       default:
         console.log(
           "chunkPosition:",
@@ -66,15 +99,42 @@ class TileFactory {
     }
   }
 
-  createGround(position, height, prop, visual) {
+  createGround(
+    position,
+    height,
+    type,
+    prop,
+    visual,
+    chunkPosition,
+    tileSetPosition,
+    binaryChunk
+  ) {
     switch (visual) {
       case TileTypes.visual.GRASS:
       default:
-        return this.grassFactory.createGround(position, height, prop, visual);
+        return this.grassFactory.createGround(
+          position,
+          height,
+          type,
+          prop,
+          visual,
+          chunkPosition,
+          tileSetPosition,
+          binaryChunk
+        );
     }
   }
 
-  createSlope(position, height, type, prop, visual) {
+  createSlope(
+    position,
+    height,
+    type,
+    prop,
+    visual,
+    chunkPosition,
+    tileSetPosition,
+    binaryChunk
+  ) {
     switch (visual) {
       case TileTypes.visual.GRASS:
       default:
@@ -83,7 +143,10 @@ class TileFactory {
           height,
           type,
           prop,
-          visual
+          visual,
+          chunkPosition,
+          tileSetPosition,
+          binaryChunk
         );
     }
   }
