@@ -1,7 +1,10 @@
 const CubeTileVertexShader = `
     precision highp float;
+    uniform mat4 modelMatrix;
+    uniform mat4 viewMatrix;
     uniform mat4 modelViewMatrix;
     uniform mat4 projectionMatrix;
+    uniform float time;
     attribute vec3 position;
     attribute vec3 offset;
     attribute float opacity;
@@ -14,6 +17,7 @@ const CubeTileVertexShader = `
     varying vec4 vTextureNumber1;
     varying vec4 vTextureNumber2;
     varying vec3 vType;
+    varying vec4 vPosition;
 
     
     float isFlipped() {
@@ -46,9 +50,14 @@ const CubeTileVertexShader = `
         vTextureNumber1 = textureNumber1;
         vTextureNumber2 = textureNumber2;
 
-        vec3 vPosition = applyQuaternionToVector(position );
+        if (type.x >= 3.0 && type.x < 4.0 && position.z < -0.4) {
+            vOpacity = 0.0;
+        }
+    
+        
+        vPosition = modelMatrix * vec4( offset + position, 1.0 );
 
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + vPosition * getScale(), 1.0 );
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + applyQuaternionToVector(position) * getScale(), 1.0 );
     }
 
 `;

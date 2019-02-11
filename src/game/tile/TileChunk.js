@@ -121,8 +121,8 @@ class TileChunk extends Chunk {
     this.needSorting = false;
   }
 
-  render(nomore) {
-    if (!this.changed || this.hibernating || nomore) {
+  render(now) {
+    if (!this.changed || this.hibernating) {
       return;
     }
 

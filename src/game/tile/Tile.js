@@ -129,6 +129,11 @@ class Tile {
     return this;
   }
 
+  setWaterType() {
+    this.setType(3);
+    return this;
+  }
+
   setType(number) {
     if (number < 0 || number > 15) {
       throw new Error("Tile type must be 0 to 15");

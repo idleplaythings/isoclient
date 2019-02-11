@@ -28,7 +28,8 @@ THREE.LinearMipMapLinearFilter
 */
     this.material = new THREE.RawShaderMaterial({
       uniforms: {
-        map: { value: texture }
+        map: { value: texture },
+        time: { type: "f", value: 0.0 }
       },
       blending: THREE.NormalBlending,
       opacity: 1,
@@ -41,6 +42,22 @@ THREE.LinearMipMapLinearFilter
       vertexShader: CubeTileVertexShader,
       fragmentShader: CubeTileFragmentShader
     });
+
+    this.start = Date.now() / 3000;
+    this.updateLoop();
+  }
+
+  updateLoop() {
+    const now = Date.now();
+    const sineAmplitude = 1.0;
+    const sineFrequency = 200;
+
+    const sine =
+      sineAmplitude * 0.5 * Math.sin(now / sineFrequency) + sineAmplitude;
+
+    this.material.uniforms.time.value = Date.now() / 3000 - this.start;
+
+    requestAnimationFrame(this.updateLoop.bind(this));
   }
 
   async init() {

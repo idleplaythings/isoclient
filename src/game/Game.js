@@ -34,7 +34,7 @@ class Game {
 
     this.gameScene.render();
     this.world.render();
-    this.tileRenderer.render(delta);
+    this.tileRenderer.render(now, delta);
     this.camera.render(delta);
     requestAnimationFrame(this.gameloop.bind(this));
   }

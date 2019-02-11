@@ -28,14 +28,12 @@ class TileRenderer {
     //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
   }
 
-  render(delta) {
+  render(now, delta) {
     if (!this.instanceFactory.ready) {
       return;
     }
 
-    this.renderChunks.forEach(chunk => chunk.render(this.nomore));
-
-    const now = performance.now();
+    this.renderChunks.forEach(chunk => chunk.render(now, delta));
     const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
 
     if (this.changed) {
@@ -45,12 +43,6 @@ class TileRenderer {
     if (!renderArea.equals(this.renderArea)) {
       this.getChunkPositionsForNewRenderArea(renderArea);
       this.renderArea = renderArea;
-    }
-
-    const render = performance.now() - now;
-
-    if (render > 5) {
-      console.log("render", render);
     }
 
     /*

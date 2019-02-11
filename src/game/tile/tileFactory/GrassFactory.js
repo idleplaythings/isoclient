@@ -180,7 +180,6 @@ class GrassFactory {
         .setChunkPosition(position.x, position.y, height)
         .setSurfaceBrush(this.getSurfaceBrushForSlope(type))
         .setSurfaceTexture(getRandom(tileTextures.mud))
-        //.setSurfaceTexture(20)
         .setSlopeType()
         .setHighlightBrush(highlightTexture)
         .setMasks(...this.getMaskForSlope(type, tileSetPosition, binaryChunk))
@@ -193,16 +192,22 @@ class GrassFactory {
 
   createWater(position, height, type, prop, visual, chunkPosition) {
     const tiles = [];
-    return tiles;
 
     tiles.push(
       flyTile
         .reset()
-        .setChunkPosition(position.x, position.y, 0)
-        .setSurfaceBrush(getRandom(tileTextures.groundBrush))
-        .setSurfaceTexture(getRandom(tileTextures.water))
+        .setChunkPosition(position.x, position.y, height)
+        .setSurfaceBrush(this.getSurfaceBrush(visual))
+        .setSurfaceTexture(getRandom(tileTextures.mud))
         .setBrushedType()
-        //.setFlipped()
+        .serialize()
+    );
+
+    tiles.push(
+      flyTile
+        .reset()
+        .setChunkPosition(position.x, position.y, height + 0.1)
+        .setWaterType()
         .serialize()
     );
 

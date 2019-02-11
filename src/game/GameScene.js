@@ -16,7 +16,7 @@ class GameScene {
 
   create() {
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0, 0, 0);
+    this.scene.background = new THREE.Color(0, 46 / 255, 61 / 255);
 
     const d = 120;
     this.camera = new THREE.OrthographicCamera(

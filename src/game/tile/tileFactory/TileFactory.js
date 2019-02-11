@@ -48,20 +48,29 @@ class TileFactory {
     tileSetPosition,
     binaryChunk
   ) {
-    switch (type) {
-      case TileTypes.type.WATER:
-        return this.grassFactory.createWater(
+    const tiles = [];
+
+    if (height < 2) {
+      tiles.push(
+        ...this.grassFactory.createWater(
           position,
-          height,
+          0,
           type,
           prop,
           visual,
           chunkPosition,
           tileSetPosition,
           binaryChunk
-        );
+        )
+      );
+    }
+
+    switch (type) {
+      case TileTypes.type.WATER:
+        break;
       case TileTypes.type.REGULAR:
-        return this.createGround(position, height, prop, visual);
+        tiles.push(...this.createGround(position, height, prop, visual));
+        break;
       case TileTypes.type.SLOPE_SOUTH:
       case TileTypes.type.SLOPE_WEST:
       case TileTypes.type.SLOPE_EAST:
@@ -74,16 +83,19 @@ class TileFactory {
       case TileTypes.type.SLOPE_NORTHEAST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHWEST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHEAST_INVERTED:
-        return this.createSlope(
-          position,
-          height,
-          type,
-          prop,
-          visual,
-          chunkPosition,
-          tileSetPosition,
-          binaryChunk
+        tiles.push(
+          ...this.createSlope(
+            position,
+            height,
+            type,
+            prop,
+            visual,
+            chunkPosition,
+            tileSetPosition,
+            binaryChunk
+          )
         );
+        break;
       default:
         console.log(
           "chunkPosition:",
@@ -97,6 +109,8 @@ class TileFactory {
         );
         throw new Error("Unrecognized tiletype '" + type + "'");
     }
+
+    return tiles;
   }
 
   createGround(
