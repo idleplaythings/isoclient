@@ -37,6 +37,19 @@ class GrassFactory {
         .serialize()
     ];
 
+    /*
+    if (height <= 0) {
+        tiles.push(
+            flyTile
+                .reset()
+                .setChunkPosition(position.x, position.y, height + 0.1)
+                .setWaterType()
+                .serialize()
+            );
+        
+    }
+    */
+
     tiles = tiles.concat(
       this.createClutterTiles(
         position,
@@ -172,6 +185,14 @@ class GrassFactory {
           .setBrushedType()
           .serialize()
       );
+    } else {
+        tiles.push(
+            flyTile
+              .reset()
+              .setChunkPosition(position.x, position.y, height - 0.99)
+              .setWaterType()
+              .serialize()
+          );
     }
 
     tiles.push(
@@ -202,7 +223,7 @@ class GrassFactory {
         .setBrushedType()
         .serialize()
     );
-
+    
     tiles.push(
       flyTile
         .reset()

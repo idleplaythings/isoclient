@@ -50,23 +50,22 @@ class TileFactory {
   ) {
     const tiles = [];
 
-    if (height < 2) {
-      tiles.push(
-        ...this.grassFactory.createWater(
-          position,
-          0,
-          type,
-          prop,
-          visual,
-          chunkPosition,
-          tileSetPosition,
-          binaryChunk
-        )
-      );
-    }
-
     switch (type) {
       case TileTypes.type.WATER:
+   
+        tiles.push(
+            ...this.grassFactory.createWater(
+            position,
+            0,
+            type,
+            prop,
+            visual,
+            chunkPosition,
+            tileSetPosition,
+            binaryChunk
+            )
+        );
+        
         break;
       case TileTypes.type.REGULAR:
         tiles.push(...this.createGround(position, height, prop, visual));

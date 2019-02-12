@@ -16,6 +16,10 @@ class InstanceFactory {
     this.init();
 
     const texture = new THREE.TextureLoader().load("img/spritesheet.png");
+    const noise = new THREE.TextureLoader().load("img/noise.png");
+    noise.wrapS = noise.wrapT = THREE.RepeatWrapping;
+    const noise2 = new THREE.TextureLoader().load("img/noise2.png");
+    noise2.wrapS = noise2.wrapT = THREE.RepeatWrapping;
     //texture.minFilter = THREE.LinearMipMapNearestFilter;
 
     /*
@@ -29,6 +33,8 @@ THREE.LinearMipMapLinearFilter
     this.material = new THREE.RawShaderMaterial({
       uniforms: {
         map: { value: texture },
+        noiseMap1: { value: noise },
+        noiseMap2: { value: noise2},
         time: { type: "f", value: 0.0 }
       },
       blending: THREE.NormalBlending,
