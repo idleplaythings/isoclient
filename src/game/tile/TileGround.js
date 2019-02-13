@@ -12,7 +12,7 @@ const getDefaultOpacity = size => {
 
   for (let x = 0; x < size; x++) {
     for (let y = 0; y < size; y++) {
-      if (x === size - 1 || x === 0 || y === 0 || y === size - 1) {
+      if (x === 0 || y === 0 || x === size - 1 || y === size - 1) {
         defaultOpacity.push(0);
       } else {
         defaultOpacity.push(1);
@@ -59,10 +59,15 @@ class TileGround {
   }
 
   setPosition(position) {
-    this.mesh.position.set(position.x, position.y, 0);
+    this.mesh.position.set(
+      position.x + Math.floor(this.size / 2) - 1.5,
+      position.y - Math.floor(this.size / 2) + 1.5,
+      0
+    );
   }
 
   setHeights(heights) {
+    console.log("heights lenght", heights.length);
     heights.forEach((height, index) => {
       this.geometry.attributes.position.setZ(index, height);
     });

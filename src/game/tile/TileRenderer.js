@@ -70,8 +70,8 @@ class TileRenderer {
     const need = positions.filter(
       position =>
         !Boolean(this.chunksByLocation[getChunkKey(position)]) &&
-        !Boolean(this.pendingChunksByLocation[getChunkKey(position)]) &&
-        (position.x === 416 + 16 * 2 && position.y === 576 - 16) //DEBUG, REMOVE
+        !Boolean(this.pendingChunksByLocation[getChunkKey(position)]) //&&
+      //(position.x === 448 && position.y === 560) //DEBUG, REMOVE
     );
 
     this.chunks = this.chunks.filter(chunk => {

@@ -62,6 +62,7 @@ class TileChunk extends Chunk {
 
   addHeights(heights) {
     this.ground.setHeights(heights);
+    this.changed = true;
   }
 
   addTiles(tiles) {

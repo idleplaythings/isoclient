@@ -46,18 +46,21 @@ class GameScene {
     //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
 
-    var geometry = new THREE.BoxGeometry(1, 1, 2);
     var material = new THREE.MeshBasicMaterial({
       //transparent: true,
       //opacity: 0.25,
       color: 0x00ff00,
       wireframe: true
     });
-    this.cube = new THREE.Mesh(geometry, material);
-    this.cube.position.set(514, 517, 2);
+    this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
+    this.cube.position.set(448, 560, 0.5);
     this.cube.renderOrder = 3;
     this.scene.add(this.cube);
 
+    this.cube2 = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
+    this.cube2.position.set(448 + 15, 560, 0.5);
+    this.cube2.renderOrder = 3;
+    this.scene.add(this.cube2);
     /*
     const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
     const waterMaterial = new THREE.MeshBasicMaterial({

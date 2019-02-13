@@ -11,11 +11,14 @@ const create = event => {
     ndarray(new Uint8Array(data), [1026, 1026, 4])
   );
 
-  binaryChunk.zoomToChunk(position, chunkSize, 2);
-  const heights = tileFactory.createHeightInformation(chunkSize, binaryChunk);
-  binaryChunk.resetZoom();
+  console.log("position", position);
 
   binaryChunk.zoomToChunk(position, chunkSize);
+  const heights = tileFactory.createHeightInformation(
+    position,
+    chunkSize,
+    binaryChunk
+  );
   const tiles = tileFactory.create(position, chunkSize, binaryChunk);
   binaryChunk.resetZoom();
 

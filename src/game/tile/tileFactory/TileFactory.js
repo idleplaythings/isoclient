@@ -2,6 +2,7 @@ import Tile from "../Tile";
 import * as TileTypes from "../../../model/tile/TileTypes";
 import * as tileTextures from "../../texture/TextureTypes";
 import GrassFactory from "./GrassFactory";
+import ndarray from "ndarray";
 
 const flyTile = new Tile();
 
@@ -12,16 +13,23 @@ class TileFactory {
     this.grassFactory = new GrassFactory();
   }
 
-  createHeightInformation(chunkSize, binaryChunk) {
-    const heights = [];
+  createHeightInformation(chunkPosition, chunkSize, binaryChunk) {
+    const heights = ndarray(new Uint8Array(361), [19, 19, 1]);
 
-    for (let x = 0; x < chunkSize + 3; x++) {
-      for (let y = 0; y < chunkSize + 3; y++) {
-        heights.push(binaryChunk.getHeight({ x, y: y }));
+    for (let x = 0; x < chunkSize + 2; x++) {
+      for (let y = 0; y < chunkSize + 2; y++) {
+        heights.set(
+          //18 - (x + 1),
+          y + 1,
+          x + 1,
+          //18 - (y + 1),
+          1,
+          binaryChunk.getHeight({ x: x, y: y })
+        );
       }
     }
 
-    return new Uint8Array(heights);
+    return heights.data;
   }
 
   create(position, chunkSize, binaryChunk) {
