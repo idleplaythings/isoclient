@@ -33,13 +33,13 @@ class TileLibrary {
       new THREE.Vector3(binaryChunkPosition.x, binaryChunkPosition.y, 0)
     );
 
-    const { tiles } = await this.tileFactoryPool.work({
+    const { tiles, heights } = await this.tileFactoryPool.work({
       position: positionInChunk,
       chunkSize,
       data: binaryChunk.getData()
     });
 
-    return tiles;
+    return { tiles, heights };
   }
 
   touchBinaryChunk(chunk, position) {

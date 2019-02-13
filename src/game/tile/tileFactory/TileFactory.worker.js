@@ -11,11 +11,15 @@ const create = event => {
     ndarray(new Uint8Array(data), [1026, 1026, 4])
   );
 
+  binaryChunk.zoomToChunk(position, chunkSize, 2);
+  const heights = tileFactory.createHeightInformation(chunkSize, binaryChunk);
+  binaryChunk.resetZoom();
+
   binaryChunk.zoomToChunk(position, chunkSize);
   const tiles = tileFactory.create(position, chunkSize, binaryChunk);
   binaryChunk.resetZoom();
 
-  self.postMessage({ tiles: tiles, position, index });
+  self.postMessage({ tiles: tiles, position, index, heights });
 };
 
 self.addEventListener("message", create);

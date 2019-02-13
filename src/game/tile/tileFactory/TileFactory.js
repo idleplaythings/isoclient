@@ -11,6 +11,19 @@ class TileFactory {
   constructor() {
     this.grassFactory = new GrassFactory();
   }
+
+  createHeightInformation(chunkSize, binaryChunk) {
+    const heights = [];
+
+    for (let x = 0; x < chunkSize + 3; x++) {
+      for (let y = 0; y < chunkSize + 3; y++) {
+        heights.push(binaryChunk.getHeight({ x, y: y }));
+      }
+    }
+
+    return new Uint8Array(heights);
+  }
+
   create(position, chunkSize, binaryChunk) {
     let tiles = [];
     for (let x = 0; x < chunkSize; x++) {
@@ -49,12 +62,12 @@ class TileFactory {
     binaryChunk
   ) {
     const tiles = [];
+    return [];
 
     switch (type) {
       case TileTypes.type.WATER:
-   
         tiles.push(
-            ...this.grassFactory.createWater(
+          ...this.grassFactory.createWater(
             position,
             0,
             type,
@@ -63,9 +76,9 @@ class TileFactory {
             chunkPosition,
             tileSetPosition,
             binaryChunk
-            )
+          )
         );
-        
+
         break;
       case TileTypes.type.REGULAR:
         tiles.push(...this.createGround(position, height, prop, visual));

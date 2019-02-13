@@ -12,6 +12,8 @@ class TileChunk extends Chunk {
     this.capacity = 0;
     this.containers = [];
     this.hibernating = false;
+
+    this.ground = this.instanceFactory.createGround(this.size + 2);
   }
 
   getStack(position) {
@@ -44,6 +46,7 @@ class TileChunk extends Chunk {
     position = new THREE.Vector3(position.x, position.y, 0);
     this.position = position;
     this.containers.forEach(container => container.setPosition(position));
+    this.ground.setPosition(position);
   }
 
   hibernate() {
@@ -55,6 +58,10 @@ class TileChunk extends Chunk {
   wakeUp() {
     this.hibernating = false;
     return this;
+  }
+
+  addHeights(heights) {
+    this.ground.setHeights(heights);
   }
 
   addTiles(tiles) {
@@ -126,6 +133,7 @@ class TileChunk extends Chunk {
       return;
     }
 
+    this.ground.setPosition(this.position);
     this.sort();
 
     while (this.capacity < this.tiles.length) {

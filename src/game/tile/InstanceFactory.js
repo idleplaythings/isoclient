@@ -3,6 +3,7 @@ import CubeTileFragmentShader from "./shaders/CubeTileFragmentShader";
 import CubeTileVertexShader from "./shaders/CubeTileVertexShader";
 import GLTFLoader from "three-gltf-loader";
 import TileContainer from "./TileContainer";
+import TileGround from "./TileGround";
 
 let loadedCube = null;
 let numberCreated = 0;
@@ -34,7 +35,7 @@ THREE.LinearMipMapLinearFilter
       uniforms: {
         map: { value: texture },
         noiseMap1: { value: noise },
-        noiseMap2: { value: noise2},
+        noiseMap2: { value: noise2 },
         time: { type: "f", value: 0.0 }
       },
       blending: THREE.NormalBlending,
@@ -184,6 +185,10 @@ THREE.LinearMipMapLinearFilter
         }
       );
     });
+  }
+
+  createGround(size) {
+    return new TileGround(this.scene, size, null);
   }
 }
 

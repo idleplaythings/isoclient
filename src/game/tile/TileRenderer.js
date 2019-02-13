@@ -70,7 +70,8 @@ class TileRenderer {
     const need = positions.filter(
       position =>
         !Boolean(this.chunksByLocation[getChunkKey(position)]) &&
-        !Boolean(this.pendingChunksByLocation[getChunkKey(position)])
+        !Boolean(this.pendingChunksByLocation[getChunkKey(position)]) &&
+        (position.x === 416 + 16 * 2 && position.y === 576 - 16) //DEBUG, REMOVE
     );
 
     this.chunks = this.chunks.filter(chunk => {
@@ -93,7 +94,7 @@ class TileRenderer {
 
       this.pendingChunksByLocation[needKey] = true;
 
-      const tiles = await this.world.getTileChunkForRenderArea(
+      const { tiles, heights } = await this.world.getTileChunkForRenderArea(
         needPosition,
         this.chunkSize
       );
@@ -102,6 +103,7 @@ class TileRenderer {
 
       const chunk = this.getChunk(needPosition);
       chunk.addTiles(tiles);
+      chunk.addHeights(heights);
     });
   }
 
