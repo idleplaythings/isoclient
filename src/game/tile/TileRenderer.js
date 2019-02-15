@@ -22,8 +22,28 @@ class TileRenderer {
 
     window.testTileRenderer = this;
 
-    //this.add(new Tile().setPosition(0, 0, 1.5).setSurfaceTexture(68).setBrushedType().setSurfaceBrush(1).setShadowBrush(16));
-    //this.add(new Tile().setPosition(0, 3, 1.5).setSurfaceTexture(68).setBrushedType().setSurfaceBrush(1).setHighlightBrush(16));
+    /*
+    this.add(
+      new Tile()
+        .setPosition(0, 0, 1)
+        .setSurfaceTexture(68)
+        .setBrushedType()
+        .setSurfaceBrush(1)
+        .setShadowBrush(16)
+    );
+
+    /*
+    this.add(
+      new Tile()
+        .setPosition(0, 0, 1.01)
+        .setSurfaceTexture(72)
+        .setBrushedType()
+        .setSurfaceBrush(1)
+        .setHighlightBrush(16)
+    );
+    */
+
+    //this.add(new Tile().setPosition(0, 0, 1.01).setWaterType());
 
     //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
   }
@@ -148,6 +168,7 @@ class TileRenderer {
   add(tile) {
     let chunk = this.getChunkForTile(tile);
     const positionInChunk = tile.position.clone().sub(chunk.position);
+    console.log("position in chunk", positionInChunk);
     tile.setChunkPosition(
       positionInChunk.x,
       positionInChunk.y,

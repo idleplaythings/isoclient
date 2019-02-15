@@ -115,6 +115,14 @@ class TileChunk extends Chunk {
         return -1;
       }
 
+      if (a[11] === 3 && b[11] !== 3) {
+        return 1;
+      }
+
+      if (b[11] === 3 && a[11] !== 3) {
+        return -1;
+      }
+
       return 0;
     });
 

@@ -162,7 +162,7 @@ const CubeTileFragmentShader = `
         }
         */
 
-        vec4 waterColor = vec4(0.0, 0.517, 0.839, 0.2);
+        vec4 waterColor = vec4(0.0, 0.18, 0.23, 0.6);
         vec4 higlightColor = vec4(1.0, 1.0, 1.0, 0.0);
 
         if (noise < 0.1) {
@@ -177,6 +177,7 @@ const CubeTileFragmentShader = `
             extraAlpha = (higlightColor.a - 0.5) * 2.0;
             higlightColor.a = (higlightColor.a - 0.5) * 10.0;
         } else if (higlightColor.a > 0.4) {
+            //extraAlpha = - (higlightColor.a - 0.4) * 2.0;
             higlightColor.a = clamp((higlightColor.a - 0.4) * 2.0, 0.0, 0.3);
         } else {
             higlightColor.a = 0.0;

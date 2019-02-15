@@ -29,11 +29,10 @@ const groundBrushCoast = { start: 32, amount: 4 };
 const darkGrass = { start: 64, amount: 4 };
 const grass = { start: 68, amount: 4 };
 const mud = { start: 72, amount: 4 };
+const oceanFloor = { start: 76, amount: 4 };
 
 const rocks = { start: 231, amount: 5 };
 const bushes = { start: 236, amount: 1 };
-
-const water = { start: 96, amount: 1 };
 
 const shadow_box = { start: 16, amount: 1 };
 const highlight_box = { start: 17, amount: 1 };
@@ -115,5 +114,6 @@ export {
   weedsFront,
   weedsBack,
   bushes,
-  mud
+  mud,
+  oceanFloor
 };
