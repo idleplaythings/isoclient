@@ -92,11 +92,11 @@ class TileChunk extends Chunk {
   sort() {
     this.tiles = this.tiles.sort((a, b) => {
       if (a[1] > b[1]) {
-        return 1;
+        return -1;
       }
 
       if (b[1] > a[1]) {
-        return -1;
+        return 1;
       }
 
       if (a[0] > b[0]) {
@@ -121,6 +121,14 @@ class TileChunk extends Chunk {
 
       if (b[11] === 3 && a[11] !== 3) {
         return -1;
+      }
+
+      if (a[12] > b[12]) {
+        return -1;
+      }
+
+      if (b[12] > a[12]) {
+        return 1;
       }
 
       return 0;

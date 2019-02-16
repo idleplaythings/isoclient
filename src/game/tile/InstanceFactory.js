@@ -16,6 +16,7 @@ class InstanceFactory {
     this.init();
 
     const texture = new THREE.TextureLoader().load("img/spritesheet.png");
+    const texture2 = new THREE.TextureLoader().load("img/spritesheet2x2.png");
     const noise = new THREE.TextureLoader().load("img/noise.png");
     noise.wrapS = noise.wrapT = THREE.RepeatWrapping;
     const noise2 = new THREE.TextureLoader().load("img/noise2.png");
@@ -33,8 +34,9 @@ THREE.LinearMipMapLinearFilter
     this.material = new THREE.RawShaderMaterial({
       uniforms: {
         map: { value: texture },
+        map2: { value: texture2 },
         noiseMap1: { value: noise },
-        noiseMap2: { value: noise2},
+        noiseMap2: { value: noise2 },
         time: { type: "f", value: 0.0 }
       },
       blending: THREE.NormalBlending,

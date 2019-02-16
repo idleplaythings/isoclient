@@ -1,10 +1,15 @@
 import Tile from "../Tile";
 import * as tileTextures from "../../texture/TextureTypes";
 import { getRandom } from "./Utils";
+import TreeFactory from "./TreeFactory";
 
 const flyTile = new Tile();
 
 class GrassFactory {
+  constructor() {
+    this.treeFactory = new TreeFactory();
+  }
+
   populateGroundTile(tile) {
     tile
       .setSurfaceBrush(this.getSurfaceBrush())
@@ -15,6 +20,7 @@ class GrassFactory {
 
   populateSlopeTile(tile) {
     tile.setSurfaceTexture(getRandom(tileTextures.mud));
+    //.setTexture(1, getRandom(tileTextures.rocks));
 
     return tile;
   }
@@ -36,7 +42,10 @@ class GrassFactory {
     const { position, height } = props;
     const random = Math.random();
     const tiles = [];
-    if (random > 0.7) {
+
+    if (random < 0.02) {
+      return this.treeFactory.createTree(props);
+    } else if (random > 0.7) {
       tiles.push(
         flyTile
           .reset()

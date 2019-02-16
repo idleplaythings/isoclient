@@ -91,12 +91,11 @@ class TileContainer {
 
     this.opacityAttribute.setX(index, 1.0);
 
-    const flipExtra = data[13] ? 0.0001 : 0;
     this.offsetAttribute.setXYZ(
       index,
-      data[0] + flipExtra,
-      -data[1] - flipExtra,
-      data[2] + 0.5 + flipExtra
+      data[0] + data[14][0],
+      data[1] + data[14][1],
+      data[2] + data[14][2]
     );
 
     this.textureNumber1Attribute.setXYZW(

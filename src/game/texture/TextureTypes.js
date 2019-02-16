@@ -61,6 +61,8 @@ const mushroomClutter = { start: 252, amount: 4 };
 const weedsFront = { start: 224, amount: 4 };
 const weedsBack = { start: 228, amount: 3 };
 
+const largeFoliage = { start: 256, amount: 3 };
+
 export {
   groundBrush,
   darkGrass,
@@ -115,5 +117,6 @@ export {
   weedsBack,
   bushes,
   mud,
-  oceanFloor
+  oceanFloor,
+  largeFoliage
 };

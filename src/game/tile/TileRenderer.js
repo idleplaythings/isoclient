@@ -23,13 +23,39 @@ class TileRenderer {
     window.testTileRenderer = this;
 
     /*
+    this.add(new Tile().setPosition(0, 0, 0).setTexture(0, 96));
+    this.add(new Tile().setPosition(0, 0, 1).setTexture(0, 96));
+    this.add(new Tile().setPosition(0, 0, 2).setTexture(0, 96));
+
     this.add(
       new Tile()
-        .setPosition(0, 0, 1)
-        .setSurfaceTexture(68)
-        .setBrushedType()
-        .setSurfaceBrush(1)
-        .setShadowBrush(16)
+        .setPosition(-1, 0, 3)
+        .setSurfaceTexture(256)
+        .setScale(2)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(1, 0, 3)
+        .setOffset(0.001, -0.001, 0.001)
+        .setSurfaceTexture(256)
+        .setScale(2)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(-1, 1, 3)
+        .setOffset(0.002, -0.002, 0.002)
+        .setSurfaceTexture(256)
+        .setScale(2)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(1, 1, 3)
+        .setOffset(0.002, -0.002, 0.002)
+        .setSurfaceTexture(256)
+        .setScale(2)
     );
 
     /*
@@ -168,7 +194,14 @@ class TileRenderer {
   add(tile) {
     let chunk = this.getChunkForTile(tile);
     const positionInChunk = tile.position.clone().sub(chunk.position);
-    console.log("position in chunk", positionInChunk);
+    console.log(
+      "position",
+      tile.position,
+      "position in chunk",
+      positionInChunk,
+      "chunk",
+      chunk.position
+    );
     tile.setChunkPosition(
       positionInChunk.x,
       positionInChunk.y,

@@ -1,6 +1,7 @@
 const CubeTileFragmentShader = `
     precision highp float;
     uniform sampler2D map;
+    uniform sampler2D map2;
     uniform sampler2D noiseMap1;
     uniform sampler2D noiseMap2;
     uniform float time;
@@ -30,11 +31,22 @@ const CubeTileFragmentShader = `
             y = 1.0 - vUv.y;
         }
 
+        int mapNumber = 0;
+
+        if (number > 255.0) {
+            mapNumber = 1;
+            number -= 255.0;
+        }
+
         float textureAmount = 16.0;
         vec2 tPos = vec2((mod(number, textureAmount) * (1.0 / textureAmount)), (floor(number / textureAmount) * (1.0 / textureAmount)));
         vec2 finalPos = vec2((vUv.x / textureAmount + tPos.x), 1.0 - (y / textureAmount + tPos.y));
 
-        return texture2D( map, finalPos );
+        if (mapNumber == 1) {
+            return texture2D( map2, finalPos ); 
+        } else {
+            return texture2D( map, finalPos );
+        }
     }
 
     vec4 sampleGuide(float number, float guideColor) {
@@ -53,7 +65,11 @@ const CubeTileFragmentShader = `
             return colorA;
         }
 
+        float alpha = colorB.a > colorA.a ? colorB.a : colorA.a;
+
         vec4 finalColor = mix(colorA, colorB, colorB.a);
+
+        finalColor.a = alpha;
 
         return finalColor;
     }

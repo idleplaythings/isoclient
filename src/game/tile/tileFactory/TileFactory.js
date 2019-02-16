@@ -17,7 +17,7 @@ class TileFactory {
     let tiles = [];
     for (let x = 0; x < chunkSize; x++) {
       for (let y = 0; y < chunkSize; y++) {
-        const tilePosition = { x, y };
+        const tilePosition = { x, y: -y };
         //console.log(position, tilePosition, tileSetPosition);
 
         const tileSetPosition = { x: x + 1, y: y + 1 };
@@ -157,13 +157,15 @@ class TileFactory {
       );
     }
 
+    const surfaceBrush = this.getSurfaceBrushForSlope(type);
     tiles.push(
       this.getFactory(visual)
         .populateSlopeTile(
           flyTile
             .reset()
             .setChunkPosition(position.x, position.y, height)
-            .setSurfaceBrush(this.getSurfaceBrushForSlope(type))
+            .setSurfaceBrush(surfaceBrush)
+            .setGroundBrush(surfaceBrush)
             .setSlopeType()
             .setHighlightBrush(highlightTexture)
             .setMasks(

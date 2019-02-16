@@ -13,14 +13,34 @@ class Tile {
     this.type = 0;
     this.scale = 1;
     this.flipped = 0;
+    this.offset = {
+      x: 0,
+      y: 0,
+      z: 0
+    };
 
     return this;
   }
 
   serialize() {
-    const data = new Uint8Array([
+    const flipExtra = this.flipped ? 0.0001 : 0;
+    const offset = {
+      x: this.offset.x + flipExtra,
+      y: this.offset.y - flipExtra,
+      z: this.offset.z + flipExtra
+    };
+
+    if (this.scale === 2) {
+      offset.x -= 0.5;
+      offset.y += 0.5;
+      offset.z += 1;
+    } else {
+      offset.z += 0.5;
+    }
+
+    const data = [
       this.chunkPosition.x,
-      Math.abs(this.chunkPosition.y),
+      this.chunkPosition.y,
       this.chunkPosition.z,
       this.textures1[0],
       this.textures1[1],
@@ -32,8 +52,9 @@ class Tile {
       this.textures2[3],
       this.type,
       this.scale,
-      this.flipped
-    ]);
+      this.flipped,
+      [offset.x, offset.y, offset.z]
+    ];
 
     return data;
   }
@@ -45,6 +66,21 @@ class Tile {
     this.type = data[11];
     this.scale = data[12];
     this.flipped = data[13];
+
+    this.offset = data[14];
+
+    const flipExtra = this.flipped ? 0.0001 : 0;
+    this.offset.x -= flipExtra;
+    this.offset.y += flipExtra;
+    this.offset.z -= flipExtra;
+
+    if (this.scale === 2) {
+      this.offset.x += 0.5;
+      this.offset.y -= 0.5;
+      this.offset.z -= 1;
+    } else {
+      this.offset.z -= 0.5;
+    }
 
     return this;
   }
@@ -63,6 +99,16 @@ class Tile {
       this.position = new THREE.Vector3(x.x, x.y, x.z);
     } else {
       this.position = new THREE.Vector3(x, y, z);
+    }
+
+    return this;
+  }
+
+  setOffset(x, y, z) {
+    if (x.x !== undefined && x.x !== null) {
+      this.offset = new THREE.Vector3(x.x, x.y, x.z);
+    } else {
+      this.offset = new THREE.Vector3(x, y, z);
     }
 
     return this;
