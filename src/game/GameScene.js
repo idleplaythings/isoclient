@@ -51,10 +51,10 @@ class GameScene {
       //transparent: true,
       //opacity: 0.25,
       color: 0x00ff00,
-      wireframe: true
+      wireframe: false
     });
     this.cube = new THREE.Mesh(geometry, material);
-    this.cube.position.set(514, 517, 2);
+    this.cube.position.set(514, 517, 4);
     this.cube.renderOrder = 3;
     this.scene.add(this.cube);
 
@@ -88,7 +88,7 @@ class GameScene {
 
     //this.camera.position.x += 0.05;
     //this.camera.position.y -= 0.05;
-    //this.cube.position.x += 0.01;
+    this.cube.position.y += 0.01;
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
   }

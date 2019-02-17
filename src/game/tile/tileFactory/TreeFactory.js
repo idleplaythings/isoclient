@@ -8,6 +8,7 @@ class TreeFactory {
   createTree(props) {
     const { position, height } = props;
     return [
+      /*
       flyTile
         .reset()
         .setChunkPosition(position.x, position.y, height + 1)
@@ -29,13 +30,15 @@ class TreeFactory {
         .setTexture(0, 96)
         .serialize(),
 
+        */
       flyTile
         .reset()
-        .setChunkPosition(position.x + 1, position.y - 1, height + 4)
-        .setOffset(0.001, -0.001, 0.001)
+        .setChunkPosition(position.x, position.y, height + 1)
         .setTexture(0, getRandom(tileTextures.largeFoliage))
         .setScale(2)
-        .serialize(),
+        .serialize()
+
+      /*
 
       flyTile
         .reset()
@@ -60,6 +63,7 @@ class TreeFactory {
         .setTexture(0, getRandom(tileTextures.largeFoliage))
         .setScale(2)
         .serialize()
+        */
     ];
   }
 }
