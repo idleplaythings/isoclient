@@ -9,6 +9,8 @@ class GameScene {
     this.stats = null;
     this.gameCamera = gameCamera;
 
+    this.pointLight = null;
+
     window.scene = this;
 
     this.create();
@@ -42,9 +44,24 @@ class GameScene {
     this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.context.getExtension("GL_OES_standard_derivatives");
     this.renderer.autoClear = false;
     //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    directionalLight.position.set(1.5, 1, 1).normalize();
+    this.scene.add(directionalLight);
+
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.0);
+    directionalLight2.position.set(1, 1, 1).normalize();
+    this.scene.add(directionalLight2);
+
+    this.pointLight = new THREE.PointLight(0xffff88, 1.0, 10);
+    this.pointLight.position.set(512, 512, 5);
+    this.scene.add(this.pointLight);
+
+    //this.scene.add(new THREE.AmbientLight(0x606060));
 
     var geometry = new THREE.BoxGeometry(1, 1, 2);
     var material = new THREE.MeshBasicMaterial({
@@ -54,9 +71,9 @@ class GameScene {
       wireframe: false,
     });
     this.cube = new THREE.Mesh(geometry, material);
-    this.cube.position.set(514, 517, 4);
+    this.cube.position.set(512, 512, 4);
     this.cube.renderOrder = 3;
-    this.scene.add(this.cube);
+    //this.scene.add(this.cube);
 
     /*
     const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
@@ -89,6 +106,9 @@ class GameScene {
     //this.camera.position.x += 0.05;
     //this.camera.position.y -= 0.05;
     this.cube.position.y += 0.01;
+
+    this.pointLight.position.x -= 0.01;
+
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);
   }

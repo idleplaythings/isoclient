@@ -3,6 +3,7 @@ import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
 import Tile from "./Tile";
 import GroundChunk from "./GroundChunk";
+import ChunkImageManipulator from "./ChunkImageManipulator";
 
 class TileRenderer {
   constructor(scene, gameCamera, world) {
@@ -21,6 +22,8 @@ class TileRenderer {
     this.pendingChunksByLocation = {};
     this.freeChunks = [];
     this.scene = scene;
+
+    this.chunkImageManipulator = new ChunkImageManipulator(this.scene);
 
     window.testTileRenderer = this;
 
@@ -76,12 +79,12 @@ class TileRenderer {
     //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
   }
 
-  render(now, delta) {
+  render({ now, delta, renderer }) {
     if (!this.instanceFactory.ready) {
       return;
     }
 
-    this.renderChunks.forEach((chunk) => chunk.render(now, delta));
+    this.renderChunks.forEach((chunk) => chunk.render({ now, delta }));
     const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
 
     if (this.changed) {
@@ -92,6 +95,8 @@ class TileRenderer {
       this.getChunkPositionsForNewRenderArea(renderArea);
       this.renderArea = renderArea;
     }
+
+    this.chunkImageManipulator.setFree();
 
     /*
     if (Math.random() > 0.9) {
@@ -141,7 +146,7 @@ class TileRenderer {
 
       this.pendingChunksByLocation[needKey] = true;
 
-      const [tiles, heightData] = await this.world.getTileChunkForRenderArea(
+      const [propData, heightData] = await this.world.getTileChunkForRenderArea(
         needPosition,
         this.chunkSize
       );
@@ -149,7 +154,7 @@ class TileRenderer {
       delete this.pendingChunksByLocation[needKey];
 
       const chunk = this.getChunk(needPosition);
-      chunk.addHeightData(heightData);
+      chunk.addData(propData, heightData);
     });
   }
 
@@ -163,7 +168,12 @@ class TileRenderer {
     let chunk = this.freeChunks.pop();
 
     if (!chunk) {
-      chunk = new GroundChunk(position, this.chunkSize, this.scene);
+      chunk = new GroundChunk(
+        position,
+        this.chunkSize,
+        this.scene,
+        this.chunkImageManipulator
+      );
       chunk.wakeUp();
       this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
       this.chunks.push(chunk);

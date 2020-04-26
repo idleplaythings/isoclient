@@ -15,34 +15,6 @@ class TileFactory {
   }
 
   create(position, chunkSize, binaryChunk) {
-    let tiles = [];
-    for (let x = 0; x < chunkSize; x++) {
-      for (let y = 0; y < chunkSize; y++) {
-        const tilePosition = { x, y: -y };
-        //console.log(position, tilePosition, tileSetPosition);
-
-        const tileSetPosition = { x: x + 1, y: y + 1 };
-
-        tiles = tiles.concat(
-          this.createTile({
-            position: tilePosition,
-            height: binaryChunk.getHeight(tileSetPosition),
-            type: binaryChunk.getType(tileSetPosition),
-            prop: binaryChunk.getProp(tileSetPosition),
-            visual: binaryChunk.getVisual(tileSetPosition),
-            chunkPosition: position,
-            tileSetPosition,
-            binaryChunk,
-          })
-        );
-      }
-    }
-
-    const extra = chunkSize;
-    const heightData = new Uint8ClampedArray(
-      (chunkSize + extra) * (chunkSize + extra) * 4
-    );
-
     let minHeight = null;
     let maxHeight = null;
 
@@ -63,30 +35,42 @@ class TileFactory {
 
     const heightVariance = maxHeight - minHeight;
 
+    const extra = 2;
+    const heightData = new Uint8ClampedArray(
+      (chunkSize + extra) * (chunkSize + extra) * 4
+    );
+
+    const propData = new Uint8ClampedArray(
+      (chunkSize + extra) * (chunkSize + extra) * 4
+    );
+
     for (let x = -1; x <= chunkSize; x++) {
       for (let y = -1; y <= chunkSize; y++) {
-        const tilePosition = { x, y: -y };
-        //console.log(position, tilePosition, tileSetPosition);
-
         const tileSetPosition = { x: x + 1, y: y + 1 };
 
         let height = binaryChunk.getHeight(tileSetPosition);
         const [r, g, b, a] = getColorIndicesForCoord(
           tileSetPosition.x + extra / 2 - 1,
           tileSetPosition.y + extra / 2 - 1,
-          chunkSize * 2
+          chunkSize + extra
         );
 
         height -= minHeight;
 
-        heightData[r] = 10 * height;
-        heightData[g] = 10 * height;
-        heightData[b] = 10 * height;
+        heightData[r] = (255 / (chunkSize + 2)) * height;
+        heightData[g] = (255 / (chunkSize + 2)) * height;
+        heightData[b] = (255 / (chunkSize + 2)) * height;
         heightData[a] = 255;
+
+        const visual = Math.random() > 0.5 ? 0 : 4;
+        propData[r] = 0;
+        propData[g] = 0;
+        propData[b] = 0;
+        propData[a] = visual;
       }
     }
 
-    return [tiles, heightData];
+    return [propData, heightData];
   }
 
   createTile(props) {

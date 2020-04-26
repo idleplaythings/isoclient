@@ -32,10 +32,10 @@ class Game {
     const delta = this.lastRenderTime !== null ? now - this.lastRenderTime : 0;
     this.lastRenderTime = now;
 
-    this.gameScene.render();
     this.world.render();
-    this.tileRenderer.render(now, delta);
+    this.tileRenderer.render({ now, delta });
     this.camera.render(delta);
+    this.gameScene.render();
     requestAnimationFrame(this.gameloop.bind(this));
   }
 }

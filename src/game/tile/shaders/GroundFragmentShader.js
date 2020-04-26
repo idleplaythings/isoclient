@@ -1,83 +1,46 @@
-/*
-
-    uniform sampler2D texture;
-    uniform float overlayAlpha;
-    uniform vec3 overlayColor;
-    uniform float opacity;
-    */
-
 const GroundFragmentShader = `
+    #extension GL_OES_standard_derivatives : enable
 
-    uniform sampler2D heightMap;
+    uniform sampler2D groundTexture;
+    uniform sampler2D propMap;
     uniform float size;
-
     varying vec2 vUv;
 
-  
-    vec2 groundUv() {
+    vec2 cropUv() {
 
         float groundSize = size + 2.0;
         float groundTileSize = 1.0 / groundSize;
-
+        
         return vec2(
-            vUv.x * 0.5 + 0.25,
-            vUv.y * 0.5 + 0.25
+            vUv.x * (1.0 - (groundTileSize * 2.0)) + groundTileSize,
+            vUv.y * (1.0 - (groundTileSize * 2.0)) + groundTileSize
         );
+   
     }
 
-    vec2 getNormal() {
-        vec2 normalUV =  groundUv();
-        float u = 1.0 / (size * 2.0);
+    float getPropNumber() {
+        vec2 propUv = cropUv();
 
-        const vec2 texsize = vec2(2.0,0.0);
-        const ivec3 off = ivec3(-u,0.0,u);
+        vec4 propDetails = texture2D(propMap, propUv);
 
-        vec4 wave = texture2D(heightMap, normalUV);
-        float s11 = wave.x;
-        float s01 = texture2D(heightMap, normalUV + off.xy).x;
-        float s21 = texture2D(heightMap, normalUV + off.zy).x;
-        float s10 = texture2D(heightMap, normalUV + off.yx).x;
-        float s12 = texture2D(heightMap, normalUV + off.yz).x;
-        vec3 va = normalize(vec3(texsize.xy,s21-s01));
-        vec3 vb = normalize(vec3(texsize.yx,s12-s10));
-        vec4 bump = vec4( cross(va,vb), s11 );
+        return propDetails.a * 255.0;
     }
 
-    
+    vec4 sampleGroundTexture(float number){
+
+        
+        float textureAmount = 8.0;
+        vec2 tPos = vec2((mod(number, textureAmount) * (1.0 / textureAmount)), (floor(number / textureAmount) * (1.0 / textureAmount)));
+        vec2 finalPos = vec2((vUv.x / textureAmount + tPos.x), 1.0 - (vUv.y / textureAmount + tPos.y));
+
+        return texture2D(groundTexture, finalPos);
+    }
 
     void main() {
-        vec4 finalColor = vec4(0.0, 0.0, 0.0, 0.0);
 
-        //if (vUv.x > 0.99 || vUv.x < 0.01 || vUv.y > 0.99 || vUv.y < 0.01) {
-        //    finalColor = vec4(0.0, 0.0, 1.0, 1.0);
-        //} else {
-            finalColor = texture2D(heightMap, groundUv());
-        //}
-
-
-        gl_FragColor = finalColor;
+        float visual = getPropNumber();
+        gl_FragColor = sampleGroundTexture(visual);
     }
 `;
 
-/*
-https://stackoverflow.com/questions/5281261/generating-a-normal-map-from-a-height-map/5284527#5284527
-
-height map to surface normal
-
-uniform sampler2D unit_wave
-noperspective in vec2 tex_coord;
-const vec2 size = vec2(2.0,0.0);
-const ivec3 off = ivec3(-1,0,1);
-
-    vec4 wave = texture(unit_wave, tex_coord);
-    float s11 = wave.x;
-    float s01 = textureOffset(unit_wave, tex_coord, off.xy).x;
-    float s21 = textureOffset(unit_wave, tex_coord, off.zy).x;
-    float s10 = textureOffset(unit_wave, tex_coord, off.yx).x;
-    float s12 = textureOffset(unit_wave, tex_coord, off.yz).x;
-    vec3 va = normalize(vec3(size.xy,s21-s01));
-    vec3 vb = normalize(vec3(size.yx,s12-s10));
-    vec4 bump = vec4( cross(va,vb), s11 );
-
-    */
 export default GroundFragmentShader;

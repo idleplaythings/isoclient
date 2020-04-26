@@ -1,23 +1,25 @@
 import Chunk from "../../model/tile/Chunk";
 import * as THREE from "three";
-import GroundVertexShader from "./shaders/GroundVertexShader";
-import GroundFragmentShader from "./shaders/GroundFragmentShader";
 
 class GroundChunk extends Chunk {
-  constructor(position, size, scene) {
+  constructor(position, size, scene, imageManipulator) {
     super(position, size);
     this.forRender = [];
-    this.changed = true;
     this.scene = scene;
     this.tiles = [];
 
     this.capacity = 0;
     this.hibernating = false;
 
+    this.imageManipulator = imageManipulator;
+
+    this.heightImageData = null;
+    this.propData = null;
+
     this.uniforms = {
-      heightMap: {
+      normalMap: {
         type: "t",
-        value: new THREE.DataTexture(null, 0, 0),
+        value: new THREE.DataTexture(null, 128, 128),
       },
       size: {
         type: "f",
@@ -34,8 +36,9 @@ class GroundChunk extends Chunk {
       */
     };
 
+    /*
     this.material = new THREE.ShaderMaterial({
-      vertexShader: GroundVertexShader,
+      vertexShader: SimpleUvVertexShader,
       fragmentShader: GroundFragmentShader,
       transparent: true,
       depthWrite: true,
@@ -43,8 +46,15 @@ class GroundChunk extends Chunk {
       blending: THREE.NormalBlending,
     });
 
+    */
+
+    this.material = new THREE.MeshStandardMaterial({
+      normalMap: new THREE.DataTexture(null, 0, 0),
+      //color: new THREE.Color(0, 0, 0.5, 1),
+      map: new THREE.TextureLoader().load("img/noise.png"),
+    });
     const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-    this.material.uniforms = this.uniforms;
+    //this.material.uniforms = this.uniforms;
 
     this.mesh = new THREE.Mesh(geometry, this.material);
     this.mesh.position.set(this.position.x, this.position.y, this.position.z);
@@ -59,7 +69,6 @@ class GroundChunk extends Chunk {
 
   hibernate() {
     this.scene.remove(this.mesh);
-    this.changed = false;
     this.hibernating = true;
   }
 
@@ -69,19 +78,13 @@ class GroundChunk extends Chunk {
     return this;
   }
 
-  addHeightData(heightImageData) {
+  addData(propData, heightImageData) {
     if (this.hibernating) {
       throw new Error("This chunk is hibernating");
     }
 
-    const texture = new THREE.Texture(
-      new ImageData(heightImageData, this.size * 2)
-    );
-    texture.needsUpdate = true;
-    //texture.minFilter = THREE.NearestFilter;
-    //texture.magFilter = THREE.NearestFilter;
-
-    this.uniforms.heightMap.value = texture;
+    this.heightImageData = heightImageData;
+    this.propData = propData;
   }
 
   addTiles(tiles) {
@@ -90,7 +93,6 @@ class GroundChunk extends Chunk {
     }
 
     this.tiles = tiles;
-    this.changed = true;
   }
 
   addTile(tile) {
@@ -99,7 +101,6 @@ class GroundChunk extends Chunk {
     }
 
     this.tiles.push(tile);
-    this.changed = true;
   }
 
   removeTiles(tiles) {
@@ -108,17 +109,32 @@ class GroundChunk extends Chunk {
 
   removeTile(tile) {
     //TODO: remove tile
-    this.changed = true;
   }
 
   render(now) {
-    if (!this.changed || this.hibernating) {
+    if (this.hibernating) {
       return;
+    }
+
+    if (this.heightImageData && this.imageManipulator.isFree()) {
+      const {
+        normalTexture,
+        groundTexture,
+      } = this.imageManipulator.renderGround(
+        this.size,
+        this.heightImageData,
+        this.propData
+      );
+
+      this.material.normalMap = normalTexture;
+      this.material.map = groundTexture;
+
+      this.propData = null;
+      this.heightImageData = null;
     }
 
     //TODO, build images
 
-    this.changed = false;
     return this.forRender;
   }
 
