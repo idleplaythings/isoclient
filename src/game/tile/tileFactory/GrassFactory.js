@@ -34,7 +34,7 @@ class GrassFactory {
         .setChunkPosition(position.x, position.y, height)
         .setTexture(0, getRandom(tileTextures.rocks))
         .setFlipped(true)
-        .serialize()
+        .serialize(),
     ];
   }
 

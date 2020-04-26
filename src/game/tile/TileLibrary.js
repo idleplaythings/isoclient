@@ -33,13 +33,13 @@ class TileLibrary {
       new THREE.Vector3(binaryChunkPosition.x, binaryChunkPosition.y, 0)
     );
 
-    const { tiles } = await this.tileFactoryPool.work({
+    const { tiles, heightData } = await this.tileFactoryPool.work({
       position: positionInChunk,
       chunkSize,
-      data: binaryChunk.getData()
+      data: binaryChunk.getData(),
     });
 
-    return tiles;
+    return [tiles, heightData];
   }
 
   touchBinaryChunk(chunk, position) {
@@ -55,11 +55,10 @@ class TileLibrary {
       oReq.open("GET", "data/result.bin", true);
       oReq.responseType = "arraybuffer";
 
-      oReq.onload = oEvent => {
+      oReq.onload = (oEvent) => {
         const arrayBuffer = oReq.response; // Note: not oReq.responseText
         if (arrayBuffer) {
           window.testArray = new Uint8Array(arrayBuffer);
-          console.log(window.testArray.length);
           window.ndarray = ndarray;
           const data = ndarray(new Uint8Array(arrayBuffer), [1026, 1026, 4]);
           const tileSet = new TileBinaryChunk(data);
@@ -67,7 +66,7 @@ class TileLibrary {
         }
       };
 
-      oReq.onerror = error => {
+      oReq.onerror = (error) => {
         console.log("Error loading binary chunk", error);
         reject(error);
       };

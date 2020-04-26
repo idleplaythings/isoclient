@@ -4,7 +4,7 @@ import ndarray from "ndarray";
 
 const tileFactory = new TileFactory();
 
-const create = event => {
+const create = (event) => {
   const { position, chunkSize, data, index } = event.data;
 
   const binaryChunk = new TileBinaryChunk(
@@ -12,10 +12,14 @@ const create = event => {
   );
 
   binaryChunk.zoomToChunk(position, chunkSize);
-  const tiles = tileFactory.create(position, chunkSize, binaryChunk);
+  const [tiles, heightData] = tileFactory.create(
+    position,
+    chunkSize,
+    binaryChunk
+  );
   binaryChunk.resetZoom();
 
-  self.postMessage({ tiles: tiles, position, index });
+  self.postMessage({ tiles, heightData, position, index });
 };
 
 self.addEventListener("message", create);

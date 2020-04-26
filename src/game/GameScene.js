@@ -5,7 +5,7 @@ class GameScene {
     this.renderer = null;
     this.scene = null;
     this.camera = null;
-    this.zoom = 1.0;
+    this.zoom = 1;
     this.stats = null;
     this.gameCamera = gameCamera;
 
@@ -28,12 +28,12 @@ class GameScene {
       500
     );
 
-    this.camera.position.set(25, -25, 50); // all components equal
-    //this.camera.rotation.z = (90 * Math.PI) / 180;
+    //this.camera.position.set(25, -25, 50);
+    this.camera.position.set(0, 0, 0);
     this.camera.lookAt(0, 0, 0);
-    this.camera.rotation.z += (50.77 * Math.PI) / 180;
+    //this.camera.rotation.z += (50.77 * Math.PI) / 180;
 
-    this.camera.position.set(512 - 25, 512 + 25, 50);
+    this.camera.position.set(512, 512, 50);
 
     this.gameCamera.init(this.camera);
   }
@@ -51,7 +51,7 @@ class GameScene {
       //transparent: true,
       //opacity: 0.25,
       color: 0x00ff00,
-      wireframe: false
+      wireframe: false,
     });
     this.cube = new THREE.Mesh(geometry, material);
     this.cube.position.set(514, 517, 4);

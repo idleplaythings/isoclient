@@ -4,6 +4,7 @@ import * as tileTextures from "../../texture/TextureTypes";
 import GrassFactory from "./GrassFactory";
 import WaterFactory from "./WaterFactory";
 import { getRandom } from "./Utils";
+import { getColorIndicesForCoord } from "../../../util/imageUtils";
 
 const flyTile = new Tile();
 
@@ -31,13 +32,61 @@ class TileFactory {
             visual: binaryChunk.getVisual(tileSetPosition),
             chunkPosition: position,
             tileSetPosition,
-            binaryChunk
+            binaryChunk,
           })
         );
       }
     }
 
-    return tiles;
+    const extra = chunkSize;
+    const heightData = new Uint8ClampedArray(
+      (chunkSize + extra) * (chunkSize + extra) * 4
+    );
+
+    let minHeight = null;
+    let maxHeight = null;
+
+    for (let x = -1; x <= chunkSize; x++) {
+      for (let y = -1; y <= chunkSize; y++) {
+        const tileSetPosition = { x: x + 1, y: y + 1 };
+
+        let height = binaryChunk.getHeight(tileSetPosition);
+        if (height < minHeight || minHeight === null) {
+          minHeight = height;
+        }
+
+        if (height > maxHeight || maxHeight === null) {
+          maxHeight = height;
+        }
+      }
+    }
+
+    const heightVariance = maxHeight - minHeight;
+
+    for (let x = -1; x <= chunkSize; x++) {
+      for (let y = -1; y <= chunkSize; y++) {
+        const tilePosition = { x, y: -y };
+        //console.log(position, tilePosition, tileSetPosition);
+
+        const tileSetPosition = { x: x + 1, y: y + 1 };
+
+        let height = binaryChunk.getHeight(tileSetPosition);
+        const [r, g, b, a] = getColorIndicesForCoord(
+          tileSetPosition.x + extra / 2 - 1,
+          tileSetPosition.y + extra / 2 - 1,
+          chunkSize * 2
+        );
+
+        height -= minHeight;
+
+        heightData[r] = 10 * height;
+        heightData[g] = 10 * height;
+        heightData[b] = 10 * height;
+        heightData[a] = 255;
+      }
+    }
+
+    return [tiles, heightData];
   }
 
   createTile(props) {
@@ -47,7 +96,8 @@ class TileFactory {
     switch (type) {
       case TileTypes.type.WATER:
       case TileTypes.type.REGULAR:
-        tiles.push(...this.createGround(props));
+        tiles.push(...this.createGroundNew(props));
+        //tiles.push(...this.createGround(props));
         break;
       case TileTypes.type.SLOPE_SOUTH:
       case TileTypes.type.SLOPE_WEST:
@@ -61,7 +111,8 @@ class TileFactory {
       case TileTypes.type.SLOPE_NORTHEAST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHWEST_INVERTED:
       case TileTypes.type.SLOPE_SOUTHEAST_INVERTED:
-        tiles.push(...this.createSlope(props));
+        //tiles.push(...this.createSlope(props));
+        tiles.push(...this.createGroundNew(props));
         break;
       default:
         console.log(props);
@@ -79,6 +130,14 @@ class TileFactory {
       default:
         return this.grassFactory;
     }
+  }
+
+  createGroundNew(props) {
+    const { position, height } = props;
+
+    let tiles = [[position.x, position.y, height]];
+
+    return tiles;
   }
 
   createGround(props) {
@@ -120,7 +179,7 @@ class TileFactory {
       type,
       visual,
       tileSetPosition,
-      binaryChunk
+      binaryChunk,
     } = props;
 
     const highlightTexture = this.getHightlightTexture(
@@ -139,7 +198,7 @@ class TileFactory {
     if (height <= 2) {
       this.waterFactory.populateGroundTile(flyTile, {
         ...props,
-        height: height - 1
+        height: height - 1,
       });
     } else {
       this.getFactory(visual).populateGroundTile(flyTile, props);
@@ -187,7 +246,7 @@ class TileFactory {
   offset(position, x = 0, y = 0) {
     return {
       x: position.x + x,
-      y: position.y + y
+      y: position.y + y,
     };
   }
 

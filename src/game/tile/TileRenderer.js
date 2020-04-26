@@ -2,6 +2,7 @@ import TileChunk from "./TileChunk";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
 import Tile from "./Tile";
+import GroundChunk from "./GroundChunk";
 
 class TileRenderer {
   constructor(scene, gameCamera, world) {
@@ -19,6 +20,7 @@ class TileRenderer {
     this.chunksByLocation = {};
     this.pendingChunksByLocation = {};
     this.freeChunks = [];
+    this.scene = scene;
 
     window.testTileRenderer = this;
 
@@ -79,7 +81,7 @@ class TileRenderer {
       return;
     }
 
-    this.renderChunks.forEach(chunk => chunk.render(now, delta));
+    this.renderChunks.forEach((chunk) => chunk.render(now, delta));
     const renderArea = this.gameCamera.getRenderArea(this.chunkSize);
 
     if (this.changed) {
@@ -114,14 +116,14 @@ class TileRenderer {
     const positions = renderArea.requiresChunks();
 
     const need = positions.filter(
-      position =>
+      (position) =>
         !Boolean(this.chunksByLocation[getChunkKey(position)]) &&
         !Boolean(this.pendingChunksByLocation[getChunkKey(position)])
     );
 
-    this.chunks = this.chunks.filter(chunk => {
+    this.chunks = this.chunks.filter((chunk) => {
       const found = positions.find(
-        position =>
+        (position) =>
           chunk.position.x === position.x && chunk.position.y === position.y
       );
 
@@ -134,12 +136,12 @@ class TileRenderer {
       return found;
     });
 
-    need.forEach(async needPosition => {
+    need.forEach(async (needPosition) => {
       const needKey = getChunkKey(needPosition);
 
       this.pendingChunksByLocation[needKey] = true;
 
-      const tiles = await this.world.getTileChunkForRenderArea(
+      const [tiles, heightData] = await this.world.getTileChunkForRenderArea(
         needPosition,
         this.chunkSize
       );
@@ -147,7 +149,7 @@ class TileRenderer {
       delete this.pendingChunksByLocation[needKey];
 
       const chunk = this.getChunk(needPosition);
-      chunk.addTiles(tiles);
+      chunk.addHeightData(heightData);
     });
   }
 
@@ -161,7 +163,8 @@ class TileRenderer {
     let chunk = this.freeChunks.pop();
 
     if (!chunk) {
-      chunk = new TileChunk(position, this.chunkSize, this.instanceFactory);
+      chunk = new GroundChunk(position, this.chunkSize, this.scene);
+      chunk.wakeUp();
       this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
       this.chunks.push(chunk);
       //console.log("created chunk", chunk.position.x, chunk.position.y);
@@ -251,7 +254,7 @@ class TileRenderer {
     });
     */
 
-    this.renderChunks = this.chunks.filter(chunk =>
+    this.renderChunks = this.chunks.filter((chunk) =>
       renderArea.containsChunk(chunk)
     );
 

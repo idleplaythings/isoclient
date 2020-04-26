@@ -75,21 +75,21 @@ class GameCamera {
     const vector = new THREE.Vector3(0, 0, 0);
     if (this.scrollingRight) {
       vector.x += 1;
-      vector.y += 1;
+      //vector.y += 1;
     }
 
     if (this.scrollingLeft) {
       vector.x -= 1;
-      vector.y -= 1;
+      //vector.y -= 1;
     }
 
     if (this.scrollingUp) {
-      vector.x -= 1;
+      //vector.x -= 1;
       vector.y += 1;
     }
 
     if (this.scrollingDown) {
-      vector.x += 1;
+      //vector.x += 1;
       vector.y -= 1;
     }
 
@@ -103,7 +103,7 @@ class GameCamera {
   getLookAtPosition() {
     return this.implementation.position
       .clone()
-      .add(new THREE.Vector3(-25, 25, -50));
+      .add(new THREE.Vector3(0, 0, -50));
   }
 
   getRenderArea(chunkSize, renderSize = 4) {
@@ -111,7 +111,7 @@ class GameCamera {
 
     const corner = {
       x: chunkPosition.x - (renderSize / 2) * chunkSize,
-      y: chunkPosition.y + (renderSize / 2) * chunkSize
+      y: chunkPosition.y + (renderSize / 2) * chunkSize,
     };
 
     return new RenderArea(corner, renderSize, chunkSize);

@@ -36,7 +36,7 @@ class TreeFactory {
         .setChunkPosition(position.x, position.y, height + 1)
         .setTexture(0, getRandom(tileTextures.largeFoliage))
         .setScale(2)
-        .serialize()
+        .serialize(),
 
       /*
 
