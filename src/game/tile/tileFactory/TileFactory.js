@@ -65,7 +65,7 @@ class TileFactory {
         const visual = Math.random() > 0.5 ? 0 : 4;
         propData[r] = 0;
         propData[g] = 0;
-        propData[b] = 0;
+        propData[b] = 1;
         propData[a] = visual;
       }
     }

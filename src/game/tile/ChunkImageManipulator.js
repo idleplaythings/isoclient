@@ -15,6 +15,8 @@ const TEXTURE_GROUND_NORMAL = new THREE.TextureLoader().load(
   "img/groundTileTexturesNormal.png"
 );
 
+const TEXTURE_BRUSHES = new THREE.TextureLoader().load("img/brushes.png");
+
 const HEIGHT_TO_NORMAL_MATERIAL = new THREE.ShaderMaterial({
   vertexShader: NormalMapGeneratorVertexShader,
   fragmentShader: NormalMapGeneratorFragmentShader,
@@ -76,7 +78,7 @@ const CROP_MATERIAL_uniforms = {
   },
   borders: {
     type: "i",
-    value: 0,
+    value: 1,
   },
 };
 
@@ -103,6 +105,14 @@ const GROUND_MATERIAL_uniforms = {
     type: "f",
     value: 0,
   },
+  tileBorders: {
+    type: "i",
+    value: 0,
+  },
+  brushMap: {
+    type: "t",
+    value: TEXTURE_BRUSHES,
+  },
 };
 
 GROUND_MATERIAL.uniforms = GROUND_MATERIAL_uniforms;
@@ -127,6 +137,14 @@ const GROUND_MATERIAL_NORMAL_uniforms = {
   size: {
     type: "f",
     value: 0,
+  },
+  tileBorders: {
+    type: "i",
+    value: 0,
+  },
+  brushMap: {
+    type: "t",
+    value: TEXTURE_BRUSHES,
   },
 };
 

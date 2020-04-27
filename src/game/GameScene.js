@@ -73,7 +73,7 @@ class GameScene {
     this.cube = new THREE.Mesh(geometry, material);
     this.cube.position.set(512, 512, 4);
     this.cube.renderOrder = 3;
-    //this.scene.add(this.cube);
+    this.scene.add(this.cube);
 
     /*
     const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
