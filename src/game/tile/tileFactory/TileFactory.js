@@ -3,7 +3,7 @@ import * as TileTypes from "../../../model/tile/TileTypes";
 import * as tileTextures from "../../texture/TextureTypes";
 import GrassFactory from "./GrassFactory";
 import WaterFactory from "./WaterFactory";
-import { getRandom } from "./Utils";
+import { getRandom, getSeededRandomGenerator } from "./Utils";
 import { getColorIndicesForCoord } from "../../../util/imageUtils";
 
 const flyTile = new Tile();
@@ -17,6 +17,8 @@ class TileFactory {
   create(position, chunkSize, binaryChunk) {
     let minHeight = null;
     let maxHeight = null;
+
+    console.log("position", position);
 
     for (let x = -1; x <= chunkSize; x++) {
       for (let y = -1; y <= chunkSize; y++) {
@@ -62,7 +64,12 @@ class TileFactory {
         heightData[b] = (255 / (chunkSize + 2)) * height;
         heightData[a] = 255;
 
-        const visual = Math.random() > 0.5 ? 0 : 4;
+        const visual =
+          getSeededRandomGenerator(`${position.x + x}x${position.y - y}`)() >
+          0.5
+            ? 5
+            : 4;
+
         propData[r] = 0;
         propData[g] = 0;
         propData[b] = 1;

@@ -25,7 +25,7 @@ const TileChunkCropFragmentShader = `
    void main() {
         vec4 finalColor =  texture2D(map, groundUv());
 
-        if (borders == 1 && (vUv.x > 0.999 || vUv.x < 0.001 || vUv.y > 0.999 || vUv.y < 0.001)) {
+        if (borders == 1 && (vUv.x > 0.995 || vUv.x < 0.005 || vUv.y > 0.995 || vUv.y < 0.005)) {
             finalColor = vec4(1.0, 0.0, 0.0, 1.0);
         } else {  
             finalColor = texture2D(map, groundUv());

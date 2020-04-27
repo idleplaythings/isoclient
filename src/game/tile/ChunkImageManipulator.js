@@ -78,7 +78,7 @@ const CROP_MATERIAL_uniforms = {
   },
   borders: {
     type: "i",
-    value: 1,
+    value: 0,
   },
 };
 

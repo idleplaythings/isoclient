@@ -49,12 +49,12 @@ class GameScene {
     //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    directionalLight.position.set(1.5, 1, 1).normalize();
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    directionalLight.position.set(1.5, 1.5, 1);
     this.scene.add(directionalLight);
 
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.0);
-    directionalLight2.position.set(1, 1, 1).normalize();
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.2);
+    directionalLight2.position.set(2, 0, 1).normalize();
     this.scene.add(directionalLight2);
 
     this.pointLight = new THREE.PointLight(0xffff88, 1.0, 10);
@@ -107,7 +107,7 @@ class GameScene {
     //this.camera.position.y -= 0.05;
     this.cube.position.y += 0.01;
 
-    this.pointLight.position.x -= 0.01;
+    this.pointLight.position.y += 0.01;
 
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);

@@ -40,15 +40,6 @@ const GroundFragmentShader = `
    
     }
 
-    vec2 deCropUv(vec2 uv) {
-        float groundTileSize = getTileSize();
-        
-        return vec2(
-            uv.x / (1.0 - (groundTileSize * 2.0)) - groundTileSize,
-            uv.y / (1.0 - (groundTileSize * 2.0)) - groundTileSize
-        );
-    }
-
     vec2 getTileUv() {
         vec2 uv = cropUv();
         float tileSize = getTileSize();
@@ -136,8 +127,6 @@ const GroundFragmentShader = `
        
                 if (brushColor.a == 0.0) {
                     continue;
-                } else {
-                    return vec4(0.0);
                 }
 
                 vec4 nextColor = sampleGroundTexture(propDetails.a);
