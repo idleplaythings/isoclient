@@ -32,14 +32,23 @@ class GroundChunk extends Chunk {
     //this.material.uniforms = this.uniforms;
 
     this.mesh = new THREE.Mesh(geometry, this.material);
-    this.mesh.position.set(this.position.x, this.position.y, this.position.z);
+
     this.mesh.scale.set(this.size, this.size, 1);
+    this.mesh.position.set(
+      this.position.x + this.size / 2 - 0.5,
+      this.position.y - this.size / 2 + 0.5,
+      this.position.z
+    );
   }
 
   setPosition(position) {
     position = new THREE.Vector3(position.x, position.y, 0);
     this.position = position;
-    this.mesh.position.set(this.position.x, this.position.y, this.position.z);
+    this.mesh.position.set(
+      this.position.x + this.size / 2 - 0.5,
+      this.position.y - this.size / 2 + 0.5,
+      this.position.z
+    );
   }
 
   hibernate() {

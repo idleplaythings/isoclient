@@ -208,13 +208,21 @@ const GroundFragmentShader = `
         if (normalMode == 1) {
             baseColor.a *= 1.0;
         }
-        
+
         return combineColors(currentColor, baseColor);
     }
  
     void main() {
         vec4 tileColor = getCombinedTileColor();
         tileColor = getCombinedOverlayColor(tileColor);
+
+        if (tileBorders == 1) {  
+            vec2 uv = getTileUv();
+            if (uv.x > 0.99 || uv.x < 0.01 || uv.y > 0.99 || uv.y < 0.01) {
+                tileColor.a *= 0.9;
+            }
+        }
+        
         gl_FragColor = tileColor;
     }
 `;

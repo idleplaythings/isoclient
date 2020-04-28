@@ -5,7 +5,7 @@ import ndarray from "ndarray";
 const tileFactory = new TileFactory();
 
 const create = (event) => {
-  const { position, chunkSize, data, index } = event.data;
+  const { position, chunkSize, data, index, binaryChunkPosition } = event.data;
 
   const binaryChunk = new TileBinaryChunk(
     ndarray(new Uint8Array(data), [1026, 1026, 4])
@@ -15,7 +15,8 @@ const create = (event) => {
   const [propData, heightData] = tileFactory.create(
     position,
     chunkSize,
-    binaryChunk
+    binaryChunk,
+    binaryChunkPosition
   );
   binaryChunk.resetZoom();
 

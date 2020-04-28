@@ -5,7 +5,6 @@ class GameScene {
     this.renderer = null;
     this.scene = null;
     this.camera = null;
-    this.zoom = 1;
     this.stats = null;
     this.gameCamera = gameCamera;
 
@@ -19,25 +18,7 @@ class GameScene {
   create() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0, 46 / 255, 61 / 255);
-
-    const d = 120;
-    this.camera = new THREE.OrthographicCamera(
-      (this.zoom * window.innerWidth) / -d,
-      (this.zoom * window.innerWidth) / d,
-      (this.zoom * window.innerHeight) / d,
-      (this.zoom * window.innerHeight) / -d,
-      -500,
-      500
-    );
-
-    //this.camera.position.set(25, -25, 50);
-    this.camera.position.set(0, 0, 0);
-    this.camera.lookAt(0, 0, 0);
-    this.camera.rotation.z += (45.0 * Math.PI) / 180;
-
-    this.camera.position.set(512, 512, 50);
-
-    this.gameCamera.init(this.camera);
+    this.gameCamera.init(this.scene);
   }
 
   init(element) {
@@ -67,17 +48,17 @@ class GameScene {
 
     //this.scene.add(new THREE.AmbientLight(0xffffff, 0.01));
 
-    var geometry = new THREE.BoxGeometry(1, 1, 2);
+    var geometry = new THREE.BoxGeometry(1, 1, 1);
     var material = new THREE.MeshBasicMaterial({
       //transparent: true,
       //opacity: 0.25,
       color: 0x00ff00,
-      wireframe: false,
+      wireframe: true,
     });
     this.cube = new THREE.Mesh(geometry, material);
-    this.cube.position.set(512, 512, 4);
+    this.cube.position.set(512, 512, 0.5);
     this.cube.renderOrder = 3;
-    //this.scene.add(this.cube);
+    this.scene.add(this.cube);
 
     /*
     const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
@@ -124,13 +105,13 @@ class GameScene {
 
     //this.camera.position.x += 0.05;
     //this.camera.position.y -= 0.05;
-    this.cube.position.y += 0.01;
+    //this.cube.position.y += 0.01;
 
     this.pointLight.position.x += 0.01;
     //this.directionalLight.position.y -= 0.01;
 
     this.renderer.clear();
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.gameCamera.getCamera());
   }
 }
 

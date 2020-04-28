@@ -37,6 +37,7 @@ class TileLibrary {
       position: positionInChunk,
       chunkSize,
       data: binaryChunk.getData(),
+      binaryChunkPosition: binaryChunkPosition,
     });
 
     return [propData, heightData];

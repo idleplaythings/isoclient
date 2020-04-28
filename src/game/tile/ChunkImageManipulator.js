@@ -9,6 +9,8 @@ import NormalMapCombineFragmentShader from "./shaders/NormalMapCombineFragmentSh
 import SmoothNormalMapFragmentShader from "./shaders/SmoothNormalMapFragmentShader";
 import SmoothHeightMapFragmentShader from "./shaders/SmoothHeightMapFragmentShader";
 
+const DEBUG = true;
+
 const TEXTURE_GROUND = new THREE.TextureLoader().load(
   "img/groundTileTextures.png"
 );
@@ -80,7 +82,7 @@ const CROP_MATERIAL_uniforms = {
   },
   borders: {
     type: "i",
-    value: 0,
+    value: DEBUG ? 1 : 0,
   },
 };
 
@@ -109,7 +111,7 @@ const GROUND_MATERIAL_uniforms = {
   },
   tileBorders: {
     type: "i",
-    value: 0,
+    value: DEBUG ? 1 : 0,
   },
   brushMap: {
     type: "t",

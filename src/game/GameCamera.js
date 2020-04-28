@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { RenderArea } from "./tile";
 import { getChunkPosition } from "../model/tile/Chunk";
 
+const CAMERA_OFFSET = new THREE.Vector3(25, -25, 50);
+
 class GameCamera {
   constructor() {
     this.implementation = null;
@@ -10,6 +12,9 @@ class GameCamera {
     this.scrollingDown = false;
     this.scrollingRight = false;
     this.scrollingSpeed = 0.02;
+    this.zoom = 1.0;
+
+    this.scene = null;
 
     window.gameCamera = this;
   }
@@ -19,8 +24,39 @@ class GameCamera {
     this.implementation.position.y = position.y;
   }
 
-  init(implementation) {
-    this.implementation = implementation;
+  init(scene) {
+    this.scene = scene;
+
+    const d = 120;
+    this.implementation = new THREE.OrthographicCamera(
+      (this.zoom * window.innerWidth) / -d,
+      (this.zoom * window.innerWidth) / d,
+      (this.zoom * window.innerHeight) / d,
+      (this.zoom * window.innerHeight) / -d,
+      -500,
+      500
+    );
+
+    console.log(this.implementation);
+
+    this.implementation.position.set(
+      CAMERA_OFFSET.x,
+      CAMERA_OFFSET.y,
+      CAMERA_OFFSET.z
+    );
+    //this.camera.position.set(0, 0, 0);
+    this.implementation.lookAt(0, 0, 0);
+    this.implementation.rotation.z += (50.77 * Math.PI) / 180;
+
+    this.implementation.position.set(
+      512 + CAMERA_OFFSET.x,
+      512 + CAMERA_OFFSET.y,
+      50
+    );
+  }
+
+  getCamera() {
+    return this.implementation;
   }
 
   onKeyDown(event) {
@@ -103,7 +139,7 @@ class GameCamera {
   getLookAtPosition() {
     return this.implementation.position
       .clone()
-      .add(new THREE.Vector3(0, 0, -50));
+      .add(CAMERA_OFFSET.clone().multiplyScalar(-1));
   }
 
   getRenderArea(chunkSize, renderSize = 4) {

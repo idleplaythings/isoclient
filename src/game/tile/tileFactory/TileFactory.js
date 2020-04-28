@@ -6,8 +6,12 @@ import WaterFactory from "./WaterFactory";
 import { getRandom, getSeededRandomGenerator } from "./Utils";
 import { getColorIndicesForCoord } from "../../../util/imageUtils";
 import { createHeightMap } from "./HeightMapFactory";
+import Vector from "../../../model/util/Vector";
 
 const flyTile = new Tile();
+
+const getWorldPosition = (binaryChunkPosition, chunkPosition, position) =>
+  new Vector(binaryChunkPosition).add(chunkPosition).add(position);
 
 class TileFactory {
   constructor() {
@@ -15,7 +19,7 @@ class TileFactory {
     this.waterFactory = new WaterFactory();
   }
 
-  create(position, chunkSize, binaryChunk) {
+  create(position, chunkSize, binaryChunk, binaryChunkPosition) {
     const extra = 2;
     const heightData = createHeightMap(position, chunkSize, binaryChunk);
 
@@ -25,11 +29,17 @@ class TileFactory {
 
     for (let x = -1; x <= chunkSize; x++) {
       for (let y = -1; y <= chunkSize; y++) {
+        const worldPosition = getWorldPosition(
+          binaryChunkPosition,
+          position,
+          new Vector(x, -y) // NOTE: -y because chunk position is upperLeft, not lowerLeft.
+        );
+
         const tileSetPosition = { x: x + 1, y: y + 1 };
 
         const [r, g, b, a] = getColorIndicesForCoord(
-          tileSetPosition.x + extra / 2 - 1,
-          tileSetPosition.y + extra / 2 - 1,
+          tileSetPosition.x,
+          tileSetPosition.y,
           chunkSize + extra
         );
 
@@ -46,6 +56,7 @@ class TileFactory {
         //if (absoluteHeight > 7) {
         const random = getRandom();
 
+        /*
         if (random > 0.9) {
           visual2 = 8;
           brush2 = [8, 9, 10][Math.floor(getRandom() * 3)];
@@ -56,7 +67,7 @@ class TileFactory {
           visual2 = 56;
           brush2 = [16, 17, 18][Math.floor(getRandom() * 3)];
         }
-        //}
+        */
 
         const type = binaryChunk.getType(tileSetPosition);
         if (type !== TileTypes.type.REGULAR) {
@@ -64,6 +75,11 @@ class TileFactory {
           visual = 56;
           visual2 = 255;
           brush2 = 255;
+        }
+
+        if (worldPosition.x === 512 && worldPosition.y === 512) {
+          visual2 = 9;
+          brush2 = 1;
         }
 
         propData[r] = brush2;
