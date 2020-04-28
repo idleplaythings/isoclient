@@ -38,6 +38,8 @@ class Game {
     this.gameScene.render();
     requestAnimationFrame(this.gameloop.bind(this));
   }
+
+  onMouseMove(position) {}
 }
 
 export default Game;

@@ -33,7 +33,7 @@ class GameScene {
     //this.camera.position.set(25, -25, 50);
     this.camera.position.set(0, 0, 0);
     this.camera.lookAt(0, 0, 0);
-    //this.camera.rotation.z += (50.77 * Math.PI) / 180;
+    this.camera.rotation.z += (45.0 * Math.PI) / 180;
 
     this.camera.position.set(512, 512, 50);
 
@@ -49,19 +49,23 @@ class GameScene {
     //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    directionalLight.position.set(1.5, 1.5, 1);
-    this.scene.add(directionalLight);
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    this.directionalLight.position.set(50, -15, 7);
+    this.directionalLight.target.position.set(0, 0, 0);
+    this.scene.add(this.directionalLight);
+    this.scene.add(this.directionalLight.target);
 
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.2);
-    directionalLight2.position.set(2, 0, 1).normalize();
-    this.scene.add(directionalLight2);
+    this.directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.0);
+    this.directionalLight2.position.set(50, -15, 15);
+    this.directionalLight2.target.position.set(0, 0, 0);
+    this.scene.add(this.directionalLight2);
+    this.scene.add(this.directionalLight2.target);
 
-    this.pointLight = new THREE.PointLight(0xffff88, 1.0, 10);
+    this.pointLight = new THREE.PointLight(0xffffff, 1.0, 100);
     this.pointLight.position.set(512, 512, 5);
-    this.scene.add(this.pointLight);
+    //this.scene.add(this.pointLight);
 
-    //this.scene.add(new THREE.AmbientLight(0x606060));
+    //this.scene.add(new THREE.AmbientLight(0xffffff, 0.01));
 
     var geometry = new THREE.BoxGeometry(1, 1, 2);
     var material = new THREE.MeshBasicMaterial({
@@ -73,7 +77,7 @@ class GameScene {
     this.cube = new THREE.Mesh(geometry, material);
     this.cube.position.set(512, 512, 4);
     this.cube.renderOrder = 3;
-    this.scene.add(this.cube);
+    //this.scene.add(this.cube);
 
     /*
     const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
@@ -87,6 +91,21 @@ class GameScene {
     const water = new THREE.Mesh(waterGeometry, waterMaterial);
     water.position.set(0, 0, 0);
     this.scene.add(water);
+    */
+
+    /*
+    const sphereRadius = 3;
+    const sphereWidthDivisions = 32;
+    const sphereHeightDivisions = 16;
+    const sphereGeo = new THREE.SphereBufferGeometry(
+      sphereRadius,
+      sphereWidthDivisions,
+      sphereHeightDivisions
+    );
+    const sphereMat = new THREE.MeshPhongMaterial({ color: "#CA8" });
+    const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+    mesh.position.set(512, 512, 0);
+    this.scene.add(mesh);
     */
   }
 
@@ -107,7 +126,8 @@ class GameScene {
     //this.camera.position.y -= 0.05;
     this.cube.position.y += 0.01;
 
-    this.pointLight.position.y += 0.01;
+    this.pointLight.position.x += 0.01;
+    //this.directionalLight.position.y -= 0.01;
 
     this.renderer.clear();
     this.renderer.render(this.scene, this.camera);

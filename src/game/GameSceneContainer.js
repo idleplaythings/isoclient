@@ -7,6 +7,34 @@ const WebglCanvas = styled.div`
   height: 100%;
 `;
 
+const getMousePositionInObservedElement = (event, element) => {
+  if (event.touches) {
+    return {
+      x: event.originalEvent.touches[0].pageX - element.offset().left,
+      y: event.originalEvent.touches[0].pageY - element.offset().top,
+      xR:
+        ((event.originalEvent.touches[0].pageX - element.offset().left) /
+          window.innerWidth) *
+          2 -
+        1,
+      yR:
+        -(
+          (event.originalEvent.touches[0].pageY - element.offset().top) /
+          window.innerHeight
+        ) *
+          2 +
+        1,
+    };
+  }
+
+  return {
+    x: event.clientX,
+    y: event.clientY,
+    xR: (event.clientX / element.offsetWidth) * 2 - 1,
+    yR: -(event.clientY / element.offsetHeight) * 2 + 1,
+  };
+};
+
 class GameSceneContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -42,16 +70,14 @@ class GameSceneContainer extends React.Component {
   }
 
   onMouseMove(event) {
-    if (this.mouseDownTimeStamp === null) {
-      return;
-    }
+    event.stopPropagation();
+    event.preventDefault();
 
-    if (
-      this.dragging === false &&
-      new Date().getTime() - this.mouseDownTimeStamp >= this.draggingThreshold
-    ) {
-      this.dragging = true;
-    }
+    const { game } = this.props;
+
+    game.onMouseMove(
+      getMousePositionInObservedElement(event, this.canvasRef.current)
+    );
   }
 
   onKeyDown(event) {

@@ -5,6 +5,8 @@ const GroundFragmentShader = `
     uniform sampler2D propMap;
     uniform sampler2D brushMap;
 
+    uniform int normalMode;
+
     uniform float size;
     uniform int tileBorders;
 
@@ -16,11 +18,23 @@ const GroundFragmentShader = `
     }
 
     vec4 combineColors(vec4 c1, vec4 c2) {
-        float alpha = c1.a > c2.a ? c1.a : c2.a;
         
-        vec4 color = (c1 * (1.0 - c2.a)) + (c2 * c2.a);
-        color.a = alpha;
-        return color;
+        if (normalMode == 1) {
+            c1 -= vec4(0.5, 0.5, 1.0, 0.0);
+            c2 -= vec4(0.5, 0.5, 1.0, 0.0);
+            float totalAlpha = c1.a + c2.a;
+
+            float alpha = c1.a > c2.a ? c1.a : c2.a; 
+
+            vec3 color = vec3(0.5, 0.5, 1.0) + (c1.xyz * (c1.a / totalAlpha)) + (c2.xyz * (c2.a / totalAlpha));
+            return vec4(color.xyz, alpha);
+
+        } else {
+            float alpha = c1.a > c2.a ? c1.a : c2.a; 
+            vec4 color = (c1 * (1.0 - c2.a)) + (c2 * c2.a);
+            color.a = alpha;
+            return color;
+        }
     }
 
     float getTileSize() {
@@ -53,17 +67,12 @@ const GroundFragmentShader = `
     }
 
     vec4 getPropDetails(vec2 propUv) {
-
-        if (propUv.x < 0.0) {
-            propUv.x = 0.0;
-        }
-
         vec4 propDetails = texture2D(propMap, propUv);
         return propDetails * 255.0;
     }
 
     vec4 sampleBrush(vec2 uv, float number){
-        float textureAmount = 16.0;
+        float textureAmount = 8.0;
         vec2 tPos = vec2((mod(number, textureAmount) * (1.0 / textureAmount)), (floor(number / textureAmount) * (1.0 / textureAmount)));
         vec2 finalPos = vec2((uv.x / textureAmount + tPos.x), 1.0 - (uv.y / textureAmount + tPos.y));
 
@@ -78,17 +87,11 @@ const GroundFragmentShader = `
         return texture2D(groundTexture, finalPos);
     }
 
-    vec4 getAdjacent(vec4 basePropDetails, vec4 propDetails, vec2 xy) {
+    vec4 getAdjacent(float brush, vec2 xy) {
         vec2 tileUv = getTileUv();
 
         float x = xy.x;
         float y = xy.y;
-
-        
-
-        if (propDetails.a <= basePropDetails.a) {
-            return vec4(0.0);
-        }
 
         vec2 brushUv = tileUv / 2.0 + vec2(0.25, 0.25) - (vec2(x, y) / 2.0);
                 
@@ -96,7 +99,7 @@ const GroundFragmentShader = `
             return vec4(0.0);
         }
 
-        vec4 brushColor = sampleBrush(brushUv, propDetails.z);
+        vec4 brushColor = sampleBrush(brushUv, brush);
 
         return brushColor;
     }
@@ -109,11 +112,8 @@ const GroundFragmentShader = `
         vec4 baseColor = sampleGroundTexture(basePropDetails.a);
         float tileSize = getTileSize();
 
-        vec4 propDetails = vec4(0.0);
-
     
-        //float x = -1.0;
-        //float y = -1.0;
+        vec4 propDetails = vec4(0.0);
 
         for (float x = -1.0; x <= 1.0; x += 1.0) {
 		    for (float y = -1.0; y <= 1.0; y += 1.0) {
@@ -123,7 +123,12 @@ const GroundFragmentShader = `
                 }
               
                 vec4 propDetails = getPropDetails(croppedUv + (vec2(x, y) * tileSize));
-                vec4 brushColor = getAdjacent(basePropDetails, propDetails, vec2(x,y));
+
+                if (propDetails.a <= basePropDetails.a) {
+                    continue;
+                }
+
+                vec4 brushColor = getAdjacent(propDetails.z, vec2(x,y));
        
                 if (brushColor.a == 0.0) {
                     continue;
@@ -135,22 +140,82 @@ const GroundFragmentShader = `
                 
             }
         }
-
+        
         return baseColor;
+    }
+
+    vec4 getCombinedOverlayColor(vec4 currentColor) {
+
+        vec2 tileUv = getTileUv();
+        vec2 croppedUv = cropUv();
+        vec4 basePropDetails = getPropDetails(croppedUv);
+        float tileSize = getTileSize();
+
+        vec4 baseBrush = sampleBrush(tileUv / 2.0 + vec2(0.25, 0.25), basePropDetails.x);
+        vec4 baseColor = sampleGroundTexture(basePropDetails.y);
+        baseColor.a = baseBrush.a;
+
+       
+        if (basePropDetails.y == 255.0) {
+            if (normalMode == 1) {  
+                baseColor = vec4(0.5, 0.5, 1.0, 0.0);
+            } else {
+                baseColor.a = 0.0;
+            }
+        }
+    
+        vec4 propDetails = vec4(0.0);
+
+        for (float x = -1.0; x <= 1.0; x += 1.0) {
+		    for (float y = -1.0; y <= 1.0; y += 1.0) {
+
+                if (x == 0.0 && y == 0.0) {
+                    continue;
+                }
+              
+                vec4 propDetails = getPropDetails(croppedUv + (vec2(x, y) * tileSize));
+
+                if (propDetails.y == 255.0 || (propDetails.y < basePropDetails.y && basePropDetails.y != 255.0)) {
+                    continue;
+                }
+
+                vec4 brushColor = getAdjacent(propDetails.x, vec2(x,y));
+       
+                if (brushColor.a == 0.0) {
+                    continue;
+                }
+
+                vec4 nextColor = sampleGroundTexture(propDetails.y);
+                nextColor.a = brushColor.a;
+
+                
+                if (normalMode == 1) {
+                    if (brushColor.r != 0.0) {
+                        brushColor.a *= 1.0;
+                        nextColor = combineColors(nextColor, brushColor);
+                    } 
+                } 
+                
+
+                if (baseColor.a == 0.0) {
+                    baseColor = nextColor;
+                } else {
+                    baseColor = combineColors(baseColor, nextColor);
+                }         
+            }
+        }
+        
+        if (normalMode == 1) {
+            baseColor.a *= 1.0;
+        }
+        
+        return combineColors(currentColor, baseColor);
     }
  
     void main() {
         vec4 tileColor = getCombinedTileColor();
-        vec2 tileUv = getTileUv();
-
-
-        if ( tileBorders == 1 && (tileUv.x > 0.99 || tileUv.x < 0.01 || tileUv.y > 0.99 || tileUv.y < 0.01)) {
-            gl_FragColor = tileColor * vec4(1.0, 1.0, 1.0, 0.80);
-        } else { 
-            gl_FragColor = tileColor;
-        }
-
-        
+        tileColor = getCombinedOverlayColor(tileColor);
+        gl_FragColor = tileColor;
     }
 `;
 

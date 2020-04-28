@@ -16,42 +16,17 @@ class GroundChunk extends Chunk {
     this.heightImageData = null;
     this.propData = null;
 
-    this.uniforms = {
-      normalMap: {
-        type: "t",
-        value: new THREE.DataTexture(null, 128, 128),
-      },
-      size: {
-        type: "f",
-        value: this.size,
-      },
-      /*
-      texture: {
-        type: "t",
-        value: new THREE.DataTexture(null, 0, 0),
-      },
-      overlayColor: { type: "v3", value: this.color },
-      opacity: { type: "f", value: 1.0 },
-      textureNumber: { type: "f", value: this.textureNumber },
-      */
-    };
-
-    /*
-    this.material = new THREE.ShaderMaterial({
-      vertexShader: SimpleUvVertexShader,
-      fragmentShader: GroundFragmentShader,
-      transparent: true,
-      depthWrite: true,
-      depthTest: true,
-      blending: THREE.NormalBlending,
-    });
-
-    */
-
     this.material = new THREE.MeshStandardMaterial({
       normalMap: new THREE.DataTexture(null, 0, 0),
+      normalMapType: THREE.TangentSpaceNormalMap,
       //color: new THREE.Color(0, 0, 0.5, 1),
-      map: new THREE.TextureLoader().load("img/noise.png"),
+      map: new THREE.TextureLoader().load(
+        "img/whitepixel.png"
+      ) /* new THREE.DataTexture(
+        null,
+        0,
+        0
+      )*/,
     });
     const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
     //this.material.uniforms = this.uniforms;

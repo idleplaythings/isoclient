@@ -6,6 +6,8 @@ import ResizeFragmentShader from "./shaders/ResizeFragmentShader";
 import TileChunkCropFragmentShader from "./shaders/TileChunkCropFragmentShader";
 import GroundFragmentShader from "./shaders/GroundFragmentShader";
 import NormalMapCombineFragmentShader from "./shaders/NormalMapCombineFragmentShader";
+import SmoothNormalMapFragmentShader from "./shaders/SmoothNormalMapFragmentShader";
+import SmoothHeightMapFragmentShader from "./shaders/SmoothHeightMapFragmentShader";
 
 const TEXTURE_GROUND = new THREE.TextureLoader().load(
   "img/groundTileTextures.png"
@@ -113,6 +115,10 @@ const GROUND_MATERIAL_uniforms = {
     type: "t",
     value: TEXTURE_BRUSHES,
   },
+  normalMode: {
+    type: "i",
+    value: 0,
+  },
 };
 
 GROUND_MATERIAL.uniforms = GROUND_MATERIAL_uniforms;
@@ -146,6 +152,10 @@ const GROUND_MATERIAL_NORMAL_uniforms = {
     type: "t",
     value: TEXTURE_BRUSHES,
   },
+  normalMode: {
+    type: "i",
+    value: 1,
+  },
 };
 
 GROUND_MATERIAL_NORMAL.uniforms = GROUND_MATERIAL_NORMAL_uniforms;
@@ -170,6 +180,31 @@ const NORMAL_MAP_COMBINE_uniforms = {
 };
 
 NORMAL_MAP_COMBINE.uniforms = NORMAL_MAP_COMBINE_uniforms;
+
+const SMOOTH_NORMALMAP_MATERIAL = new THREE.ShaderMaterial({
+  vertexShader: SimpleUvVertexShader,
+  fragmentShader: SmoothHeightMapFragmentShader,
+  transparent: false,
+  depthWrite: false,
+  depthTest: false,
+});
+
+const SMOOTH_NORMALMAP_MATERIAL_uniforms = {
+  map: {
+    type: "t",
+    value: null,
+  },
+  pixelSize: {
+    type: "f",
+    value: 0,
+  },
+  tileSize: {
+    type: "f",
+    value: 0,
+  },
+};
+
+SMOOTH_NORMALMAP_MATERIAL.uniforms = SMOOTH_NORMALMAP_MATERIAL_uniforms;
 
 const getRenderTargetCameraAndMesh = (
   size,
@@ -332,10 +367,10 @@ class ChunkImageManipulator {
     heightMap.magFilter = THREE.LinearFilter;
     heightMap.needsUpdate = true;
 
-    const makeNormalMap = (map) => {
+    const makeNormalMap = (map, scale = 4) => {
       const { renderTarget, camera, mesh } = getRenderTargetCameraAndMesh(
         size + 2,
-        (size + 2) * 4,
+        (size + 2) * scale,
         HEIGHT_TO_NORMAL_MATERIAL,
         THREE.LinearFilter,
         THREE.LinearFilter
@@ -348,10 +383,10 @@ class ChunkImageManipulator {
       return renderTarget.texture;
     };
 
-    const resize = (map) => {
+    const resize = (map, scale = 2) => {
       const { renderTarget, camera, mesh } = getRenderTargetCameraAndMesh(
         size + 2,
-        (size + 2) * 2,
+        (size + 2) * scale,
         RESIZE_MATERIAL,
         THREE.LinearFilter,
         THREE.LinearFilter
@@ -380,8 +415,8 @@ class ChunkImageManipulator {
       return renderTarget.texture;
     };
 
-    const resizedHeightMap = resize(heightMap);
-    const normalMap = makeNormalMap(resizedHeightMap);
+    let resizedHeightMap = resize(heightMap, 4);
+    const normalMap = makeNormalMap(resizedHeightMap, 2);
     const cropped = crop(normalMap);
     return cropped;
   }

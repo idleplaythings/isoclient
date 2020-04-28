@@ -5,6 +5,7 @@ import GrassFactory from "./GrassFactory";
 import WaterFactory from "./WaterFactory";
 import { getRandom, getSeededRandomGenerator } from "./Utils";
 import { getColorIndicesForCoord } from "../../../util/imageUtils";
+import { createHeightMap } from "./HeightMapFactory";
 
 const flyTile = new Tile();
 
@@ -15,32 +16,8 @@ class TileFactory {
   }
 
   create(position, chunkSize, binaryChunk) {
-    let minHeight = null;
-    let maxHeight = null;
-
-    console.log("position", position);
-
-    for (let x = -1; x <= chunkSize; x++) {
-      for (let y = -1; y <= chunkSize; y++) {
-        const tileSetPosition = { x: x + 1, y: y + 1 };
-
-        let height = binaryChunk.getHeight(tileSetPosition);
-        if (height < minHeight || minHeight === null) {
-          minHeight = height;
-        }
-
-        if (height > maxHeight || maxHeight === null) {
-          maxHeight = height;
-        }
-      }
-    }
-
-    const heightVariance = maxHeight - minHeight;
-
     const extra = 2;
-    const heightData = new Uint8ClampedArray(
-      (chunkSize + extra) * (chunkSize + extra) * 4
-    );
+    const heightData = createHeightMap(position, chunkSize, binaryChunk);
 
     const propData = new Uint8ClampedArray(
       (chunkSize + extra) * (chunkSize + extra) * 4
@@ -50,29 +27,48 @@ class TileFactory {
       for (let y = -1; y <= chunkSize; y++) {
         const tileSetPosition = { x: x + 1, y: y + 1 };
 
-        let height = binaryChunk.getHeight(tileSetPosition);
         const [r, g, b, a] = getColorIndicesForCoord(
           tileSetPosition.x + extra / 2 - 1,
           tileSetPosition.y + extra / 2 - 1,
           chunkSize + extra
         );
 
-        height -= minHeight;
+        const getRandom = getSeededRandomGenerator(
+          `${position.x + x}x${position.y - y}`
+        );
 
-        heightData[r] = (255 / (chunkSize + 2)) * height;
-        heightData[g] = (255 / (chunkSize + 2)) * height;
-        heightData[b] = (255 / (chunkSize + 2)) * height;
-        heightData[a] = 255;
+        let visual = [5, 4][Math.floor(getRandom() * 2)];
+        let brush = [3, 4, 5, 6][Math.floor(getRandom() * 4)];
 
-        const visual =
-          getSeededRandomGenerator(`${position.x + x}x${position.y - y}`)() >
-          0.5
-            ? 5
-            : 4;
+        let visual2 = 255;
+        let brush2 = 255;
 
-        propData[r] = 0;
-        propData[g] = 0;
-        propData[b] = 1;
+        //if (absoluteHeight > 7) {
+        const random = getRandom();
+
+        if (random > 0.9) {
+          visual2 = 8;
+          brush2 = [8, 9, 10][Math.floor(getRandom() * 3)];
+        } else if (random > 0.8) {
+          visual2 = 9;
+          brush2 = [8, 9, 10][Math.floor(getRandom() * 3)];
+        } else if (random > 0.7) {
+          visual2 = 56;
+          brush2 = [16, 17, 18][Math.floor(getRandom() * 3)];
+        }
+        //}
+
+        const type = binaryChunk.getType(tileSetPosition);
+        if (type !== TileTypes.type.REGULAR) {
+          brush = [3, 4, 5, 6][Math.floor(getRandom() * 4)];
+          visual = 56;
+          visual2 = 255;
+          brush2 = 255;
+        }
+
+        propData[r] = brush2;
+        propData[g] = visual2;
+        propData[b] = brush;
         propData[a] = visual;
       }
     }

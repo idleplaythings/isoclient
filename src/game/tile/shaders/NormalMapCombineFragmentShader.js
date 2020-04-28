@@ -6,17 +6,20 @@ const NormalMapCombineFragmentShader = `
  
 
    void main() {
-        vec4 mapAColor = texture2D(mapA, vUv);
-        vec4 mapBColor = texture2D(mapB, vUv) - vec4(0.5, 0.5, 0.5, 0.0);
+        vec4 c1 = texture2D(mapA, vUv);
+        vec4 c2 = texture2D(mapB, vUv);
 
-        vec4 finalColor = vec4(
-            mapAColor.r + mapBColor.r,
-            mapAColor.g + mapBColor.g,
-            mapAColor.b + mapBColor.b,
-            1.0
-        );
+        //c2.a *= 5.0;
+        c1 -= vec4(0.5, 0.5, 1.0, 0.0);
+        c2 -= vec4(0.5, 0.5, 1.0, 0.0);
 
-        gl_FragColor = finalColor;
+        c2 *= 1.5;
+
+        float totalAlpha = c1.a + c2.a;
+
+        vec3 finalColor = vec3(0.5, 0.5, 1.0) + (c1.xyz * (c1.a / totalAlpha)) + (c2.xyz * (c2.a / totalAlpha));
+
+        gl_FragColor = vec4(finalColor, 1.0);
    }
 `;
 

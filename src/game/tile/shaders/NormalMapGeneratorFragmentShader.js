@@ -20,13 +20,16 @@ const NormalMapGeneratorFragmentShader = `
  
    
    vec2 dHdxy_fwd() {
-       float bumpScale = 3.5;
+       float bumpScale = 2.0;
        vec2 dSTdx = dFdx( vUv );
        vec2 dSTdy = dFdy( vUv );
 
-       float Hll = bumpScale * texture2D( heightMap, vUv ).x;
-       float dBx = bumpScale * texture2D( heightMap, vUv + dSTdx ).x - Hll;
-       float dBy = bumpScale * texture2D( heightMap, vUv + dSTdy ).x - Hll;
+       vec4 c = texture2D( heightMap, vUv );
+       float Hll = bumpScale * (c.x + c.y + c.z);
+       c = texture2D( heightMap, vUv + dSTdx );
+       float dBx = bumpScale * (c.x + c.y + c.z) - Hll;
+       c = texture2D( heightMap, vUv + dSTdy );
+       float dBy = bumpScale * (c.x + c.y + c.z) - Hll;
 
        return vec2( dBx, dBy );
 
@@ -56,14 +59,9 @@ const NormalMapGeneratorFragmentShader = `
    void main() {
         vec4 finalColor = vec4(0.0, 0.0, 0.0, 0.0);
 
-        if (borders == 1 && (vUv.x > 0.99 || vUv.x < 0.01 || vUv.y > 0.99 || vUv.y < 0.01)) {
-            finalColor = vec4(1.0, 0.0, 0.0, 1.0);
-        } else {
-            
-            vec3 normal = perturbNormalArb( -vViewPosition, vec3(0.5, 0.5, 1.0), dHdxy_fwd() );
-            finalColor = vec4(normal.rgb, 1.0);
-        }
-
+        vec3 normal = perturbNormalArb( -vViewPosition, vec3(0.5, 0.5, 1.0), dHdxy_fwd() );
+        finalColor = vec4(normal.rgb, 1.0);
+       
         gl_FragColor = vec4(finalColor.rgb, 1.0);
    }
 `;
