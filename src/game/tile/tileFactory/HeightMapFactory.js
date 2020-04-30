@@ -1,5 +1,70 @@
 import { getColorIndicesForCoord } from "../../../util/imageUtils";
 
+class HeightMapFactory {
+  set(position, chunkSize, binaryChunk) {
+    this.position = position;
+    this.chunkSize = chunkSize;
+    this.binaryChunk = binaryChunk;
+  }
+
+  getHeight(position) {
+    /*
+    if (this.position.x === 496 && this.position.y === -512) {
+      if (position.x === 10 && position.y === 10) {
+        return 0.5;
+      }
+
+      if (position.x === 10 && position.y === 11) {
+        return 1.0;
+      }
+
+      if (position.x === 9 && position.y === 10) {
+        return 0.5;
+      }
+
+      return 0;
+    }
+
+    if (this.position.x === 512 && this.position.y === -512) {
+      if (position.x === 9 && position.y === 10) {
+        return 0.5;
+      }
+
+      if (position.x === 8 && position.y === 8) {
+        return 0.5;
+      }
+
+      if (position.x === 10 && position.y === 9) {
+        return 0.5;
+      }
+
+      if (
+        position.y < 3 ||
+        position.y > 8 ||
+        position.x < 3 ||
+        position.x > 8
+      ) {
+        return 0;
+      }
+
+      if ([5].includes(position.x)) {
+        return 1;
+      }
+
+      if ([5].includes(position.y)) {
+        return 1;
+      }
+
+      return 0;
+    }
+
+    return 0;
+  */
+
+    return this.binaryChunk.getHeight(position);
+  }
+}
+
 export const createHeightMap = (position, chunkSize, binaryChunk) => {
   let minHeight = null;
   let maxHeight = null;
@@ -50,3 +115,5 @@ export const createHeightMap = (position, chunkSize, binaryChunk) => {
 
   return heightData;
 };
+
+export default HeightMapFactory;

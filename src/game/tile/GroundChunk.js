@@ -1,8 +1,11 @@
 import Chunk from "../../model/tile/Chunk";
 import * as THREE from "three";
+import { Vector3 } from "three";
+
+const WHITEPIXEL = new THREE.TextureLoader().load("img/whitepixel.png");
 
 class GroundChunk extends Chunk {
-  constructor(position, size, scene, imageManipulator) {
+  constructor(position, size, scene, imageManipulator, geometry) {
     super(position, size);
     this.forRender = [];
     this.scene = scene;
@@ -13,27 +16,20 @@ class GroundChunk extends Chunk {
 
     this.imageManipulator = imageManipulator;
 
-    this.heightImageData = null;
     this.propData = null;
 
     this.material = new THREE.MeshStandardMaterial({
       normalMap: new THREE.DataTexture(null, 0, 0),
       normalMapType: THREE.TangentSpaceNormalMap,
-      //color: new THREE.Color(0, 0, 0.5, 1),
-      map: new THREE.TextureLoader().load(
-        "img/whitepixel.png"
-      ) /* new THREE.DataTexture(
-        null,
-        0,
-        0
-      )*/,
+      map: WHITEPIXEL,
+      wireframe: false,
     });
-    const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+    this.geometry = geometry; //new THREE.PlaneGeometry(size, size, size * 2, size * 2);
     //this.material.uniforms = this.uniforms;
 
-    this.mesh = new THREE.Mesh(geometry, this.material);
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
 
-    this.mesh.scale.set(this.size, this.size, 1);
+    //this.mesh.scale.set(this.size, this.size, 1);
     this.mesh.position.set(
       this.position.x + this.size / 2 - 0.5,
       this.position.y - this.size / 2 + 0.5,
@@ -62,12 +58,32 @@ class GroundChunk extends Chunk {
     return this;
   }
 
-  addData(propData, heightImageData) {
+  addData(propData, heightData) {
     if (this.hibernating) {
       throw new Error("This chunk is hibernating");
     }
 
-    this.heightImageData = heightImageData;
+    heightData = heightData.map(
+      (position) => new Vector3(position.x, position.y, position.z)
+    );
+
+    this.geometry.vertices = heightData;
+    //this.geometry.computeFaceNormals();
+    this.geometry.computeVertexNormals(false);
+
+    this.geometry.verticesNeedUpdate = true;
+    this.geometry.elementsNeedUpdate = true;
+    this.geometry.normalsNeedUpdate = true;
+
+    //console.log(this.geometry);
+    //console.log(this.geometry.vertices);
+
+    //this.geometry.vertices.forEach((v) => v.setZ(Math.random() * 5));
+    //this.geometry.verticesNeedUpdate = true;
+
+    //this.geometry.vertices[0].setZ(3);
+    //this.geometry.verticesNeedUpdate = true;
+
     this.propData = propData;
   }
 
@@ -100,21 +116,16 @@ class GroundChunk extends Chunk {
       return;
     }
 
-    if (this.heightImageData && this.imageManipulator.isFree()) {
+    if (this.propData && this.imageManipulator.isFree()) {
       const {
         normalTexture,
         groundTexture,
-      } = this.imageManipulator.renderGround(
-        this.size,
-        this.heightImageData,
-        this.propData
-      );
+      } = this.imageManipulator.renderGround(this.size, this.propData);
 
       this.material.normalMap = normalTexture;
       this.material.map = groundTexture;
 
       this.propData = null;
-      this.heightImageData = null;
     }
 
     //TODO, build images

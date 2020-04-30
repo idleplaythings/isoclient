@@ -6,10 +6,10 @@ import ResizeFragmentShader from "./shaders/ResizeFragmentShader";
 import TileChunkCropFragmentShader from "./shaders/TileChunkCropFragmentShader";
 import GroundFragmentShader from "./shaders/GroundFragmentShader";
 import NormalMapCombineFragmentShader from "./shaders/NormalMapCombineFragmentShader";
-import SmoothNormalMapFragmentShader from "./shaders/SmoothNormalMapFragmentShader";
+//import SmoothNormalMapFragmentShader from "./shaders/SmoothNormalMapFragmentShader";
 import SmoothHeightMapFragmentShader from "./shaders/SmoothHeightMapFragmentShader";
 
-const DEBUG = true;
+const DEBUG = false;
 
 const TEXTURE_GROUND = new THREE.TextureLoader().load(
   "img/groundTileTextures.png"
@@ -82,7 +82,7 @@ const CROP_MATERIAL_uniforms = {
   },
   borders: {
     type: "i",
-    value: DEBUG ? 1 : 0,
+    value: 0,
   },
 };
 
@@ -110,6 +110,10 @@ const GROUND_MATERIAL_uniforms = {
     value: 0,
   },
   tileBorders: {
+    type: "i",
+    value: DEBUG ? 1 : 0,
+  },
+  borders: {
     type: "i",
     value: DEBUG ? 1 : 0,
   },
@@ -259,7 +263,7 @@ class ChunkImageManipulator {
     this.used = false;
   }
 
-  renderGround(size, heightImageData, propImageData) {
+  renderGround(size, propImageData) {
     this.used = true;
 
     const propMap = new THREE.Texture(new ImageData(propImageData, size + 2));
@@ -269,6 +273,7 @@ class ChunkImageManipulator {
 
     const groundTexture = this.renderGroundChunkDiffuseMap(size, propMap);
     const groundNormalMap = this.renderGroundChunkNormalMap(size, propMap);
+    /*
     const slopeTexture = this.renderGroundChunkSlopeNormalMap(
       size,
       heightImageData
@@ -279,8 +284,9 @@ class ChunkImageManipulator {
       groundNormalMap,
       size
     );
+    */
 
-    return { groundTexture, normalTexture };
+    return { groundTexture, normalTexture: groundNormalMap };
   }
 
   renderToTarget(mesh, camera, renderTarget) {

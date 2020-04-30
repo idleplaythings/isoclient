@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import GroundTileGeometryFactory from "./tile/tileFactory/GroundTileGeometryFactory";
 
 class GameScene {
   constructor(gameCamera) {
@@ -25,19 +26,19 @@ class GameScene {
     this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.context.getExtension("GL_OES_standard_derivatives");
+    this.renderer.getContext().getExtension("GL_OES_standard_derivatives");
     this.renderer.autoClear = false;
     //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
 
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    this.directionalLight.position.set(50, -15, 7);
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    this.directionalLight.position.set(50, -15, 15);
     this.directionalLight.target.position.set(0, 0, 0);
-    this.scene.add(this.directionalLight);
-    this.scene.add(this.directionalLight.target);
+    //this.scene.add(this.directionalLight);
+    //this.scene.add(this.directionalLight.target);
 
-    this.directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.0);
-    this.directionalLight2.position.set(50, -15, 15);
+    this.directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
+    this.directionalLight2.position.set(50, -15, 30);
     this.directionalLight2.target.position.set(0, 0, 0);
     this.scene.add(this.directionalLight2);
     this.scene.add(this.directionalLight2.target);
@@ -46,17 +47,18 @@ class GameScene {
     this.pointLight.position.set(512, 512, 5);
     //this.scene.add(this.pointLight);
 
-    //this.scene.add(new THREE.AmbientLight(0xffffff, 0.01));
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.1));
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var material = new THREE.MeshBasicMaterial({
-      //transparent: true,
-      //opacity: 0.25,
-      color: 0x00ff00,
-      wireframe: true,
-    });
-    this.cube = new THREE.Mesh(geometry, material);
-    this.cube.position.set(512, 512, 0.5);
+    this.cube = new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({
+        //transparent: true,
+        //opacity: 0.25,
+        color: 0x00ff00,
+        wireframe: true,
+      })
+    );
+    this.cube.position.set(516, 510, 0.5);
     this.cube.renderOrder = 3;
     this.scene.add(this.cube);
 
@@ -88,6 +90,50 @@ class GameScene {
     mesh.position.set(512, 512, 0);
     this.scene.add(mesh);
     */
+
+    /*
+    var material = new THREE.MeshStandardMaterial({ color: 0x00cc00 });
+
+    //create a triangular geometry
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(new THREE.Vector3(-1, -1, 0));
+    geometry.vertices.push(new THREE.Vector3(1, 1, 0));
+    geometry.vertices.push(new THREE.Vector3(1, -1, 0));
+    geometry.vertices.push(new THREE.Vector3(-1, 1, 0));
+
+    //create a new face using vertices 0, 1, 2
+    var normal = new THREE.Vector3(0, 0, 1); //optional
+    var color = new THREE.Color(0xffaa00); //optional
+    var materialIndex = 0; //optional
+    var face = new THREE.Face3(0, 2, 1, normal, color, materialIndex);
+
+    //add the face to the geometry's faces array
+    geometry.faces.push(face);
+    geometry.faces.push(new THREE.Face3(3, 0, 1, normal, color, materialIndex));
+
+    //the face normals and vertex normals can be calculated automatically if not supplied above
+    //geometry.computeFaceNormals();
+    //geometry.computeVertexNormals();
+
+    console.log(geometry);
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(512, 512, 3);
+    this.scene.add(mesh);
+    */
+
+    const factory = new GroundTileGeometryFactory(4);
+
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      wireframe: false,
+      map: new THREE.TextureLoader().load("img/test.png"),
+    });
+
+    const geometry = factory.create();
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(512, 512, 2);
+    //this.scene.add(mesh);
   }
 
   add(element) {

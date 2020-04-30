@@ -37,7 +37,7 @@ THREE.LinearMipMapLinearFilter
         map2: { value: texture2 },
         noiseMap1: { value: noise },
         noiseMap2: { value: noise2 },
-        time: { type: "f", value: 0.0 }
+        time: { type: "f", value: 0.0 },
       },
       blending: THREE.NormalBlending,
       opacity: 1,
@@ -48,7 +48,7 @@ THREE.LinearMipMapLinearFilter
       //depthTest: false,
       transparent: true,
       vertexShader: CubeTileVertexShader,
-      fragmentShader: CubeTileFragmentShader
+      fragmentShader: CubeTileFragmentShader,
     });
 
     this.start = Date.now() / 3000;
@@ -56,13 +56,15 @@ THREE.LinearMipMapLinearFilter
   }
 
   updateLoop() {
+    /*
     const now = Date.now();
     const sineAmplitude = 1.0;
     const sineFrequency = 200;
 
+   
     const sine =
       sineAmplitude * 0.5 * Math.sin(now / sineFrequency) + sineAmplitude;
-
+*/
     this.material.uniforms.time.value = Date.now() / 3000 - this.start;
 
     requestAnimationFrame(this.updateLoop.bind(this));
@@ -177,11 +179,11 @@ THREE.LinearMipMapLinearFilter
     return new Promise((resolve, reject) => {
       this.loader.load(
         path,
-        gltf => {
+        (gltf) => {
           resolve(gltf);
         },
-        xhr => {},
-        error => {
+        (xhr) => {},
+        (error) => {
           console.error("An error happened", error);
         }
       );

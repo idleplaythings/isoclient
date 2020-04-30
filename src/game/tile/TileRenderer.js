@@ -1,9 +1,10 @@
-import TileChunk from "./TileChunk";
+//import TileChunk from "./TileChunk";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
-import Tile from "./Tile";
+//import Tile from "./Tile";
 import GroundChunk from "./GroundChunk";
 import ChunkImageManipulator from "./ChunkImageManipulator";
+import GroundTileGeometryFactory from "./tileFactory/GroundTileGeometryFactory";
 
 class TileRenderer {
   constructor(scene, gameCamera, world) {
@@ -23,6 +24,9 @@ class TileRenderer {
     this.freeChunks = [];
     this.scene = scene;
 
+    this.groundTileGeometryFactory = new GroundTileGeometryFactory(
+      this.chunkSize
+    );
     this.chunkImageManipulator = new ChunkImageManipulator(this.scene);
 
     window.testTileRenderer = this;
@@ -172,8 +176,10 @@ class TileRenderer {
         position,
         this.chunkSize,
         this.scene,
-        this.chunkImageManipulator
+        this.chunkImageManipulator,
+        this.groundTileGeometryFactory.create()
       );
+
       chunk.wakeUp();
       this.chunksByLocation[chunk.position.x + ":" + chunk.position.y] = chunk;
       this.chunks.push(chunk);

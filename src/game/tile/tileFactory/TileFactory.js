@@ -5,8 +5,9 @@ import GrassFactory from "./GrassFactory";
 import WaterFactory from "./WaterFactory";
 import { getRandom, getSeededRandomGenerator } from "./Utils";
 import { getColorIndicesForCoord } from "../../../util/imageUtils";
-import { createHeightMap } from "./HeightMapFactory";
+import HeightMapFactory, { createHeightMap } from "./HeightMapFactory";
 import Vector from "../../../model/util/Vector";
+import GroundTileGeometryFactory from "./GroundTileGeometryFactory";
 
 const flyTile = new Tile();
 
@@ -14,14 +15,20 @@ const getWorldPosition = (binaryChunkPosition, chunkPosition, position) =>
   new Vector(binaryChunkPosition).add(chunkPosition).add(position);
 
 class TileFactory {
-  constructor() {
+  constructor(chunkSize) {
     this.grassFactory = new GrassFactory();
     this.waterFactory = new WaterFactory();
+    this.heightMapFactory = new HeightMapFactory();
+    this.groundTileGeometryFactory = new GroundTileGeometryFactory(chunkSize);
   }
 
   create(position, chunkSize, binaryChunk, binaryChunkPosition) {
     const extra = 2;
-    const heightData = createHeightMap(position, chunkSize, binaryChunk);
+    this.heightMapFactory.set(position, chunkSize, binaryChunk);
+
+    const heightData = this.groundTileGeometryFactory.calculateHeightData(
+      this.heightMapFactory
+    );
 
     const propData = new Uint8ClampedArray(
       (chunkSize + extra) * (chunkSize + extra) * 4

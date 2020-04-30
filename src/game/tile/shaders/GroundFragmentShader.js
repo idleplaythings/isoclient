@@ -9,6 +9,7 @@ const GroundFragmentShader = `
 
     uniform float size;
     uniform int tileBorders;
+    uniform int borders;
 
     varying vec2 vUv;
 
@@ -216,7 +217,9 @@ const GroundFragmentShader = `
         vec4 tileColor = getCombinedTileColor();
         tileColor = getCombinedOverlayColor(tileColor);
 
-        if (tileBorders == 1) {  
+        if (borders == 1 && (vUv.x > 0.99 || vUv.x < 0.01 || vUv.y > 0.99 || vUv.y < 0.01)) {
+            tileColor.a *= 0.9;
+        } else if (tileBorders == 1) {  
             vec2 uv = getTileUv();
             if (uv.x > 0.99 || uv.x < 0.01 || uv.y > 0.99 || uv.y < 0.01) {
                 tileColor.a *= 0.9;

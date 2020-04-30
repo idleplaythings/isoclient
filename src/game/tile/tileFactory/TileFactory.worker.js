@@ -2,7 +2,7 @@ import TileFactory from "./TileFactory";
 import TileBinaryChunk from "../TileBinaryChunk";
 import ndarray from "ndarray";
 
-const tileFactory = new TileFactory();
+const tileFactory = new TileFactory(16);
 
 const create = (event) => {
   const { position, chunkSize, data, index, binaryChunkPosition } = event.data;
