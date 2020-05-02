@@ -2,15 +2,25 @@ const CubeTileFragmentShader = `
     precision highp float;
     uniform sampler2D map;
     uniform sampler2D map2;
-    uniform sampler2D noiseMap1;
-    uniform sampler2D noiseMap2;
+    uniform sampler2D wallMap;
+    uniform sampler2D wallNormalMap;
     uniform float time;
+    
+    uniform vec3 directionalLightPosition;
+    uniform vec3 directionalLightColor;
+    uniform float directionalLightIntensity;
+    uniform vec3 ambientLightColor;
+    uniform float ambientLightIntensity;
+    
+
     varying vec2 vUv;
     varying float vOpacity;
     varying vec4 vTextureNumber1;
     varying vec4 vTextureNumber2;
     varying vec3 vType;
-    varying vec2 vWaterUv;
+    varying float vTextureVariant;
+    varying vec3 vViewPosition;
+    varying vec3 vPosition;
 
     float isFlipped() {
         if (vType.z > 0.0) {
@@ -20,12 +30,12 @@ const CubeTileFragmentShader = `
         }
     }
 
-    vec4 sampleTexture(float number) {
+    vec4 sampleTexture(float number, int normal) {
 
         if (number < 1.0) {
             return vec4(0,0,0,0);
         }
-        
+
         float y = vUv.y;
         if (isFlipped() == 1.0) {
             y = 1.0 - vUv.y;
@@ -33,26 +43,40 @@ const CubeTileFragmentShader = `
 
         int mapNumber = 0;
 
-        if (number > 255.0) {
+       if (number > 511.0) {
+            mapNumber = 2;
+            number -= 511.0;
+        } else if (number > 255.0) {
             mapNumber = 1;
             number -= 255.0;
-        }
+        }  
 
         float textureAmount = 16.0;
         vec2 tPos = vec2((mod(number, textureAmount) * (1.0 / textureAmount)), (floor(number / textureAmount) * (1.0 / textureAmount)));
         vec2 finalPos = vec2((vUv.x / textureAmount + tPos.x), 1.0 - (y / textureAmount + tPos.y));
 
-        if (mapNumber == 1) {
-            return texture2D( map2, finalPos ); 
-        } else {
-            return texture2D( map, finalPos );
+        if (vTextureVariant > 0.0) {
+            finalPos += vec2(0.02587890625, 0.02099609375) * vTextureVariant;
         }
-    }
 
-    vec4 sampleGuide(float number, float guideColor) {
-        vec4 color = sampleTexture(number);
-        color.rgb *= guideColor;
-        return color;
+        if (normal == 1) {  
+            if (mapNumber == 1) {
+                return vec4(0.0);
+            } else if (mapNumber == 2) {
+                return texture2D( wallNormalMap, finalPos ); 
+            } else {
+                return vec4(0.0);
+            }
+        } else {
+            if (mapNumber == 1) {
+                return texture2D( map2, finalPos ); 
+            } else if (mapNumber == 2) {
+                return texture2D( wallMap, finalPos ); 
+            } else {
+                return texture2D( map, finalPos );
+            }
+
+        }
     }
 
     vec4 combineColorByAlpha(vec4 colorA, vec4 colorB) {
@@ -74,141 +98,53 @@ const CubeTileFragmentShader = `
         return finalColor;
     }
 
-    vec4 combineTextureToColor(vec4 color, float textureNumber) {
+    vec4 combineTextureToColor(vec4 color, float textureNumber, int normal) {
 
         if (textureNumber < 1.0) {
             return color;
         }
 
-        return combineColorByAlpha(color, sampleTexture(textureNumber));
+        return combineColorByAlpha(color, sampleTexture(textureNumber, normal));
     }
 
-    vec4 combineTextureToColorWithBrush(vec4 color, float brushNumber, float textureNumber){
+    vec4 calculateLight(vec4 color, vec3 normal){
 
-        if (textureNumber < 1.0 || brushNumber < 1.0) {
-            return color;
-        }
+        normal = normal * 2.0 - 1.0;
 
-        vec4 textureColor = sampleTexture(textureNumber);
-        float brushAlpha = sampleTexture(brushNumber).a;
-        textureColor.a -= 1.0 - brushAlpha;
+        vec3 ambient = ambientLightIntensity * ambientLightColor;
 
-        if (textureColor.a <= 0.0) {
-            return color;
-        }
+        float diff = max(dot(normal, directionalLightPosition), 0.0);
+        vec3 directional = diff * directionalLightIntensity * directionalLightColor;
 
-        return combineColorByAlpha(color, textureColor);
-    }
+        float specularStrength = 0.07;
 
-    vec4 applyShadowAndHighligh(vec4 color, float highlightTextureNumber) {
+        vec3 viewDir = normalize(vViewPosition - vPosition);
+        vec3 reflectDir = reflect(-directionalLightPosition, normal);  
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 4.0);
+        vec3 specular = specularStrength * spec * directionalLightColor;  
 
-        if (highlightTextureNumber < 0.0) {
-            return color;
-        }
+        vec3 newColor = (directional + specular + ambient) *  color.xyz;
 
-        vec4 guideColor = sampleTexture(highlightTextureNumber);
-
-        if (guideColor.r > 0.0) {
-            vec4 shadowColor = vec4(0.0, 0.0, 0.0, 1);
-
-            color.rgb -= (shadowColor.rgb + 1.0) * guideColor.r * guideColor.a * 0.1;
-            //color.rgb *= (shadowColor.rgb + 1.0) * (1.0 - guideColor.r * guideColor.a * 0.5);
-        }
-
-        if (guideColor.b > 0.0) {
-            //vec4 lightColor = vec4(1, 0.83, 0.56, 1);
-            
-            vec4 lightColor = vec4(1, 1, 1, 1);
-            color.rgb += lightColor.rgb * guideColor.b * guideColor.a * 0.1;
-            //color.rgb *= lightColor.rgb * guideColor.b * guideColor.a * 1.1;
-        }
-        
-    
-        return color;
-        
-    }
-
-    vec4 applyMask(vec4 color, float textureNumber) {
-
-        if (textureNumber < 1.0) {
-            return color;
-        }
-
-        float maskAlpha = sampleTexture(textureNumber).a;
-
-        color.a *= 1.0 - maskAlpha;
-        return color;
+        return vec4(newColor.xyz, color.a);
     }
     
-    vec4 handleNormal() {
+    vec4 getColor() {
 
-        vec4 color = sampleTexture(vTextureNumber1.r);
-        color = combineTextureToColor(color, vTextureNumber1.g);
-        color = combineTextureToColor(color, vTextureNumber1.b);
-        color = combineTextureToColor(color, vTextureNumber1.a);
+        vec4 color = sampleTexture(vTextureNumber1.r, 0);
+        color = combineTextureToColor(color, vTextureNumber1.g, 0);
+        color = combineTextureToColor(color, vTextureNumber1.b, 0);
+        color = combineTextureToColor(color, vTextureNumber1.a, 0);
 
         return color;
     }
 
-    vec4 handleBrushed() {
-        vec4 color = combineTextureToColorWithBrush(vec4(0.0), vTextureNumber2.x, vTextureNumber1.x);
-        color = combineTextureToColorWithBrush(color, vTextureNumber2.y, vTextureNumber1.y);
-        color = applyShadowAndHighligh(color, vTextureNumber2.a);
-     
+    vec4 getNormal() {
+        vec4 color = sampleTexture(vTextureNumber1.r, 1);
+        color = combineTextureToColor(color, vTextureNumber1.g, 1);
+        color = combineTextureToColor(color, vTextureNumber1.b, 1);
+        color = combineTextureToColor(color, vTextureNumber1.a, 1);
+
         return color;
-    }
-
-    vec4 handleSlope() {
-        vec4 color = combineTextureToColorWithBrush(vec4(0.0), vTextureNumber2.x, vTextureNumber1.x);
-        color = combineTextureToColorWithBrush(color, vTextureNumber2.y, vTextureNumber1.y);
-        color = applyShadowAndHighligh(color, vTextureNumber2.a);
-        color = applyMask(color, vTextureNumber1.b);
-        color = applyMask(color, vTextureNumber1.a);
-     
-        return color;
-    }
-
-    vec4 handleWater() {
-
-        float noise = texture2D( noiseMap1, vWaterUv - time * 0.05 ).r + texture2D( noiseMap2, vWaterUv + time * 0.05 ).r;
-        
-        /*
-        if (noise > 0.6) {
-            return vec4(1.0);
-        }
-        */
-
-        vec4 waterColor = vec4(0.0, 0.18, 0.23, 0.6);
-        vec4 higlightColor = vec4(1.0, 1.0, 1.0, 0.0);
-
-        if (noise < 0.1) {
-            return waterColor;
-        }
-
-        higlightColor.a = noise;
-
-        float extraAlpha = 0.0;
-
-        if (higlightColor.a > 0.5) {
-            extraAlpha = (higlightColor.a - 0.5) * 2.0;
-            higlightColor.a = (higlightColor.a - 0.5) * 10.0;
-        } else if (higlightColor.a > 0.4) {
-            //extraAlpha = - (higlightColor.a - 0.4) * 2.0;
-            higlightColor.a = clamp((higlightColor.a - 0.4) * 2.0, 0.0, 0.3);
-        } else {
-            higlightColor.a = 0.0;
-        }
-
-        waterColor.rgb += higlightColor.rgb * higlightColor.a;
-
-        //waterColor = combineColorByAlpha(waterColor, higlightColor); 
-        
-        waterColor.a += extraAlpha;
-        
-        
-        
-        return waterColor;
-       
     }
 
     void main() {
@@ -216,15 +152,14 @@ const CubeTileFragmentShader = `
             discard;
         }
 
-        if (vType.x >= 1.0 && vType.x < 2.0) {
-            gl_FragColor = handleBrushed();
-        } else if (vType.x >= 2.0 && vType.x < 3.0) {
-            gl_FragColor = handleSlope();
-        } else if (vType.x >= 3.0 && vType.x < 4.0) {
-            gl_FragColor = handleWater();
-        } else {
-            gl_FragColor = handleNormal();
+        vec4 color = getColor();
+        vec4 normal = getNormal();
+        if (normal.a != 0.0) {
+            color = calculateLight(color, normal.xyz);
         }
+
+        gl_FragColor = color;
+       
     }
 `;
 

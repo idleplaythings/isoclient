@@ -12,12 +12,16 @@ const CubeTileVertexShader = `
     attribute vec4 textureNumber1;
     attribute vec4 textureNumber2;
     attribute vec3 type;
+    attribute float textureVariant;
+
     varying vec2 vUv;
     varying float vOpacity;
     varying vec4 vTextureNumber1;
     varying vec4 vTextureNumber2;
     varying vec3 vType;
-    varying vec2 vWaterUv;
+    varying float vTextureVariant;
+    varying vec3 vViewPosition;
+    varying vec3 vPosition;
 
     
     float isFlipped() {
@@ -49,17 +53,15 @@ const CubeTileVertexShader = `
         vOpacity = opacity;
         vTextureNumber1 = textureNumber1;
         vTextureNumber2 = textureNumber2;
-        vWaterUv = vec2(0.0);
+        vTextureVariant = textureVariant;
 
-        if (type.x >= 3.0 && type.x < 4.0 && position.z < -0.4) {
-            vOpacity = 0.0;
-        }
-       
-        if (vOpacity > 0.0) {
-            vWaterUv = (modelMatrix * vec4( offset + position, 1.0 )).xy / 16.0;
-        }
+        vec3 offsetPosition = offset + applyQuaternionToVector(position) * getScale();
+        vPosition = offsetPosition;
+
+        vec4 mvPosition = modelViewMatrix * vec4( offsetPosition, 1.0 );
+        vViewPosition = -mvPosition.xyz;
         
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + applyQuaternionToVector(position) * getScale(), 1.0 );      
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( offsetPosition, 1.0 );      
       }
 
 `;

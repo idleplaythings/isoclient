@@ -12,7 +12,7 @@ const create = (event) => {
   );
 
   binaryChunk.zoomToChunk(position, chunkSize);
-  const [propData, heightData] = tileFactory.create(
+  const constructedData = tileFactory.create(
     position,
     chunkSize,
     binaryChunk,
@@ -20,7 +20,7 @@ const create = (event) => {
   );
   binaryChunk.resetZoom();
 
-  self.postMessage({ propData, heightData, position, index });
+  self.postMessage({ data: constructedData, position, index });
 };
 
 self.addEventListener("message", create);

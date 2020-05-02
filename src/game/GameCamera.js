@@ -37,8 +37,6 @@ class GameCamera {
       500
     );
 
-    console.log(this.implementation);
-
     this.implementation.position.set(
       CAMERA_OFFSET.x,
       CAMERA_OFFSET.y,

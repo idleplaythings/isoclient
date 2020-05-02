@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import GroundTileGeometryFactory from "./tile/tileFactory/GroundTileGeometryFactory";
 
 class GameScene {
   constructor(gameCamera) {
@@ -11,7 +10,16 @@ class GameScene {
 
     this.pointLight = null;
 
-    window.scene = this;
+    this.directionalLight = new THREE.DirectionalLight(
+      new THREE.Color(1, 1, 1),
+      1.2
+    );
+    this.directionalLight.position.set(1, -0.1, 5).normalize();
+    this.directionalLight.target.position.set(0, 0, 0);
+
+    this.ambientLight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 0.0);
+
+    this.directionalLightStep = 0.01;
 
     this.create();
   }
@@ -31,23 +39,16 @@ class GameScene {
     //this.renderer.sortObjects = false;
     element.appendChild(this.renderer.domElement);
 
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    this.directionalLight.position.set(50, -15, 15);
-    this.directionalLight.target.position.set(0, 0, 0);
-    //this.scene.add(this.directionalLight);
-    //this.scene.add(this.directionalLight.target);
+    this.scene.add(this.directionalLight);
+    this.scene.add(this.directionalLight.target);
 
-    this.directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
-    this.directionalLight2.position.set(50, -15, 30);
-    this.directionalLight2.target.position.set(0, 0, 0);
-    this.scene.add(this.directionalLight2);
-    this.scene.add(this.directionalLight2.target);
+    console.log(this.directionalLight);
 
     this.pointLight = new THREE.PointLight(0xffffff, 1.0, 100);
     this.pointLight.position.set(512, 512, 5);
     //this.scene.add(this.pointLight);
 
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.1));
+    this.scene.add(this.ambientLight);
 
     this.cube = new THREE.Mesh(
       new THREE.BoxGeometry(1, 1, 1),
@@ -58,8 +59,8 @@ class GameScene {
         wireframe: true,
       })
     );
-    this.cube.position.set(516, 510, 0.5);
-    this.cube.renderOrder = 3;
+    this.cube.position.set(536, 508, 2.5);
+    //this.cube.renderOrder = 3;
     this.scene.add(this.cube);
 
     /*
@@ -120,7 +121,7 @@ class GameScene {
     mesh.position.set(512, 512, 3);
     this.scene.add(mesh);
     */
-
+    /*
     const factory = new GroundTileGeometryFactory(4);
 
     const material = new THREE.MeshStandardMaterial({
@@ -134,6 +135,7 @@ class GameScene {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(512, 512, 2);
     //this.scene.add(mesh);
+    */
   }
 
   add(element) {
@@ -151,10 +153,19 @@ class GameScene {
 
     //this.camera.position.x += 0.05;
     //this.camera.position.y -= 0.05;
-    //this.cube.position.y += 0.01;
+    //this.cube.position.x += 0.01;
 
-    this.pointLight.position.x += 0.01;
-    //this.directionalLight.position.y -= 0.01;
+    //this.directionalLight.position.y += 0.1;
+
+    /*
+    this.directionalLight.position.x += this.directionalLightStep;
+
+    if (this.directionalLight.position.x > 2) {
+      this.directionalLightStep = Math.abs(this.directionalLightStep) * -1;
+    } else if (this.directionalLight.position.x < -2) {
+      this.directionalLightStep = Math.abs(this.directionalLightStep);
+    }
+    */
 
     this.renderer.clear();
     this.renderer.render(this.scene, this.gameCamera.getCamera());

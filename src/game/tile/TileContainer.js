@@ -5,6 +5,7 @@ class TileContainer {
     textureNumber1Attribute,
     textureNumber2Attribute,
     typeAttribute,
+    textureVariantAttribute,
     amount,
     mesh,
     scene,
@@ -17,6 +18,7 @@ class TileContainer {
     this.textureNumber1Attribute = textureNumber1Attribute;
     this.textureNumber2Attribute = textureNumber2Attribute;
     this.typeAttribute = typeAttribute;
+    this.textureVariantAttribute = textureVariantAttribute;
     this.mesh = mesh;
     this.scene = scene;
     this.numberCreated = numberCreated;
@@ -55,7 +57,7 @@ class TileContainer {
   }
 
   unassignEverything() {
-    this.opacityAttribute.setArray(new Float32Array(this.amount));
+    this.opacityAttribute.set(new Float32Array(this.amount));
     this.opacityAttribute.needsUpdate = true;
 
     this.used = 0;
@@ -80,6 +82,7 @@ class TileContainer {
     this.offsetAttribute.needsUpdate = true;
     this.textureNumber1Attribute.needsUpdate = true;
     this.textureNumber2Attribute.needsUpdate = true;
+    this.textureVariantAttribute.needsUpdate = true;
   }
 
   update(data, index) {
@@ -115,6 +118,7 @@ class TileContainer {
     );
 
     this.typeAttribute.setXYZ(index, data[11], data[12], data[13]);
+    this.textureVariantAttribute.setX(index, data[15]);
   }
 }
 

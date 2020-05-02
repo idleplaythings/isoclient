@@ -9,7 +9,7 @@ import NormalMapCombineFragmentShader from "./shaders/NormalMapCombineFragmentSh
 //import SmoothNormalMapFragmentShader from "./shaders/SmoothNormalMapFragmentShader";
 import SmoothHeightMapFragmentShader from "./shaders/SmoothHeightMapFragmentShader";
 
-const DEBUG = false;
+const DEBUG = true;
 
 const TEXTURE_GROUND = new THREE.TextureLoader().load(
   "img/groundTileTextures.png"

@@ -16,8 +16,9 @@ class Tile {
     this.offset = {
       x: 0,
       y: 0,
-      z: 0
+      z: 0,
     };
+    this.textureVariant = 0;
 
     return this;
   }
@@ -27,7 +28,7 @@ class Tile {
     const offset = {
       x: this.offset.x + flipExtra,
       y: this.offset.y - flipExtra,
-      z: this.offset.z + flipExtra
+      z: this.offset.z + flipExtra,
     };
 
     if (this.scale === 2) {
@@ -53,7 +54,8 @@ class Tile {
       this.type,
       this.scale,
       this.flipped,
-      [offset.x, offset.y, offset.z]
+      [offset.x, offset.y, offset.z],
+      this.textureVariant,
     ];
 
     return data;
@@ -81,6 +83,8 @@ class Tile {
     } else {
       this.offset.z -= 0.5;
     }
+
+    this.textureVariant = data[15];
 
     return this;
   }
@@ -177,6 +181,16 @@ class Tile {
 
   setWaterType() {
     this.setType(3);
+    return this;
+  }
+
+  setWallType() {
+    this.setType(4);
+    return this;
+  }
+
+  setTextureVariant(variant) {
+    this.textureVariant = variant;
     return this;
   }
 

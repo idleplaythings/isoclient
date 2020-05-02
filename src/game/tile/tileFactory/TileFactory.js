@@ -26,13 +26,15 @@ class TileFactory {
     const extra = 2;
     this.heightMapFactory.set(position, chunkSize, binaryChunk);
 
-    const heightData = this.groundTileGeometryFactory.calculateHeightData(
+    const vertices = this.groundTileGeometryFactory.calculateHeightData(
       this.heightMapFactory
     );
 
     const propData = new Uint8ClampedArray(
       (chunkSize + extra) * (chunkSize + extra) * 4
     );
+
+    const tiles = [];
 
     for (let x = -1; x <= chunkSize; x++) {
       for (let y = -1; y <= chunkSize; y++) {
@@ -62,7 +64,6 @@ class TileFactory {
 
         //if (absoluteHeight > 7) {
         const random = getRandom();
-
         /*
         if (random > 0.9) {
           visual2 = 8;
@@ -70,11 +71,12 @@ class TileFactory {
         } else if (random > 0.8) {
           visual2 = 9;
           brush2 = [8, 9, 10][Math.floor(getRandom() * 3)];
-        } else if (random > 0.7) {
+        } else 
+        */
+        if (random > 0.7) {
           visual2 = 56;
           brush2 = [16, 17, 18][Math.floor(getRandom() * 3)];
         }
-        */
 
         const type = binaryChunk.getType(tileSetPosition);
         if (type !== TileTypes.type.REGULAR) {
@@ -84,10 +86,12 @@ class TileFactory {
           brush2 = 255;
         }
 
+        /*
         if (worldPosition.x === 512 && worldPosition.y === 512) {
           visual2 = 9;
           brush2 = 1;
         }
+        */
 
         propData[r] = brush2;
         propData[g] = visual2;
@@ -96,7 +100,7 @@ class TileFactory {
       }
     }
 
-    return [propData, heightData];
+    return { groundData: { propData, vertices }, tiles };
   }
 
   createTile(props) {

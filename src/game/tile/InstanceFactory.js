@@ -16,29 +16,48 @@ class InstanceFactory {
     this.init();
 
     const texture = new THREE.TextureLoader().load("img/spritesheet.png");
+    const wallTexture = new THREE.TextureLoader().load(
+      "img/wallSpritesheet.png"
+    );
     const texture2 = new THREE.TextureLoader().load("img/spritesheet2x2.png");
-    const noise = new THREE.TextureLoader().load("img/noise.png");
-    noise.wrapS = noise.wrapT = THREE.RepeatWrapping;
-    const noise2 = new THREE.TextureLoader().load("img/noise2.png");
-    noise2.wrapS = noise2.wrapT = THREE.RepeatWrapping;
+    const wallNormalTexture = new THREE.TextureLoader().load(
+      "img/wallNormalSpritesheet.png"
+    );
+    //noise.wrapS = noise.wrapT = THREE.RepeatWrapping;
+    //const noise2 = new THREE.TextureLoader().load("img/noise2.png");
+    //noise2.wrapS = noise2.wrapT = THREE.RepeatWrapping;
     //texture.minFilter = THREE.LinearMipMapNearestFilter;
 
-    /*
-    THREE.NearestFilter
-THREE.NearestMipMapNearestFilter
-THREE.NearestMipMapLinearFilter
-THREE.LinearFilter
-THREE.LinearMipMapNearestFilter
-THREE.LinearMipMapLinearFilter
-*/
-    this.material = new THREE.RawShaderMaterial({
-      uniforms: {
-        map: { value: texture },
-        map2: { value: texture2 },
-        noiseMap1: { value: noise },
-        noiseMap2: { value: noise2 },
-        time: { type: "f", value: 0.0 },
+    this.uniforms = {
+      map: { value: texture },
+      map2: { value: texture2 },
+      wallMap: { value: wallTexture },
+      wallNormalMap: { value: wallNormalTexture },
+      time: { type: "f", value: 0.0 },
+      directionalLightPosition: {
+        type: "v3",
+        value: this.scene.directionalLight.position.clone().normalize(),
       },
+      directionalLightColor: {
+        type: "v3",
+        value: this.scene.directionalLight.color,
+      },
+      directionalLightIntensity: {
+        type: "f",
+        value: this.scene.directionalLight.intensity,
+      },
+      ambientLightColor: {
+        type: "v3",
+        value: this.scene.ambientLight.color,
+      },
+      ambientLightIntensity: {
+        type: "f",
+        value: this.scene.ambientLight.intensity,
+      },
+    };
+
+    this.material = new THREE.RawShaderMaterial({
+      uniforms: this.uniforms,
       blending: THREE.NormalBlending,
       opacity: 1,
       side: THREE.DoubleSide,
@@ -50,24 +69,20 @@ THREE.LinearMipMapLinearFilter
       vertexShader: CubeTileVertexShader,
       fragmentShader: CubeTileFragmentShader,
     });
-
-    this.start = Date.now() / 3000;
-    this.updateLoop();
   }
 
-  updateLoop() {
-    /*
-    const now = Date.now();
-    const sineAmplitude = 1.0;
-    const sineFrequency = 200;
+  render() {
+    if (!this.ready) {
+      return;
+    }
 
-   
-    const sine =
-      sineAmplitude * 0.5 * Math.sin(now / sineFrequency) + sineAmplitude;
-*/
-    this.material.uniforms.time.value = Date.now() / 3000 - this.start;
-
-    requestAnimationFrame(this.updateLoop.bind(this));
+    this.uniforms.directionalLightPosition.value = this.scene.directionalLight.position
+      .clone()
+      .normalize();
+    this.uniforms.directionalLightColor.value = this.scene.directionalLight.color;
+    this.uniforms.directionalLightIntensity.value = this.scene.directionalLight.intensity;
+    this.uniforms.ambientLightColor.value = this.scene.ambientLight.color;
+    this.uniforms.ambientLightIntensity.value = this.scene.ambientLight.intensity;
   }
 
   async init() {
@@ -103,7 +118,8 @@ THREE.LinearMipMapLinearFilter
       opacityAttribute,
       textureNumber1Attribute,
       textureNumber2Attribute,
-      typeAttribute;
+      typeAttribute,
+      textureVariantAttribute;
 
     const geometry = new THREE.InstancedBufferGeometry();
     geometry.index = original.index;
@@ -115,6 +131,7 @@ THREE.LinearMipMapLinearFilter
     const textureNumbers = [];
     const brushNumbers = [];
     const types = [];
+    const textureVariant = [];
 
     for (let i = 0; i < amount; i++) {
       offsets.push(0, 0, 0.5);
@@ -122,38 +139,45 @@ THREE.LinearMipMapLinearFilter
       textureNumbers.push(-1, -1, -1, -1);
       brushNumbers.push(-1, -1, -1, -1);
       types.push(0, 1, 0);
+      textureVariant.push(0);
     }
 
     offsetAttribute = new THREE.InstancedBufferAttribute(
       new Float32Array(offsets),
       3
-    ).setDynamic(true);
+    ).setUsage(THREE.DynamicDrawUsage);
 
     opacityAttribute = new THREE.InstancedBufferAttribute(
       new Float32Array(opacitys),
       1
-    ).setDynamic(true);
+    ).setUsage(THREE.DynamicDrawUsage);
 
     textureNumber1Attribute = new THREE.InstancedBufferAttribute(
       new Float32Array(textureNumbers),
       4
-    ).setDynamic(true);
+    ).setUsage(THREE.DynamicDrawUsage);
 
     textureNumber2Attribute = new THREE.InstancedBufferAttribute(
       new Float32Array(brushNumbers),
       4
-    ).setDynamic(true);
+    ).setUsage(THREE.DynamicDrawUsage);
 
     typeAttribute = new THREE.InstancedBufferAttribute(
       new Float32Array(types),
       3
-    ).setDynamic(true);
+    ).setUsage(THREE.DynamicDrawUsage);
 
-    geometry.addAttribute("offset", offsetAttribute);
-    geometry.addAttribute("opacity", opacityAttribute);
-    geometry.addAttribute("textureNumber1", textureNumber1Attribute);
-    geometry.addAttribute("textureNumber2", textureNumber2Attribute);
-    geometry.addAttribute("type", typeAttribute);
+    textureVariantAttribute = new THREE.InstancedBufferAttribute(
+      new Float32Array(textureVariant),
+      1
+    ).setUsage(THREE.DynamicDrawUsage);
+
+    geometry.setAttribute("offset", offsetAttribute);
+    geometry.setAttribute("opacity", opacityAttribute);
+    geometry.setAttribute("textureNumber1", textureNumber1Attribute);
+    geometry.setAttribute("textureNumber2", textureNumber2Attribute);
+    geometry.setAttribute("type", typeAttribute);
+    geometry.setAttribute("textureVariant", textureVariantAttribute);
 
     const mesh = new THREE.Mesh(geometry, this.material);
     mesh.frustumCulled = false;
@@ -168,6 +192,7 @@ THREE.LinearMipMapLinearFilter
       textureNumber1Attribute,
       textureNumber2Attribute,
       typeAttribute,
+      textureVariantAttribute,
       amount,
       mesh,
       this.scene,

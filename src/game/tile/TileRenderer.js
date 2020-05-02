@@ -2,9 +2,10 @@
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
 //import Tile from "./Tile";
-import GroundChunk from "./GroundChunk";
+import WorldChunk from "./Chunk/WorldChunk";
 import ChunkImageManipulator from "./ChunkImageManipulator";
 import GroundTileGeometryFactory from "./tileFactory/GroundTileGeometryFactory";
+import Tile from "./Tile";
 
 class TileRenderer {
   constructor(scene, gameCamera, world) {
@@ -30,6 +31,242 @@ class TileRenderer {
     this.chunkImageManipulator = new ChunkImageManipulator(this.scene);
 
     window.testTileRenderer = this;
+
+    /*
+    this.add(
+      new Tile()
+        .setPosition(516, 510, 2)
+        .setSurfaceTexture(256)
+        .setFlipped(true)
+        .setScale(2)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(517, 510, 2)
+        .setSurfaceTexture(256)
+        .setFlipped(true)
+        .setScale(2)
+    );
+
+    */
+
+    //x- endcap
+    this.add(
+      new Tile()
+        .setPosition(514, 510, 2)
+        .setSurfaceTexture(530)
+        .setTextureVariant(0)
+    );
+
+    //y+ endcap
+    this.add(
+      new Tile()
+        .setPosition(515, 511, 2)
+        .setSurfaceTexture(531)
+        .setTextureVariant(0)
+    );
+
+    //y+ endcap
+    this.add(
+      new Tile()
+        .setPosition(519, 511, 2)
+        .setSurfaceTexture(531)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(515, 510, 2)
+        .setSurfaceTexture(512)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(516, 510, 2)
+        .setSurfaceTexture(513)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(517, 510, 2)
+        .setSurfaceTexture(514)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(518, 510, 2)
+        .setSurfaceTexture(515)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 510, 2)
+        .setSurfaceTexture(512)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(515, 509, 2)
+        .setSurfaceTexture(528)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(520, 510, 2)
+        .setSurfaceTexture(529)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 509, 2)
+        .setSurfaceTexture(525)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 508, 2)
+        .setSurfaceTexture(524)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 507, 2)
+        .setSurfaceTexture(526)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 506, 2)
+        .setSurfaceTexture(512)
+        .setTextureVariant(0)
+    );
+
+    // LEVEL 2
+
+    //x- endcap
+    this.add(
+      new Tile()
+        .setPosition(514, 510, 3)
+        .setSurfaceTexture(530)
+        .setTextureVariant(0)
+    );
+
+    //y+ endcap
+    this.add(
+      new Tile()
+        .setPosition(515, 511, 3)
+        .setSurfaceTexture(531)
+        .setTextureVariant(0)
+    );
+
+    //y+ endcap
+    this.add(
+      new Tile()
+        .setPosition(519, 511, 3)
+        .setSurfaceTexture(531)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(515, 510, 3)
+        .setSurfaceTexture(512)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(516, 510, 3)
+        .setSurfaceTexture(515)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(517, 510, 3)
+        .setSurfaceTexture(514)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(518, 510, 3)
+        .setSurfaceTexture(513)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 510, 3)
+        .setSurfaceTexture(512)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(515, 509, 3)
+        .setSurfaceTexture(528)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(520, 510, 3)
+        .setSurfaceTexture(529)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 509, 3)
+        .setSurfaceTexture(525)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 508, 3)
+        .setSurfaceTexture(528)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 508, 3)
+        .setSurfaceTexture(531)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 507, 3)
+        .setSurfaceTexture(526)
+        .setTextureVariant(0)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition(519, 506, 3)
+        .setSurfaceTexture(512)
+        .setTextureVariant(0)
+    );
+
+    //LEVEL 2 END
+
+    //this.add(new Tile().setPosition(517, 505, 2).setSurfaceTexture(542));
+    //this.add(new Tile().setPosition(517, 505, 2).setSurfaceTexture(544));
+    //this.add(new Tile().setPosition(517, 505, 2).setSurfaceTexture(541));
 
     /*
     this.add(new Tile().setPosition(0, 0, 0).setTexture(0, 96));
@@ -83,7 +320,7 @@ class TileRenderer {
     //this.add(new Tile().setPosition(-1, 0, 0.5).setSurfaceTexture(232));
   }
 
-  render({ now, delta, renderer }) {
+  render({ now, delta, ...rest }) {
     if (!this.instanceFactory.ready) {
       return;
     }
@@ -102,6 +339,8 @@ class TileRenderer {
 
     this.chunkImageManipulator.setFree();
 
+    this.instanceFactory.render({ now, delta, ...rest });
+
     /*
     if (Math.random() > 0.9) {
       const chunk = this.chunks[Math.floor(Math.random() * this.chunks.length)];
@@ -112,7 +351,7 @@ class TileRenderer {
             chunk.position.x + Math.floor(Math.random() * (this.chunkSize - 1)),
           y:
             chunk.position.y - Math.floor(Math.random() * (this.chunkSize - 1)),
-          z: 1
+          z: 1,
         };
 
         this.add(new Tile().setPosition(position).setSurfaceTexture(232));
@@ -124,11 +363,19 @@ class TileRenderer {
   getChunkPositionsForNewRenderArea(renderArea) {
     const positions = renderArea.requiresChunks();
 
-    const need = positions.filter(
-      (position) =>
-        !Boolean(this.chunksByLocation[getChunkKey(position)]) &&
-        !Boolean(this.pendingChunksByLocation[getChunkKey(position)])
-    );
+    const need = positions.filter((position) => {
+      if (Boolean(this.pendingChunksByLocation[getChunkKey(position)])) {
+        return false;
+      }
+
+      const chunk = this.chunksByLocation[getChunkKey(position)];
+
+      if (chunk && chunk.isLoaded()) {
+        return false;
+      }
+
+      return true;
+    });
 
     this.chunks = this.chunks.filter((chunk) => {
       const found = positions.find(
@@ -150,7 +397,7 @@ class TileRenderer {
 
       this.pendingChunksByLocation[needKey] = true;
 
-      const [propData, heightData] = await this.world.getTileChunkForRenderArea(
+      const data = await this.world.getTileChunkForRenderArea(
         needPosition,
         this.chunkSize
       );
@@ -158,7 +405,7 @@ class TileRenderer {
       delete this.pendingChunksByLocation[needKey];
 
       const chunk = this.getChunk(needPosition);
-      chunk.addData(propData, heightData);
+      chunk.addData(data);
     });
   }
 
@@ -172,12 +419,13 @@ class TileRenderer {
     let chunk = this.freeChunks.pop();
 
     if (!chunk) {
-      chunk = new GroundChunk(
+      chunk = new WorldChunk(
         position,
         this.chunkSize,
         this.scene,
         this.chunkImageManipulator,
-        this.groundTileGeometryFactory.create()
+        this.groundTileGeometryFactory.create(),
+        this.instanceFactory
       );
 
       chunk.wakeUp();
@@ -191,50 +439,24 @@ class TileRenderer {
       this.chunks.push(chunk);
     }
 
-    /*
-    console.log(
-      "Chunk gotten, chunks",
-      this.chunks.length,
-      "free",
-      this.freeChunks.length
-    );
-    */
-
     this.changed = true;
     return chunk;
   }
 
   getChunkForTile(tile) {
     const position = getChunkPosition(tile.position, this.chunkSize);
-    //console.log("chunk position for tile", tile.position, position);
     return this.getChunk(position);
   }
 
   add(tile) {
     let chunk = this.getChunkForTile(tile);
     const positionInChunk = tile.position.clone().sub(chunk.position);
-    console.log(
-      "position",
-      tile.position,
-      "position in chunk",
-      positionInChunk,
-      "chunk",
-      chunk.position
-    );
+
     tile.setChunkPosition(
       positionInChunk.x,
       positionInChunk.y,
       positionInChunk.z
     );
-
-    /*
-    console.log(
-      "tile to chunk",
-      tile.position,
-      positionInChunk,
-      chunk.position
-    );
-    */
 
     chunk.addTile(tile.serialize());
   }
@@ -248,28 +470,6 @@ class TileRenderer {
   }
 
   setRenderChunks(renderArea) {
-    /*
-    this.chunks.forEach(chunk => {
-      if (chunk.hibernating) {
-        throw new Error("Hibernating chunk in  chunks");
-      }
-    });
-
-    this.chunks.forEach(chunk => {
-      const found = this.chunks.find(
-        other =>
-          other.position.x === chunk.position.x &&
-          other.position.y === chunk.position.y &&
-          chunk !== other
-      );
-
-      if (found) {
-        console.log("duplicate chunk", chunk.position, found.position);
-        throw new Error("Duplicate chunk found!");
-      }
-    });
-    */
-
     this.renderChunks = this.chunks.filter((chunk) =>
       renderArea.containsChunk(chunk)
     );

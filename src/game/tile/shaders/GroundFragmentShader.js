@@ -28,6 +28,7 @@ const GroundFragmentShader = `
             float alpha = c1.a > c2.a ? c1.a : c2.a; 
 
             vec3 color = vec3(0.5, 0.5, 1.0) + (c1.xyz * (c1.a / totalAlpha)) + (c2.xyz * (c2.a / totalAlpha));
+            //return vec4(0.5, 0.5, 1.0, 1.0);
             return vec4(color.xyz, alpha);
 
         } else {
