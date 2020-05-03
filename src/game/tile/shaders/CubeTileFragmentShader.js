@@ -148,7 +148,7 @@ const CubeTileFragmentShader = `
     }
 
     void main() {
-        if (vOpacity < 1.0) {
+        if (vOpacity == 0.0) {
             discard;
         }
 
@@ -158,6 +158,8 @@ const CubeTileFragmentShader = `
             color = calculateLight(color, normal.xyz);
         }
 
+        color.a *= vOpacity;
+        
         gl_FragColor = color;
        
     }

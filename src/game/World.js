@@ -1,5 +1,3 @@
-import { Tile } from "./tile";
-
 class World {
   constructor(tileLibrary) {
     this.tileLibrary = tileLibrary;
@@ -15,9 +13,7 @@ class World {
     );
   }
 
-  create() {
-    window.test = new Tile();
-  }
+  create() {}
 
   render() {}
 }

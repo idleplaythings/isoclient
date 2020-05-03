@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { getChunkPosition } from "../../model/tile/Chunk.mjs";
 
 class Tile {
   constructor() {
@@ -89,6 +90,15 @@ class Tile {
     return this;
   }
 
+  calculateChunkPosition(chunkSize) {
+    if (!this.position) {
+      throw new Error("Set position first");
+    }
+
+    const chunkPosition = getChunkPosition(this.position, chunkSize);
+    this.chunkPosition = this.position.clone().sub(chunkPosition);
+  }
+
   setChunkPosition(x, y, z) {
     if (x.x !== undefined && x.x !== null) {
       this.chunkPosition = new THREE.Vector3(x.x, x.y, x.z);
@@ -98,11 +108,23 @@ class Tile {
     return this;
   }
 
-  setPosition(x, y, z) {
+  setPositionAndChunkPosition(pos, chunkpos) {
+    this.setPosition(pos);
+    this.setChunkPosition(chunkpos);
+    return this;
+  }
+
+  setPosition(x, y, z, chunkSize) {
     if (x.x !== undefined && x.x !== null) {
       this.position = new THREE.Vector3(x.x, x.y, x.z);
+      if (y) {
+        this.calculateChunkPosition(y);
+      }
     } else {
       this.position = new THREE.Vector3(x, y, z);
+      if (chunkSize) {
+        this.calculateChunkPosition(chunkSize);
+      }
     }
 
     return this;

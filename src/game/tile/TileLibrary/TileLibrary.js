@@ -1,9 +1,10 @@
 import ndarray from "ndarray";
-import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
-import TileBinaryChunk from "./TileBinaryChunk";
-import TileFactoryWorker from "./tileFactory/TileFactory.worker";
-import WorkerPool from "../../util/WorkerPool";
+import { getChunkPosition, getChunkKey } from "../../../model/tile/Chunk";
+import TileBinaryChunk from "../TileBinaryChunk";
+import TileFactoryWorker from "../tileFactory/TileFactory.worker";
+import WorkerPool from "../../../util/WorkerPool";
 import * as THREE from "three";
+import DynamicEntitiesCache from "./DynamicEntitiesCache";
 
 window.TileBinaryChunk = TileBinaryChunk;
 
@@ -12,9 +13,15 @@ class TileLibrary {
     this.binaryChunkSize = 1024;
     this.tileBinaryChunks = {}; //promises of binary chunks
     this.tileFactoryPool = new WorkerPool([new TileFactoryWorker()]);
+
+    this.dynamicEntities = new DynamicEntitiesCache(); //All known dynamic entities keyed by x-y
   }
 
-  async getTileChunksForRenderArea(position, chunkSize) {
+  addDynamicEntity(entities = []) {
+    this.dynamicEntities.addDynamicEntity(entities);
+  }
+
+  async getTileChunkForRenderArea(position, chunkSize) {
     const binaryChunkPosition = getChunkPosition(
       position,
       this.binaryChunkSize
@@ -38,6 +45,11 @@ class TileLibrary {
       chunkSize,
       data: binaryChunk.getData(),
       binaryChunkPosition: binaryChunkPosition,
+      dynamicEntities: this.dynamicEntities.getEntitiesForChunk(
+        positionInChunk,
+        binaryChunkPosition,
+        chunkSize
+      ),
     });
 
     return data;

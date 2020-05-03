@@ -1,26 +1,26 @@
 import GameScene from "./GameScene";
-import World from "./World";
 import GameCamera from "./GameCamera";
-import { TileRenderer, TileLibrary } from "./tile";
+import { TileRenderer } from "./tile";
+import TileLibrary from "./tile/TileLibrary/TileLibrary";
+import DemoWorldBuilder from "./demo/DemoWorldBuilder";
 
 class Game {
   constructor() {
     this.camera = new GameCamera();
     this.gameScene = new GameScene(this.camera);
     this.tileLibrary = new TileLibrary();
-    this.world = new World(this.tileLibrary);
+    //this.world = new World(this.tileLibrary);
 
     this.tileRenderer = new TileRenderer(
       this.gameScene,
       this.camera,
-      this.world
+      this.tileLibrary
     );
 
-    window.tileRenderer = this.tileRenderer;
-
-    this.gameloop();
+    new DemoWorldBuilder(this.tileLibrary).create();
 
     this.lastRenderTime = null;
+    this.gameloop();
   }
 
   initRender(element) {
@@ -32,7 +32,7 @@ class Game {
     const delta = this.lastRenderTime !== null ? now - this.lastRenderTime : 0;
     this.lastRenderTime = now;
 
-    this.world.render();
+    //this.world.render();
     this.tileRenderer.render({ now, delta });
     this.camera.render(delta);
     this.gameScene.render();
