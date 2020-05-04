@@ -4,6 +4,11 @@ import { Vector3 } from "three";
 
 const WHITEPIXEL = new THREE.TextureLoader().load("img/whitepixel.png");
 
+const WATERMATERIAL = new THREE.ShaderMaterial({
+  vertexShader: null,
+  fragmentShader: null,
+});
+
 class GroundChunk extends Chunk {
   constructor(position, size, scene, imageManipulator, geometry) {
     super(position, size);
@@ -35,11 +40,32 @@ class GroundChunk extends Chunk {
       this.position.y - this.size / 2 + 0.5,
       this.position.z
     );
+
+    this.water = new THREE.Mesh(
+      new THREE.PlaneGeometry(size, size, 1, 1),
+      new THREE.MeshBasicMaterial({
+        color: new THREE.Color(40 / 255, 120 / 255, 120 / 255),
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.MultiplyBlending,
+      })
+    );
+
+    this.water.position.set(
+      this.position.x + this.size / 2 - 0.5,
+      this.position.y - this.size / 2 + 0.5,
+      1.5
+    );
   }
 
   setPosition(position) {
     position = new THREE.Vector3(position.x, position.y, 0);
     this.position = position;
+    this.water.position.set(
+      this.position.x + this.size / 2 - 0.5,
+      this.position.y - this.size / 2 + 0.5,
+      1.5
+    );
     this.mesh.position.set(
       this.position.x + this.size / 2 - 0.5,
       this.position.y - this.size / 2 + 0.5,
@@ -49,12 +75,14 @@ class GroundChunk extends Chunk {
 
   hibernate() {
     this.scene.remove(this.mesh);
+    this.scene.remove(this.water);
     this.hibernating = true;
   }
 
   wakeUp() {
     this.hibernating = false;
     this.scene.add(this.mesh);
+    this.scene.add(this.water);
     return this;
   }
 
