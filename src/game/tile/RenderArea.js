@@ -33,7 +33,7 @@ class RenderArea {
   requiresChunks(extra = 0) {
     const corner = {
       x: this.position.x - extra * this.chunkSize,
-      y: this.position.y + extra * this.chunkSize
+      y: this.position.y + extra * this.chunkSize,
     };
 
     const width = this.size + extra * 2;
@@ -43,7 +43,7 @@ class RenderArea {
       for (let x = 0; x <= width; x++) {
         positions.push({
           x: corner.x + x * this.chunkSize,
-          y: corner.y - y * this.chunkSize
+          y: corner.y - y * this.chunkSize,
         });
       }
     }

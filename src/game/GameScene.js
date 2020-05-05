@@ -16,6 +16,7 @@ export const WATERMATERIAL = new THREE.ShaderMaterial({
     noise2: { type: "t", value: noise2 },
   },
   transparent: true,
+  blending: THREE.AdditiveBlending,
 });
 
 const waterCreadted = Date.now();
@@ -34,10 +35,10 @@ class GameScene {
       new THREE.Color(1, 1, 1),
       1.2
     );
-    this.directionalLight.position.set(1, -0.1, 1).normalize();
+    this.directionalLight.position.set(1, 1, 1).normalize();
     this.directionalLight.target.position.set(0, 0, 0);
 
-    this.ambientLight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 0.0);
+    this.ambientLight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 0.1);
 
     this.directionalLightStep = 0.01;
 

@@ -12,7 +12,7 @@ class GameCamera {
     this.scrollingDown = false;
     this.scrollingRight = false;
     this.scrollingSpeed = 0.02;
-    this.zoom = 1.0;
+    this.zoom = 2.0;
 
     this.scene = null;
 
@@ -140,7 +140,7 @@ class GameCamera {
       .add(CAMERA_OFFSET.clone().multiplyScalar(-1));
   }
 
-  getRenderArea(chunkSize, renderSize = 4) {
+  getRenderArea(chunkSize, renderSize = 8) {
     const chunkPosition = getChunkPosition(this.getLookAtPosition(), chunkSize);
 
     const corner = {
