@@ -17,7 +17,7 @@ class Game {
       this.tileLibrary
     );
 
-    new DemoWorldBuilder(this.tileLibrary).create();
+    //new DemoWorldBuilder(this.tileLibrary).create();
 
     this.lastRenderTime = null;
     this.gameloop();

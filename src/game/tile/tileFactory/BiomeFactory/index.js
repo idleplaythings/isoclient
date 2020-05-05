@@ -21,6 +21,10 @@ export const buildGround = (
       const visual = binaryChunk.getVisual(tileSetPosition);
       const factory = getFactory(visual);
 
+      if (!factory) {
+        continue;
+      }
+
       propData = factory.create(
         propData,
         position,
@@ -37,17 +41,13 @@ export const buildGround = (
   return propData;
 };
 
-const getFactory = (visual) => {
-  if (visual === TileTypes.visual.BEDROCK_SOIL) {
-    console.log("found bedrock soil");
-  }
-
+export const getFactory = (visual) => {
   switch (visual) {
     case TileTypes.visual.BEDROCK:
       return bedrockFactory;
     case TileTypes.visual.BEDROCK_SOIL:
       return bedrockSoilFactory;
     default:
-      return bedrockSoilFactory;
+      return null;
   }
 };

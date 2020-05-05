@@ -48,7 +48,7 @@ class TileFactory {
       (chunkSize + extra) * (chunkSize + extra) * 4
     );
 
-    propData = buildGround(
+    buildGround(
       propData,
       position,
       chunkSize,

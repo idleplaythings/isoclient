@@ -78,7 +78,7 @@ class GameScene {
         wireframe: true,
       })
     );
-    this.cube.position.set(505, 508, 2.5);
+    this.cube.position.set(514, 510, 2.5);
     //this.cube.renderOrder = 3;
     //this.scene.add(this.cube);
 

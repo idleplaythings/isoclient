@@ -1,6 +1,7 @@
 import { getColorIndicesForCoord } from "../../../../util/imageUtils";
 import { getSeededRandomGenerator } from "../Utils";
 import * as TileTypes from "../../../../model/tile/TileTypes";
+import Leaves from "../../../../model/structure/nature/plant/Leaves";
 
 class BedrockSoilFactory {
   create(
@@ -29,7 +30,6 @@ class BedrockSoilFactory {
     let visual2 = 255;
     let brush2 = 255;
 
-    //if (absoluteHeight > 7) {
     const random = getRandom();
 
     if (random > 0.8) {
@@ -51,6 +51,29 @@ class BedrockSoilFactory {
     propData[a] = visual;
 
     return propData;
+  }
+
+  getExtraProp(
+    worldPosition,
+    position,
+    binaryChunk,
+    binaryChunkPosition,
+    dynamicEntityCache,
+    flyTile,
+    chunkSize
+  ) {
+    if (Math.random() < 0.9) {
+      return [];
+    }
+
+    return new Leaves({ position: worldPosition }).createTiles(
+      position,
+      binaryChunk,
+      binaryChunkPosition,
+      dynamicEntityCache,
+      flyTile,
+      chunkSize
+    );
   }
 }
 

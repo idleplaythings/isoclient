@@ -12,7 +12,7 @@ class GameCamera {
     this.scrollingDown = false;
     this.scrollingRight = false;
     this.scrollingSpeed = 0.02;
-    this.zoom = 2.0;
+    this.zoom = 1.0;
 
     this.scene = null;
 

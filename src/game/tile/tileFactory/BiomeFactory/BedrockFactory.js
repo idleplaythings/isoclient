@@ -55,6 +55,10 @@ class BedrockFactory {
 
     return propData;
   }
+
+  getExtraProp() {
+    return [];
+  }
 }
 
 export default BedrockFactory;

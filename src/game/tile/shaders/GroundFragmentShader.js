@@ -126,7 +126,7 @@ const GroundFragmentShader = `
               
                 vec4 propDetails = getPropDetails(croppedUv + (vec2(x, y) * tileSize));
 
-                if (propDetails.a <= basePropDetails.a) {
+                if (propDetails.a >= basePropDetails.a) {
                     continue;
                 }
 

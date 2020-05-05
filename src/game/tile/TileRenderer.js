@@ -30,6 +30,7 @@ class TileRenderer {
 
     window.testTileRenderer = this;
 
+    /*
     this.add(
       new Tile()
         .setPosition({ x: 505, y: 515, z: 2 })
@@ -39,16 +40,70 @@ class TileRenderer {
 
     this.add(
       new Tile()
-        .setPosition({ x: 507, y: 515, z: 2 })
+        .setPosition({ x: 508, y: 515, z: 2 })
         .setScale(2)
         .setSurfaceTexture(257)
     );
 
     this.add(
       new Tile()
-        .setPosition({ x: 509, y: 515, z: 2 })
+        .setPosition({ x: 510, y: 515, z: 2 })
         .setScale(2)
         .setSurfaceTexture(258)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 512, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(259)
+    );
+    this.add(
+      new Tile()
+        .setPosition({ x: 514, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(260)
+    );
+    this.add(
+      new Tile()
+        .setPosition({ x: 516, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(261)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 518, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(262)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 520, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(263)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 522, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(264)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 524, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(265)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 526, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(266)
     );
 
     this.add(
@@ -67,6 +122,7 @@ class TileRenderer {
     this.add(
       new Tile().setPosition({ x: 509, y: 510, z: 2 }).setSurfaceTexture(250)
     );
+    */
   }
 
   render({ now, delta, ...rest }) {
