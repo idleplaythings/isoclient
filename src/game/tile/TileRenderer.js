@@ -1,7 +1,5 @@
-//import TileChunk from "./TileChunk";
 import { getChunkPosition, getChunkKey } from "../../model/tile/Chunk";
 import InstanceFactory from "./InstanceFactory";
-//import Tile from "./Tile";
 import WorldChunk from "./Chunk/WorldChunk";
 import ChunkImageManipulator from "./ChunkImageManipulator";
 import GroundTileGeometryFactory from "./tileFactory/GroundTileGeometryFactory";
@@ -31,6 +29,44 @@ class TileRenderer {
     this.chunkImageManipulator = new ChunkImageManipulator(this.scene);
 
     window.testTileRenderer = this;
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 505, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(256)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 507, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(257)
+    );
+
+    this.add(
+      new Tile()
+        .setPosition({ x: 509, y: 515, z: 2 })
+        .setScale(2)
+        .setSurfaceTexture(258)
+    );
+
+    this.add(
+      new Tile().setPosition({ x: 505, y: 510, z: 2 }).setSurfaceTexture(1)
+    );
+    this.add(
+      new Tile().setPosition({ x: 506, y: 510, z: 2 }).setSurfaceTexture(2)
+    );
+    this.add(
+      new Tile().setPosition({ x: 507, y: 510, z: 2 }).setSurfaceTexture(3)
+    );
+    this.add(
+      new Tile().setPosition({ x: 508, y: 510, z: 2 }).setSurfaceTexture(4)
+    );
+
+    this.add(
+      new Tile().setPosition({ x: 509, y: 510, z: 2 }).setSurfaceTexture(250)
+    );
   }
 
   render({ now, delta, ...rest }) {

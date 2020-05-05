@@ -1,7 +1,9 @@
 const CubeTileFragmentShader = `
     precision highp float;
     uniform sampler2D map;
+    uniform sampler2D mapNormal;
     uniform sampler2D map2;
+    uniform sampler2D map2Normal;
     uniform sampler2D wallMap;
     uniform sampler2D wallNormalMap;
     uniform float time;
@@ -61,11 +63,11 @@ const CubeTileFragmentShader = `
 
         if (normal == 1) {  
             if (mapNumber == 1) {
-                return vec4(0.0);
+                return texture2D( map2Normal, finalPos ); 
             } else if (mapNumber == 2) {
                 return texture2D( wallNormalMap, finalPos ); 
             } else {
-                return vec4(0.0);
+                return texture2D( mapNormal, finalPos ); 
             }
         } else {
             if (mapNumber == 1) {

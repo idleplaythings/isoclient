@@ -16,10 +16,16 @@ class InstanceFactory {
     this.init();
 
     const texture = new THREE.TextureLoader().load("img/spritesheet.png");
+    const textureNormal = new THREE.TextureLoader().load(
+      "img/spritesheetNormal.png"
+    );
     const wallTexture = new THREE.TextureLoader().load(
       "img/wallSpritesheet.png"
     );
     const texture2 = new THREE.TextureLoader().load("img/spritesheet2x2.png");
+    const texture2Normal = new THREE.TextureLoader().load(
+      "img/spritesheet2x2Normal.png"
+    );
     const wallNormalTexture = new THREE.TextureLoader().load(
       "img/wallNormalSpritesheet.png"
     );
@@ -30,7 +36,9 @@ class InstanceFactory {
 
     this.uniforms = {
       map: { value: texture },
+      mapNormal: { value: textureNormal },
       map2: { value: texture2 },
+      map2Normal: { type: "t", value: texture2Normal },
       wallMap: { value: wallTexture },
       wallNormalMap: { value: wallNormalTexture },
       time: { type: "f", value: 0.0 },

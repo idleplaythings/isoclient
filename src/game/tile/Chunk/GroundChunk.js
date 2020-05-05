@@ -1,13 +1,9 @@
 import Chunk from "../../../model/tile/Chunk";
 import * as THREE from "three";
 import { Vector3 } from "three";
+import { WATERMATERIAL } from "../../GameScene";
 
 const WHITEPIXEL = new THREE.TextureLoader().load("img/whitepixel.png");
-
-const WATERMATERIAL = new THREE.ShaderMaterial({
-  vertexShader: null,
-  fragmentShader: null,
-});
 
 class GroundChunk extends Chunk {
   constructor(position, size, scene, imageManipulator, geometry) {
@@ -43,12 +39,7 @@ class GroundChunk extends Chunk {
 
     this.water = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size, 1, 1),
-      new THREE.MeshBasicMaterial({
-        color: new THREE.Color(40 / 255, 120 / 255, 120 / 255),
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.MultiplyBlending,
-      })
+      WATERMATERIAL
     );
 
     this.water.position.set(
@@ -155,8 +146,6 @@ class GroundChunk extends Chunk {
 
       this.propData = null;
     }
-
-    //TODO, build images
 
     return this.forRender;
   }

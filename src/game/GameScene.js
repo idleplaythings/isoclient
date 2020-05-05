@@ -1,4 +1,24 @@
 import * as THREE from "three";
+import WaterVertexShader from "./tile/shaders/WaterVertexShader";
+import WaterFragmentShader from "./tile/shaders/WaterFragmentShader";
+
+const noise = new THREE.TextureLoader().load("img/noise.png");
+noise.wrapS = noise.wrapT = THREE.RepeatWrapping;
+const noise2 = new THREE.TextureLoader().load("img/noise2.png");
+noise2.wrapS = noise2.wrapT = THREE.RepeatWrapping;
+
+export const WATERMATERIAL = new THREE.ShaderMaterial({
+  vertexShader: WaterVertexShader,
+  fragmentShader: WaterFragmentShader,
+  uniforms: {
+    time: { type: "f", value: 0 },
+    noise1: { type: "t", value: noise },
+    noise2: { type: "t", value: noise2 },
+  },
+  transparent: true,
+});
+
+const waterCreadted = Date.now();
 
 class GameScene {
   constructor(gameCamera) {
@@ -42,8 +62,6 @@ class GameScene {
     this.scene.add(this.directionalLight);
     this.scene.add(this.directionalLight.target);
 
-    console.log(this.directionalLight);
-
     this.pointLight = new THREE.PointLight(0xffffff, 1.0, 100);
     this.pointLight.position.set(512, 512, 5);
     //this.scene.add(this.pointLight);
@@ -59,9 +77,9 @@ class GameScene {
         wireframe: true,
       })
     );
-    this.cube.position.set(516, 509, 2.5);
+    this.cube.position.set(505, 508, 2.5);
     //this.cube.renderOrder = 3;
-    this.scene.add(this.cube);
+    //this.scene.add(this.cube);
 
     /*
     const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
@@ -150,6 +168,8 @@ class GameScene {
     if (!this.renderer) {
       return;
     }
+
+    WATERMATERIAL.uniforms.time.value = Date.now() - waterCreadted;
 
     //this.camera.position.x += 0.05;
     //this.camera.position.y -= 0.05;
