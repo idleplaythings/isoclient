@@ -37,6 +37,8 @@ class GroundChunk extends Chunk {
       this.position.z
     );
 
+    this.mesh.name = "ground";
+
     this.water = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size, 1, 1),
       WATERMATERIAL

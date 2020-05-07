@@ -52,7 +52,11 @@ class GameScene {
   }
 
   init(element) {
-    this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    this.renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      stencil: false,
+      antialias: true,
+    });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.getContext().getExtension("GL_OES_standard_derivatives");
@@ -72,13 +76,13 @@ class GameScene {
     this.cube = new THREE.Mesh(
       new THREE.BoxGeometry(1, 1, 1),
       new THREE.MeshBasicMaterial({
-        //transparent: true,
-        //opacity: 0.25,
+        transparent: true,
+        opacity: 0.25,
         color: 0x00ff00,
-        wireframe: true,
+        //wireframe: true,
       })
     );
-    this.cube.position.set(514, 510, 2.5);
+    this.cube.position.set(511, 513, 2.5);
     //this.cube.renderOrder = 3;
     //this.scene.add(this.cube);
 
@@ -190,6 +194,10 @@ class GameScene {
 
     this.renderer.clear();
     this.renderer.render(this.scene, this.gameCamera.getCamera());
+  }
+
+  onResize() {
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 }
 

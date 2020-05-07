@@ -2,6 +2,7 @@ import ndarray from "ndarray";
 import { getChunkPosition, getChunkKey } from "../../../model/tile/Chunk";
 import TileBinaryChunk from "../TileBinaryChunk";
 import TileFactoryWorker from "../tileFactory/TileFactory.worker";
+import PathfindingWorker from "./Pathfinding.worker";
 import WorkerPool from "../../../util/WorkerPool";
 import * as THREE from "three";
 import DynamicEntitiesCache from "./DynamicEntitiesCache";
@@ -13,12 +14,26 @@ class TileLibrary {
     this.binaryChunkSize = 1024;
     this.tileBinaryChunks = {}; //promises of binary chunks
     this.tileFactoryPool = new WorkerPool([new TileFactoryWorker()]);
+    this.pathFindingPool = new WorkerPool([new PathfindingWorker()]);
 
     this.dynamicEntities = new DynamicEntitiesCache(); //All known dynamic entities keyed by x-y
   }
 
   addDynamicEntity(entities = []) {
     this.dynamicEntities.addDynamicEntity(entities);
+  }
+
+  async findPath(start, end) {
+    const chunks = await this.getTileBinaryChunks();
+
+    const { path } = await this.pathFindingPool.work({
+      start,
+      end,
+      chunks: chunks.map((c) => c.serialize()),
+      dynamicEntities: this.dynamicEntities.getEntities(),
+    });
+
+    return path;
   }
 
   async getTileChunkForRenderArea(position, chunkSize) {
@@ -39,6 +54,17 @@ class TileLibrary {
     const positionInChunk = new THREE.Vector3(position.x, position.y, 0).sub(
       new THREE.Vector3(binaryChunkPosition.x, binaryChunkPosition.y, 0)
     );
+
+    /*
+    console.log(
+      "position",
+      position,
+      "binaryChunkPosition",
+      binaryChunkPosition,
+      "positionInChunk",
+      positionInChunk
+    );
+    */
 
     const { data } = await this.tileFactoryPool.work({
       position: positionInChunk,
@@ -61,6 +87,15 @@ class TileLibrary {
     //if position is close to edge of the chunk, preload next binary chunk and touch edge chunks to keep them alive
   }
 
+  getTileBinaryChunks() {
+    //TODO: filter irrelevant chunks out of this
+    return Promise.all(
+      Object.keys(this.tileBinaryChunks).map(
+        async (key) => this.tileBinaryChunks[key]
+      )
+    );
+  }
+
   loadBinaryChunk(binaryChunkPosition) {
     console.log("LOAD BINARY CHUNK", binaryChunkPosition);
     return new Promise((resolve, reject) => {
@@ -73,8 +108,15 @@ class TileLibrary {
         if (arrayBuffer) {
           window.testArray = new Uint8Array(arrayBuffer);
           window.ndarray = ndarray;
-          const data = ndarray(new Uint8Array(arrayBuffer), [1026, 1026, 4]);
-          const tileSet = new TileBinaryChunk(data);
+          const data = ndarray(new Uint8Array(arrayBuffer), [
+            this.binaryChunkSize + 2,
+            this.binaryChunkSize + 2,
+            4,
+          ]);
+          const tileSet = new TileBinaryChunk(data, {
+            x: binaryChunkPosition.x - 1,
+            y: binaryChunkPosition.y + 1,
+          });
           resolve(tileSet);
         }
       };

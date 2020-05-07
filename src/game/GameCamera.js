@@ -12,7 +12,7 @@ class GameCamera {
     this.scrollingDown = false;
     this.scrollingRight = false;
     this.scrollingSpeed = 0.02;
-    this.zoom = 1.0;
+    this.zoom = 1.5;
 
     this.scene = null;
 
@@ -153,6 +153,17 @@ class GameCamera {
 
   floorToTens(number) {
     return Math.floor(number / 10) * 10;
+  }
+
+  onResize() {
+    const d = 120;
+
+    this.implementation.left = (this.zoom * window.innerWidth) / -d;
+    this.implementation.right = (this.zoom * window.innerWidth) / d;
+    this.implementation.top = (this.zoom * window.innerHeight) / d;
+    this.implementation.bottom = (this.zoom * window.innerHeight) / -d;
+    this.implementation.updateProjectionMatrix();
+    this.implementation.updateMatrixWorld();
   }
 }
 

@@ -11,6 +11,10 @@ class DynamicEntitiesCache {
     this.entities = entities;
   }
 
+  getEntities() {
+    return this.entities;
+  }
+
   addDynamicEntity(entities = []) {
     entities = [].concat(entities);
 

@@ -41,19 +41,20 @@ class GameSceneContainer extends React.Component {
     // create a ref to store the textInput DOM element
     this.canvasRef = React.createRef();
     this.mouseDownTimeStamp = null;
-    this.dragging = false;
     this.draggingThreshold = 1000;
   }
 
   componentDidMount() {
     const { game } = this.props;
 
+    window.addEventListener("resize", this.onResize);
     document.addEventListener("keydown", this.onKeyDown.bind(this), false);
     document.addEventListener("keyup", this.onKeyUp.bind(this), false);
     game.initRender(this.canvasRef.current);
   }
 
   componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
     document.removeEventListener("keydown", this.onKeyDown.bind(this), false);
     document.removeEventListener("keyup", this.onKeyUp.bind(this), false);
   }
@@ -66,7 +67,13 @@ class GameSceneContainer extends React.Component {
   onMouseUp(event) {
     console.log("onMouseUp");
     this.mouseDownTimeStamp = null;
-    this.dragging = false;
+    event.stopPropagation();
+    event.preventDefault();
+    const { game } = this.props;
+
+    game.onMouseUp(
+      getMousePositionInObservedElement(event, this.canvasRef.current)
+    );
   }
 
   onMouseMove(event) {
@@ -84,6 +91,11 @@ class GameSceneContainer extends React.Component {
     const { game } = this.props;
     game.camera.onKeyDown(event);
   }
+
+  onResize = () => {
+    const { game } = this.props;
+    game.onResize();
+  };
 
   onKeyUp(event) {
     const { game } = this.props;

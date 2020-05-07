@@ -84,6 +84,7 @@ class InstanceFactory {
       return;
     }
 
+    /* NOT HERE. NEED AN EVENT TO
     this.uniforms.directionalLightPosition.value = this.scene.directionalLight.position
       .clone()
       .normalize();
@@ -91,6 +92,7 @@ class InstanceFactory {
     this.uniforms.directionalLightIntensity.value = this.scene.directionalLight.intensity;
     this.uniforms.ambientLightColor.value = this.scene.ambientLight.color;
     this.uniforms.ambientLightIntensity.value = this.scene.ambientLight.intensity;
+    */
   }
 
   async init() {

@@ -6,14 +6,14 @@ import GroundTileGeometryFactory from "./tileFactory/GroundTileGeometryFactory";
 import Tile from "./Tile";
 
 class TileRenderer {
-  constructor(scene, gameCamera, tileLibrary) {
+  constructor(scene, gameCamera, tileLibrary, chunkSize) {
     //This will need a some link to the hotspot: what this area of game is actually following
     //Good practice to code this so that the game allows multiple cameras to be active at the same time: follow adventurers and home same time
     this.tileLibrary = tileLibrary;
     this.instanceFactory = new InstanceFactory(scene);
     this.gameCamera = gameCamera;
     this.chunks = [];
-    this.chunkSize = 16;
+    this.chunkSize = chunkSize;
     this.renderArea = null;
     this.changed = false;
     this.forRender = [];

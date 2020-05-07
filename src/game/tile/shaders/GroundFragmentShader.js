@@ -218,15 +218,17 @@ const GroundFragmentShader = `
         vec4 tileColor = getCombinedTileColor();
         tileColor = getCombinedOverlayColor(tileColor);
 
+        vec4 borderColor = vec4(0.2, 0.2, 0.2, 1.0);
         if (borders == 1 && (vUv.x > 0.99 || vUv.x < 0.01 || vUv.y > 0.99 || vUv.y < 0.01)) {
-            tileColor.a *= 0.9;
+            tileColor = tileColor * 0.85;
         } else if (tileBorders == 1) {  
             vec2 uv = getTileUv();
             if (uv.x > 0.99 || uv.x < 0.01 || uv.y > 0.99 || uv.y < 0.01) {
-                tileColor.a *= 0.9;
+                tileColor += borderColor;
             }
         }
-        
+
+        tileColor.a = 1.0;
         gl_FragColor = tileColor;
     }
 `;

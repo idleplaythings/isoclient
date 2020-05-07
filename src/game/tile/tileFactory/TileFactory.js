@@ -13,8 +13,11 @@ import { buildGround } from "./BiomeFactory";
 
 const flyTile = new Tile();
 
-const getWorldPosition = (binaryChunkPosition, chunkPosition, position) =>
-  new Vector(binaryChunkPosition).add(chunkPosition).add(position);
+export const getWorldPosition = (
+  binaryChunkPosition,
+  chunkPosition,
+  position
+) => new Vector(binaryChunkPosition).add(chunkPosition).add(position);
 
 class TileFactory {
   constructor(chunkSize) {

@@ -18,7 +18,7 @@ const create = (event) => {
     ndarray(new Uint8Array(data), [1026, 1026, 4])
   );
 
-  binaryChunk.zoomToChunk(position, chunkSize);
+  binaryChunk.zoomToChunk({ x: position.x + 1, y: position.y - 1 }, chunkSize);
   const constructedData = tileFactory.create(
     position,
     chunkSize,
