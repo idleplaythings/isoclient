@@ -28,7 +28,7 @@ class MobileLibrary {
     console.log("click tile", tile);
     this.selectedMobiles.forEach(async (mobile) => {
       const path = await this.tileLibrary.findPath(
-        mobile.getGamePosition(),
+        mobile.getGamePositionOrNextMovementPosition(),
         tile
       );
 

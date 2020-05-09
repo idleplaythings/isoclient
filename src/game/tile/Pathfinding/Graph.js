@@ -2,8 +2,8 @@ import GridNode from "./GridNode";
 import { movementEffect } from "../../../model/tile/TileTypes.mjs";
 
 const NEIGHBOR_OFFSETS = [
-  { x: -1, y: -1 },
-  { x: 1, y: 1 },
+  { x: -1, y: 0 },
+  { x: 1, y: 0 },
   { x: 0, y: -1 },
   { x: 0, y: 1 },
   { x: -1, y: -1 },
@@ -38,11 +38,17 @@ class Graph {
 
   populateTile(tile) {
     const chunk = this.getBinaryChunkForNode(tile);
+
+    if (!chunk) {
+      tile.weight = 0;
+      return;
+    }
+
     const prop = chunk.getPropByWorldPosition(tile);
     const height = chunk.getHeightByWorldPosition(tile);
 
     if (movementEffect.difficult.includes(prop)) {
-      tile.weight = 2;
+      tile.weight = 4;
     } else if (movementEffect.impassable.includes(prop)) {
       tile.weight = 0;
     }
@@ -69,11 +75,6 @@ class Graph {
     */
 
     const chunk = this.binaryChunks.find((chunk) => chunk.contains(position));
-
-    if (!chunk) {
-      throw new Error("This should not happen");
-    }
-
     return chunk;
   }
 

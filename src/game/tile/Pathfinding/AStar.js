@@ -29,9 +29,13 @@ export const astar = {
   search: function(graph, start, end, options) {
     start = graph.getNode(start);
     end = graph.getNode(end);
+    if (end.isWall()) {
+      return [];
+    }
+    
     graph.cleanDirty();
     options = options || {};
-    var heuristic = options.heuristic || astar.heuristics.manhattan;
+    var heuristic = options.heuristic || astar.heuristics.diagonal;
     var closest = options.closest || false;
 
     var openHeap = getHeap();

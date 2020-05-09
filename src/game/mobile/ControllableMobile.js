@@ -64,6 +64,15 @@ class ControllableMobile {
   }
 
   setMovementPath(path) {
+    if (path.length === 0) {
+      return;
+    }
+
+    if (this.nextMovementPosition) {
+      this.movementPath = path;
+      return;
+    }
+
     console.log("set movement path", path);
     this.movementPath = path;
     this.movementStarted = Date.now();
@@ -92,6 +101,14 @@ class ControllableMobile {
       this.mesh.material.color.setHex(0x006600);
     } else {
       this.mesh.material.color.setHex(0xffffff);
+    }
+  }
+
+  getGamePositionOrNextMovementPosition() {
+    if (this.nextMovementPosition) {
+      return this.nextMovementPosition;
+    } else {
+      return this.getGamePosition();
     }
   }
 
