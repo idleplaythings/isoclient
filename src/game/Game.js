@@ -7,6 +7,7 @@ import CoornidateConverter from "./util/CoordinateConverter";
 import GameCursor from "./GameCursor";
 import MobileLibrary from "./mobile/MobileLibrary";
 import ControllableMobile from "./mobile/ControllableMobile";
+import GameServerConnection from "../gameServer/GameServerConnection";
 
 class Game {
   constructor() {
@@ -31,9 +32,15 @@ class Game {
       this.groundChunkSize
     );
 
+    this.gameServerConnector = new GameServerConnection();
+    this.gameServerConnector.connect();
+
     this.gameCursor = new GameCursor(this.gameScene);
 
     //new DemoWorldBuilder(this.tileLibrary).create();
+
+    this.lastSend = null;
+    this.messageRandom = Math.random();
 
     const character = new ControllableMobile(this.gameScene);
     character.setPositionAndGamePosition({ x: 510, y: 512, z: 2 });
@@ -61,6 +68,11 @@ class Game {
       now,
       delta,
     };
+
+    if (this.lastSend === null || now - this.lastSend > 10000) {
+      this.gameServerConnector.sendMessage(`hi ${this.messageRandom}`);
+      this.lastSend = now;
+    }
 
     //this.world.render();
     this.tileRenderer.render(payload);
