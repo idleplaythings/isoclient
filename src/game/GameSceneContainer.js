@@ -102,6 +102,10 @@ class GameSceneContainer extends React.Component {
     game.camera.onKeyUp(event);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return false;
+  }
+
   render() {
     console.log("Render game scene container");
     return (

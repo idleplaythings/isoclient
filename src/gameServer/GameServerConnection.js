@@ -1,17 +1,15 @@
-const USERID = 1;
+import { MOBILE_SPAWNED } from "../model/message.mjs";
+import { UiStateMessages } from "../ui/UiState";
 
 class GameServerConnection {
-  constructor(gameId) {
-    this.gameId = gameId;
-    this.phaseDirector = null;
+  constructor(game, userId, uiStateDispatch) {
+    this.userId = userId;
+    this.game = game;
+    this.uiStateDispatch = uiStateDispatch;
     this.webSocket = null;
     this.open = false;
     this.connection = null;
     this.connectionResolve = null;
-  }
-
-  init(phaseDirector) {
-    this.phaseDirector = phaseDirector;
   }
 
   async deactivate() {
@@ -20,9 +18,10 @@ class GameServerConnection {
   }
 
   connect(timeout = 0) {
+    this.open = true;
     this.connection = new Promise((resolve) => {
       setTimeout(() => {
-        this.webSocket = new WebSocket(`ws://localhost:4000/${USERID}`);
+        this.webSocket = new WebSocket(`ws://localhost:4000/${this.userId}`);
         console.log("connecting websocket");
         this.connectionResolve = resolve;
         this.webSocket.onerror = this.onError.bind(this);
@@ -55,52 +54,50 @@ class GameServerConnection {
   }
 
   onOpen() {
+    this.uiStateDispatch({
+      type: UiStateMessages.SET_NETWORK_STATUS,
+      payload: { error: undefined },
+    });
+
     console.log("opened websocket");
-    this.open = true;
     this.connectionResolve(this.webSocket);
   }
 
   onError(error) {
+    this.uiStateDispatch({
+      type: UiStateMessages.SET_NETWORK_STATUS,
+      payload: { error: "error" },
+    });
     console.log("error", error);
   }
 
-  onClose(code, message) {
-    this.open = false;
-    console.log("close websocket", code, message);
-    /*
+  onClose(event) {
+    if (event.reason === "duplicate") {
+      this.open = false;
+      this.uiStateDispatch({
+        type: UiStateMessages.SET_NETWORK_STATUS,
+        payload: { error: "duplicate", callback: this.connect.bind(this) },
+      });
+    }
 
     if (this.open) {
       console.log("close websocket");
       this.connect(2000);
     }
-    */
   }
 
   onMessage({ data }) {
-    //const { type, payload } = JSON.parse(data);
+    const { type, payload } = JSON.parse(data);
     console.log("message received", data);
 
-    /*
     switch (type) {
-      case gameMessages.MESSAGE_GAMEDATA:
-        this.phaseDirector.receiveGameData(new GameData(payload));
+      case MOBILE_SPAWNED:
+        this.game.mobileLibrary.mobileSpawned(payload);
         break;
 
-      case gameMessages.MESSAGE_TURN_CHANGED:
-        this.phaseDirector.receiveTurnChange(
-          payload.map((entry) => new GameData(entry))
-        );
-        break;
-
-      case gameMessages.MESSAGE_REPLAY:
-        this.phaseDirector.receiveReplay(
-          payload.map((entry) => new GameData(entry))
-        );
-        break;
       default:
         throw new Error(`Unrecognized websocket message type: '${type}'`);
     }
-    */
   }
 }
 

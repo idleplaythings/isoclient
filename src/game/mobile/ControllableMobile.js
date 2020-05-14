@@ -1,8 +1,10 @@
 import * as THREE from "three";
 import Vector from "../../model/util/Vector.mjs";
+import PlayerMobile from "../../model/mobile/PlayerMobile.mjs";
 
-class ControllableMobile {
+class ControllableMobile extends PlayerMobile {
   constructor(gameScene) {
+    super(null, null);
     this.gameScene = gameScene;
 
     this.mesh = new THREE.Mesh(
@@ -22,18 +24,26 @@ class ControllableMobile {
     this.mesh.name = "mobile";
     this.mesh.userData.mobile = this;
 
-    this.gamePosition = new Vector(0, 0, 0);
     this.movementSpeed = 500;
 
     this.movementPath = null;
-    this.nextMovementTime = null;
     this.movementStarted = null;
     this.currentMovementSpeed = null;
-    this.nextMovementPosition = null;
+
+    this.nextPosition = null;
+    this.nextPositionTime = null;
+  }
+
+  deserialize(data) {
+    super.deserialize(data);
+
+    this.setWorldPosition(this.position);
+
+    return this;
   }
 
   render({ now }) {
-    if (!this.nextMovementPosition) {
+    if (!this.nextPosition) {
       return;
     }
 
@@ -41,24 +51,24 @@ class ControllableMobile {
       (now - this.movementStarted) / this.currentMovementSpeed;
 
     if (movementDone < 1) {
-      const position = this.nextMovementPosition
-        .sub(this.gamePosition)
+      const position = this.nextPosition
+        .sub(this.mesh.position)
         .multiplyScalar(movementDone)
-        .add(this.gamePosition);
-      this.setPosition(position);
+        .add(this.mesh.position);
+      this.setWorldPosition(position);
     } else {
-      this.setPositionAndGamePosition(this.nextMovementPosition);
+      this.setPositionAndWorldPosition(this.nextPosition);
       if (this.movementPath.length > 0) {
         this.movementStarted = now;
         this.currentMovementSpeed = this.getNextMovementSpeed();
-        this.nextMovementTime = now + this.currentMovementSpeed;
-        this.nextMovementPosition = new Vector(this.movementPath.shift());
+        this.nextPositionTime = now + this.currentMovementSpeed;
+        this.nextPosition = new Vector(this.movementPath.shift());
       } else {
         this.movementPath = null;
-        this.nextMovementTime = null;
+        this.nextPositionTime = null;
         this.movementStarted = null;
         this.currentMovementSpeed = null;
-        this.nextMovementPosition = null;
+        this.nextPosition = null;
       }
     }
   }
@@ -68,7 +78,7 @@ class ControllableMobile {
       return;
     }
 
-    if (this.nextMovementPosition) {
+    if (this.nextPosition) {
       this.movementPath = path;
       return;
     }
@@ -77,8 +87,8 @@ class ControllableMobile {
     this.movementPath = path;
     this.movementStarted = Date.now();
     this.currentMovementSpeed = this.getNextMovementSpeed();
-    this.nextMovementTime = Date.now() + this.currentMovementSpeed;
-    this.nextMovementPosition = new Vector(this.movementPath.shift());
+    this.nextPositionTime = Date.now() + this.currentMovementSpeed;
+    this.nextPosition = new Vector(this.movementPath.shift());
   }
 
   getNextMovementSpeed() {
@@ -104,28 +114,26 @@ class ControllableMobile {
     }
   }
 
-  getGamePositionOrNextMovementPosition() {
-    if (this.nextMovementPosition) {
-      return this.nextMovementPosition;
+  getPositionOrNextMovementPosition() {
+    if (this.nextPosition) {
+      console.log("return next Position", this.nextPosition);
+      return this.nextPosition;
     } else {
-      return this.getGamePosition();
+      console.log("return getPosition", this.getPosition());
+      return this.getPosition();
     }
   }
 
-  getGamePosition() {
-    return this.gamePosition;
-  }
-
-  setGamePosition(position) {
-    this.gamePosition = new Vector(position);
-  }
-
-  setPositionAndGamePosition(position) {
-    this.setGamePosition(position);
+  setPositionAndWorldPosition(position) {
+    this.setWorldPosition(position);
     this.setPosition(position);
   }
 
-  setPosition(position) {
+  getWorldPosition() {
+    return new Vector(this.mesh.position);
+  }
+
+  setWorldPosition(position) {
     this.mesh.visible = true;
     this.mesh.position.set(position.x, position.y, position.z + 1);
   }

@@ -1,11 +1,14 @@
 import React, { Component } from "react";
-import { GameSceneContainer, Game } from "./game";
-
-const game = new Game();
+import { StoreProvider } from "./ui/UiState";
+import UiRoot from "./ui/UiRoot";
 
 class App extends Component {
   render() {
-    return <GameSceneContainer game={game} />;
+    return (
+      <StoreProvider>
+        <UiRoot />
+      </StoreProvider>
+    );
   }
 }
 

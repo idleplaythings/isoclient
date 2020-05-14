@@ -17,7 +17,7 @@ class TileBinaryChunk extends WorldTileBinarySet {
 
   isSlope(position) {
     const type = this.getType(position);
-    return TileTypes.slopeTypes.includes(type);
+    return type === TileTypes.type.SLOPE;
   }
 }
 

@@ -1,5 +1,9 @@
+import ControllableMobile from "./ControllableMobile";
+import Mobile from "../../model/mobile/Mobile.mjs";
+
 class MobileLibrary {
-  constructor(gameScene, tileLibrary) {
+  constructor(userId, gameScene, tileLibrary) {
+    this.userId = userId;
     this.gameScene = gameScene;
     this.tileLibrary = tileLibrary;
 
@@ -28,7 +32,7 @@ class MobileLibrary {
     console.log("click tile", tile);
     this.selectedMobiles.forEach(async (mobile) => {
       const path = await this.tileLibrary.findPath(
-        mobile.getGamePositionOrNextMovementPosition(),
+        mobile.getPositionOrNextMovementPosition(),
         tile
       );
 
@@ -36,10 +40,39 @@ class MobileLibrary {
     });
   }
 
+  receiveOwnedMobiles(payload) {
+    const mobiles = payload.map((data) =>
+      new ControllableMobile(this.gameScene).deserialize(data)
+    );
+
+    this.mobiles = this.mobiles.filter((m) =>
+      mobiles.every((m2) => m2.id !== m.id)
+    );
+
+    console.log(mobiles);
+    this.add(mobiles);
+  }
+
   getMobileAtPosition(tilePosition) {}
 
+  mobileSpawned(payload) {
+    console.log(this.userId);
+    let mobile = null;
+
+    if (payload.userId === this.userId) {
+      mobile = new ControllableMobile(this.gameScene).deserialize(payload);
+    } else {
+      return;
+    }
+
+    this.mobiles = this.mobiles.filter((m) => m.id !== mobile.id);
+
+    this.add(mobile);
+  }
+
   add(mobile) {
-    this.mobiles.push(mobile);
+    mobile = [].concat(mobile);
+    this.mobiles.push(...mobile);
   }
 
   render(payload) {
