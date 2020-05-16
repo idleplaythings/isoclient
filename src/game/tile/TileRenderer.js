@@ -3,7 +3,6 @@ import InstanceFactory from "./InstanceFactory";
 import WorldChunk from "./Chunk/WorldChunk";
 import ChunkImageManipulator from "./ChunkImageManipulator";
 import GroundTileGeometryFactory from "./tileFactory/GroundTileGeometryFactory";
-import Tile from "./Tile";
 
 class TileRenderer {
   constructor(scene, gameCamera, tileLibrary, chunkSize) {

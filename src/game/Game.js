@@ -2,11 +2,10 @@ import GameScene from "./GameScene";
 import GameCamera from "./GameCamera";
 import { TileRenderer } from "./tile";
 import TileLibrary from "./tile/TileLibrary/TileLibrary";
-import DemoWorldBuilder from "./demo/DemoWorldBuilder";
+//import DemoWorldBuilder from "./demo/DemoWorldBuilder";
 import CoornidateConverter from "./util/CoordinateConverter";
 import GameCursor from "./GameCursor";
 import MobileLibrary from "./mobile/MobileLibrary";
-import ControllableMobile from "./mobile/ControllableMobile";
 import GameServerConnection from "../gameServer/GameServerConnection";
 
 class Game {
@@ -19,7 +18,12 @@ class Game {
     this.camera = new GameCamera();
     this.gameScene = new GameScene(this.camera);
     this.tileLibrary = new TileLibrary();
-    //this.world = new World(this.tileLibrary);
+
+    this.gameServerConnector = new GameServerConnection(
+      this,
+      this.userId,
+      this.uiStateDispatch
+    );
 
     this.coordinateConverter = new CoornidateConverter(
       this.gameScene,
@@ -30,7 +34,8 @@ class Game {
     this.mobileLibrary = new MobileLibrary(
       this.userId,
       this.gameScene,
-      this.tileLibrary
+      this.tileLibrary,
+      this.gameServerConnector
     );
 
     this.tileRenderer = new TileRenderer(
@@ -40,11 +45,6 @@ class Game {
       this.groundChunkSize
     );
 
-    this.gameServerConnector = new GameServerConnection(
-      this,
-      this.userId,
-      this.uiStateDispatch
-    );
     this.gameServerConnector.connect();
 
     this.gameCursor = new GameCursor(this.gameScene);

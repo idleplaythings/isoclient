@@ -1,11 +1,12 @@
-import ControllableMobile from "./ControllableMobile";
-import Mobile from "../../model/mobile/Mobile.mjs";
+import ControllablePlayerMobile from "./ControllablePlayerMobile";
+import UncontrollablePlayerMobile from "./UncontrollablePlayerMobile";
 
 class MobileLibrary {
-  constructor(userId, gameScene, tileLibrary) {
+  constructor(userId, gameScene, tileLibrary, gameServerConnector) {
     this.userId = userId;
     this.gameScene = gameScene;
     this.tileLibrary = tileLibrary;
+    this.gameServerConnector = gameServerConnector;
 
     this.selectedMobiles = [];
 
@@ -40,29 +41,31 @@ class MobileLibrary {
     });
   }
 
-  receiveOwnedMobiles(payload) {
-    const mobiles = payload.map((data) =>
-      new ControllableMobile(this.gameScene).deserialize(data)
-    );
-
-    this.mobiles = this.mobiles.filter((m) =>
-      mobiles.every((m2) => m2.id !== m.id)
-    );
-
-    console.log(mobiles);
-    this.add(mobiles);
-  }
-
   getMobileAtPosition(tilePosition) {}
+
+  mobileDespawned(mobileId) {
+    this.mobiles = this.mobiles.filter((m) => {
+      if (m.id === mobileId) {
+        m.destroy();
+        return false;
+      }
+
+      return true;
+    });
+  }
 
   mobileSpawned(payload) {
     console.log(this.userId);
     let mobile = null;
 
     if (payload.userId === this.userId) {
-      mobile = new ControllableMobile(this.gameScene).deserialize(payload);
+      mobile = new ControllablePlayerMobile(this.gameScene, this).deserialize(
+        payload
+      );
     } else {
-      return;
+      mobile = new UncontrollablePlayerMobile(this.gameScene).deserialize(
+        payload
+      );
     }
 
     this.mobiles = this.mobiles.filter((m) => m.id !== mobile.id);
@@ -79,6 +82,10 @@ class MobileLibrary {
     this.mobiles.forEach((mobile) => {
       mobile.render(payload);
     });
+  }
+
+  requestMove(mobile, position) {
+    this.gameServerConnector.sendMoveRequest(mobile, position);
   }
 }
 

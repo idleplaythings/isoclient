@@ -1,5 +1,4 @@
 import React, { useCallback, useState, useContext } from "react";
-import styled from "styled-components";
 import InfoBox from "./component/InfoBox";
 import { InputAndLabel } from "./component/Input";
 import * as Typography from "./component/Typography";

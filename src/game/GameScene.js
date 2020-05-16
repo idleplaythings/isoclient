@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Stats from "stats.js";
 import WaterVertexShader from "./tile/shaders/WaterVertexShader";
 import WaterFragmentShader from "./tile/shaders/WaterFragmentShader";
 
@@ -85,6 +86,10 @@ class GameScene {
     this.cube.position.set(511, 513, 2.5);
     //this.cube.renderOrder = 3;
     //this.scene.add(this.cube);
+
+    this.stats = new Stats();
+    this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(this.stats.dom);
 
     /*
     const waterGeometry = new THREE.PlaneGeometry(60000, 60000, 1, 1);
@@ -174,6 +179,8 @@ class GameScene {
       return;
     }
 
+    this.stats.begin();
+
     WATERMATERIAL.uniforms.time.value = Date.now() - waterCreadted;
 
     //this.camera.position.x += 0.05;
@@ -194,6 +201,7 @@ class GameScene {
 
     this.renderer.clear();
     this.renderer.render(this.scene, this.gameCamera.getCamera());
+    this.stats.end();
   }
 
   onResize() {

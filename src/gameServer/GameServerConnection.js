@@ -1,4 +1,8 @@
-import { MOBILE_SPAWNED } from "../model/message.mjs";
+import {
+  MOBILE_SPAWNED,
+  MOBILE_DESPAWNED,
+  MOVE_REQUEST,
+} from "../model/message.mjs";
 import { UiStateMessages } from "../ui/UiState";
 
 class GameServerConnection {
@@ -36,6 +40,16 @@ class GameServerConnection {
     const connection = await this.connection;
     console.log("sending", message);
     connection.send(JSON.stringify({ message }));
+  }
+
+  async sendMoveRequest(mobile, position) {
+    const connection = await this.connection;
+    connection.send(
+      JSON.stringify({
+        type: MOVE_REQUEST,
+        payload: [mobile.id, position.x, position.y, position.z],
+      })
+    );
   }
 
   async commitTurn(gameData) {
@@ -93,6 +107,10 @@ class GameServerConnection {
     switch (type) {
       case MOBILE_SPAWNED:
         this.game.mobileLibrary.mobileSpawned(payload);
+        break;
+
+      case MOBILE_DESPAWNED:
+        this.game.mobileLibrary.mobileDespawned(payload);
         break;
 
       default:

@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from "react";
-import styled from "styled-components";
 import { StateStore } from "./UiState";
 import NetworkInfo from "./NetworkInfo";
 

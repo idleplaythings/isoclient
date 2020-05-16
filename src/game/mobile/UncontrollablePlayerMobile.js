@@ -2,7 +2,7 @@ import * as THREE from "three";
 import Vector from "../../model/util/Vector.mjs";
 import PlayerMobile from "../../model/mobile/PlayerMobile.mjs";
 
-class ControllableMobile extends PlayerMobile {
+class UncontrollablePlayerMobile extends PlayerMobile {
   constructor(gameScene) {
     super(null, null);
     this.gameScene = gameScene;
@@ -12,7 +12,7 @@ class ControllableMobile extends PlayerMobile {
       new THREE.MeshBasicMaterial({
         transparent: false,
         //opacity: 0.25,
-        color: 0x006600,
+        color: 0x660000,
         //depthTest: true,
         //depthWrite: true,
         //wireframe: true,
@@ -26,12 +26,12 @@ class ControllableMobile extends PlayerMobile {
 
     this.movementSpeed = 500;
 
-    this.movementPath = null;
     this.movementStarted = null;
     this.currentMovementSpeed = null;
-
     this.nextPosition = null;
     this.nextPositionTime = null;
+
+    this.mesh.material.color.setHex(this.getColor());
   }
 
   deserialize(data) {
@@ -46,7 +46,7 @@ class ControllableMobile extends PlayerMobile {
     if (!this.nextPosition) {
       return;
     }
-
+    /*
     const movementDone =
       (now - this.movementStarted) / this.currentMovementSpeed;
 
@@ -71,55 +71,21 @@ class ControllableMobile extends PlayerMobile {
         this.nextPosition = null;
       }
     }
-  }
-
-  setMovementPath(path) {
-    if (path.length === 0) {
-      return;
-    }
-
-    if (this.nextPosition) {
-      this.movementPath = path;
-      return;
-    }
-
-    console.log("set movement path", path);
-    this.movementPath = path;
-    this.movementStarted = Date.now();
-    this.currentMovementSpeed = this.getNextMovementSpeed();
-    this.nextPositionTime = Date.now() + this.currentMovementSpeed;
-    this.nextPosition = new Vector(this.movementPath.shift());
-  }
-
-  getNextMovementSpeed() {
-    if (
-      this.movementPath[0].x !== this.x &&
-      this.movementPath[0].y !== this.y
-    ) {
-      return this.movementSpeed * 1.41421;
-    }
-
-    return this.movementSpeed;
+    */
   }
 
   isSelectable() {
-    return true;
+    return false;
   }
 
-  setSelected(selected = true) {
-    if (!selected) {
-      this.mesh.material.color.setHex(0x006600);
-    } else {
-      this.mesh.material.color.setHex(0xffffff);
-    }
+  getColor() {
+    return 0x666600;
   }
 
   getPositionOrNextMovementPosition() {
     if (this.nextPosition) {
-      console.log("return next Position", this.nextPosition);
       return this.nextPosition;
     } else {
-      console.log("return getPosition", this.getPosition());
       return this.getPosition();
     }
   }
@@ -143,4 +109,4 @@ class ControllableMobile extends PlayerMobile {
   }
 }
 
-export default ControllableMobile;
+export default UncontrollablePlayerMobile;
