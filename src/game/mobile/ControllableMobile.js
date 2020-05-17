@@ -1,7 +1,7 @@
-import UncontrollablePlayerMobile from "./UncontrollablePlayerMobile";
 import Vector from "../../model/util/Vector.mjs";
+import ClientMobile from "./ClientMobile";
 
-class ControllablePlayerMobile extends UncontrollablePlayerMobile {
+class ControllableMobile extends ClientMobile {
   constructor(gameScene, mobileLibrary) {
     super(gameScene);
     this.mobileLibrary = mobileLibrary;
@@ -57,4 +57,4 @@ class ControllablePlayerMobile extends UncontrollablePlayerMobile {
   }
 }
 
-export default ControllablePlayerMobile;
+export default ControllableMobile;
