@@ -44,21 +44,17 @@ class GameServerConnection {
   }
 
   async sendMoveRequest(mobile, position) {
+    const payload = [mobile.id];
+    if (position) {
+      payload.push(position.x, position.y, position.z);
+    }
+
+    console.log("send movement request", payload);
     const connection = await this.connection;
     connection.send(
       JSON.stringify({
         type: MOVE_REQUEST,
-        payload: [mobile.id, position.x, position.y, position.z],
-      })
-    );
-  }
-
-  async commitTurn(gameData) {
-    const connection = await this.connection;
-    connection.send(
-      JSON.stringify({
-        type: "nön",
-        payload: gameData.serialize(),
+        payload,
       })
     );
   }
@@ -103,7 +99,7 @@ class GameServerConnection {
 
   onMessage({ data }) {
     const { type, payload } = JSON.parse(data);
-    console.log("message received", data);
+    //console.log("message received", data);
 
     switch (type) {
       case MOBILE_SPAWNED:

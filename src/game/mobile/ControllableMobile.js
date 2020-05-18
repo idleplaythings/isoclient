@@ -1,5 +1,7 @@
 import Vector from "../../model/util/Vector.mjs";
 import ClientMobile from "./ClientMobile";
+import { isAdjacent } from "../../model/util/isAdjacent.mjs";
+import MovementPathStep from "./MovementPathStep";
 
 class ControllableMobile extends ClientMobile {
   constructor(gameScene, mobileLibrary) {
@@ -9,34 +11,56 @@ class ControllableMobile extends ClientMobile {
     this.movementPath = null;
   }
 
+  prunePathUntilAdjacent(position) {
+    const toDelete = [];
+    let found = false;
+
+    for (let i = this.movementPath.length - 1; i >= 0; i--) {
+      const step = this.movementPath[i];
+      if (step.equals(position)) {
+        toDelete.push(step);
+      } else if (isAdjacent(step.position, position)) {
+        found = true;
+      } else if (found) {
+        toDelete.push(step);
+      }
+    }
+
+    this.movementPath = this.movementPath.filter(
+      (step) => !toDelete.includes(step)
+    );
+  }
+
+  setNextMovement(nextPosition, nextPositionTime) {
+    super.setNextMovement(nextPosition, nextPositionTime);
+
+    this.prunePathUntilAdjacent(nextPosition);
+
+    if (this.movementPath.length === 0) {
+      return;
+    }
+
+    this.mobileLibrary.requestMove(this, this.movementPath[0].position);
+    this.movementPath.shift();
+  }
+
   setMovementPath(path) {
     if (path.length === 0) {
       return;
     }
 
-    console.log("set movement path", path);
+    console.log("new movement path", path);
+    this.movementPath = path.map((step) => new MovementPathStep(step));
 
-    this.movementPath = path;
-    this.mobileLibrary.requestMove(this, this.movementPath[0]);
-  }
-
-  render(payload) {
-    super.render(payload);
-
-    //TODO: Request next move instantly after cancellation deadline has been reached
-    //Cancellation deadline is nextPositionTime - movementSpeed / 2
-    if (
-      this.movementPath &&
-      this.movementPath.length !== 0 &&
-      this.getPosition().equals(new Vector(this.movementPath[0]))
-    ) {
-      this.movementPath.shift();
-
-      if (this.movementPath.length === 0) {
-        return;
-      }
-
-      this.mobileLibrary.requestMove(this, this.movementPath[0]);
+    const nextStep = this.serverMovementPath.getNextMovementPosition();
+    if (nextStep === null) {
+      this.mobileLibrary.requestMove(this, this.movementPath[0].position);
+    } else if (this.movementPath[0].equals(nextStep)) {
+      return;
+    } else {
+      //TODO: Cancel only if current position is farther than next step
+      this.mobileLibrary.requestMove(this, null);
+      this.mobileLibrary.requestMove(this, this.movementPath[0].position);
     }
   }
 

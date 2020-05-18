@@ -27,7 +27,6 @@ export const astar = {
     *          astar.heuristics).
     */
   search: function(graph, start, end, options) {
-    console.log("start", start);
     start = graph.getNode(start);
     end = graph.getNode(end);
     if (end.isWall()) {
