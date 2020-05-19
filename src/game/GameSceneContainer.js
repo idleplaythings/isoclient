@@ -60,12 +60,10 @@ class GameSceneContainer extends React.Component {
   }
 
   onMouseDown(event) {
-    console.log("onMouseDown");
     this.mouseDownTimeStamp = new Date().getTime();
   }
 
   onMouseUp(event) {
-    console.log("onMouseUp");
     this.mouseDownTimeStamp = null;
     event.stopPropagation();
     event.preventDefault();

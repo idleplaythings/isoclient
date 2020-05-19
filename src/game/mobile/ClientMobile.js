@@ -48,7 +48,11 @@ class ClientMobile {
   }
 
   getWorldPosition() {
-    return new Vector(this.mesh.position);
+    return new Vector(
+      this.mesh.position.x,
+      this.mesh.position.y,
+      this.mesh.position.z - 1
+    );
   }
 
   setWorldPosition(position) {
@@ -64,7 +68,10 @@ class ClientMobile {
     const [
       gamePosition,
       worldPosition,
-    ] = this.serverMovementPath.getNewWorldPositionAndGamePosition(payload);
+    ] = this.serverMovementPath.getNewWorldPositionAndGamePosition(
+      payload,
+      this.getWorldPosition()
+    );
 
     if (gamePosition) {
       this.setPosition(gamePosition);
@@ -75,7 +82,13 @@ class ClientMobile {
     }
   }
 
+  movementFailed(position) {
+    console.log("movement failed", position);
+    this.serverMovementPath.addStep(position, Date.now() + 200);
+  }
+
   setNextMovement(nextPosition, nextPositionTime) {
+    console.log("movement step", nextPosition);
     this.serverMovementPath.addStep(nextPosition, nextPositionTime);
   }
 

@@ -42,6 +42,16 @@ class MobileLibrary {
     this.selectedMobiles.forEach((mobile) => this.findMobilePath(mobile, tile));
   }
 
+  mobileMoveRequestFailed([mobileId, position]) {
+    const mobile = this.mobiles.find((m) => m.id === mobileId);
+
+    if (!mobile) {
+      return;
+    }
+
+    mobile.movementRequestFailed(position);
+  }
+
   mobileMoveFailed([mobileId, position]) {
     const mobile = this.mobiles.find((m) => m.id === mobileId);
 
@@ -56,7 +66,6 @@ class MobileLibrary {
     let mobile = this.mobiles.find((m) => m.id === mobileId);
 
     if (!mobile) {
-      console.log("WHO ARE YOU???");
       mobile = new ClientMobile(this.gameScene).deserialize({
         id: mobileId,
         position,

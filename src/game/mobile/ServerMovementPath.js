@@ -3,77 +3,67 @@ import Vector from "../../model/util/Vector.mjs";
 class ServerMovementPath {
   constructor(mobile) {
     this.mobile = mobile;
-    this.steps = [];
-
+    this.step = null;
+    this.nextStep = null;
     this.nextGamePositionChange = null;
   }
 
-  getLastMovementPosition() {
-    if (this.steps.length === 0 || this.nextGamePositionChange === null) {
-      return null;
-    }
-
-    const step = this.steps[this.steps.length - 1];
-
-    return step ? step.position : null;
+  getNextMovementStepPosition() {
+    return this.step ? this.step.position : null;
+  }
+  getNextMovementStepTime() {
+    return this.step ? this.step.time : null;
   }
 
   addStep(position, time) {
-    this.steps = this.steps.filter((step) => step.time < time);
-    this.steps.push(new ServerMovementStep(position, time));
-    if (
-      this.nextGamePositionChange === null ||
-      this.nextGamePositionChange > time
-    ) {
-      this.nextGamePositionChange = time;
+    const step = new ServerMovementStep(position, time);
+    if (!this.step || this.step.moved || step.time < this.step.time) {
+      this.step = step;
+    } else if (!step.equals(this.step)) {
+      this.nextStep = step;
     }
   }
 
-  getNextMovementStepChangeTime() {
-    const step = this.steps.find(
-      (s) => !s.used && s.time > this.nextGamePositionChange
-    );
-
-    return step ? step.time : null;
-  }
-
-  getNewGameStep(now) {
-    let step = null;
-
-    for (let i = 0; i < this.steps.length; i++) {
-      const nextStep = this.steps[i];
-
-      if (nextStep.used) {
-        continue;
-      } else if (now >= nextStep.time) {
-        step = nextStep;
-      } else {
-        break;
-      }
-    }
-
-    this.steps = this.steps.filter((s) => s.time > now - 2000);
-    return step;
-  }
-
-  getNewWorldPositionAndGamePosition({ now }) {
-    if (this.steps.length === 0) {
+  getNewWorldPositionAndGamePosition({ now, delta }, currentWorldPosition) {
+    if (!this.step) {
       return [null, null];
     }
 
     let gamePosition = null;
+    let worldPosition = null;
 
-    if (
-      this.nextGamePositionChange !== null &&
-      now > this.nextGamePositionChange
-    ) {
-      const step = this.getNewGameStep(now);
-      step.used = true;
-      gamePosition = step.position;
-      this.nextGamePositionChange = this.getNextMovementStepChangeTime();
+    if (!this.step.moved && now >= this.step.time) {
+      gamePosition = this.step.position;
+      this.step.moved = true;
+
+      if (this.nextStep) {
+        this.step = this.nextStep;
+        this.nextStep = null;
+      }
     }
 
-    return [gamePosition, gamePosition];
+    const targetTime = this.step.displayTime;
+    const startTime = now - delta;
+    const duration = targetTime - startTime;
+    const percentDone = delta / duration;
+    const eta = targetTime > now ? targetTime - now : 0;
+    const distance = currentWorldPosition.distanceTo(this.step.position);
+
+    if (eta === 0) {
+      if (this.step.moved && !this.nextStep) {
+        worldPosition = this.step.position;
+        this.step = null;
+      }
+    } else {
+      worldPosition = currentWorldPosition.add(
+        this.step.position
+          .sub(currentWorldPosition)
+          .normalize()
+          .multiplyScalar(distance * percentDone)
+      );
+    }
+
+    return [gamePosition, worldPosition];
   }
 }
 
@@ -81,6 +71,12 @@ class ServerMovementStep {
   constructor(position, time) {
     this.position = new Vector(position);
     this.time = time;
+    this.displayTime = time + 250;
+    this.moved = false;
+  }
+
+  equals(step) {
+    return this.position.equals(step.position);
   }
 }
 

@@ -39,9 +39,15 @@ class ControllableMobile extends ClientMobile {
     return found;
   }
 
+  movementRequestFailed(position) {
+    console.log("movement request failed", position);
+    this.lastRequested = null;
+  }
+
   movementFailed(position) {
-    console.log("movement failed", position);
-    console.log(this.movementPath);
+    super.movementFailed(position);
+    this.movementPath = null;
+    this.lastRequested = null;
   }
 
   setNextMovement(nextPosition, nextPositionTime) {
@@ -74,7 +80,7 @@ class ControllableMobile extends ClientMobile {
       return this.lastRequested;
     }
 
-    const nextStep = this.serverMovementPath.getLastMovementPosition();
+    const nextStep = this.serverMovementPath.getNextMovementStepPosition();
     if (nextStep) {
       return nextStep;
     }
