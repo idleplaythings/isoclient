@@ -8,15 +8,14 @@ class ServerMovementPath {
     this.nextGamePositionChange = null;
   }
 
-  getNextMovementPosition() {
+  getLastMovementPosition() {
     if (this.steps.length === 0 || this.nextGamePositionChange === null) {
       return null;
     }
 
-    return this.steps
-      .filter((step) => step.time === this.nextGamePositionChange)
-      .map(({ position }) => position)
-      .shift();
+    const step = this.steps[this.steps.length - 1];
+
+    return step ? step.position : null;
   }
 
   addStep(position, time) {

@@ -3,6 +3,7 @@ import {
   MOBILE_DESPAWNED,
   MOVE_REQUEST,
   MOBILE_MOVE,
+  MOBILE_MOVE_FAILED,
 } from "../model/message.mjs";
 import { UiStateMessages } from "../ui/UiState";
 
@@ -112,6 +113,10 @@ class GameServerConnection {
 
       case MOBILE_MOVE:
         this.game.mobileLibrary.mobileMove(payload);
+        break;
+
+      case MOBILE_MOVE_FAILED:
+        this.game.mobileLibrary.mobileMoveFailed(payload);
         break;
 
       default:

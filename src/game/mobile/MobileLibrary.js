@@ -29,23 +29,39 @@ class MobileLibrary {
     }
   }
 
-  clickTile(tile) {
-    this.selectedMobiles.forEach(async (mobile) => {
-      const path = await this.tileLibrary.findPath(
-        mobile.getPositionOrNextMovementPosition(),
-        tile
-      );
+  async findMobilePath(mobile, position) {
+    const path = await this.tileLibrary.findPath(
+      mobile.getPositionForPathfinding(),
+      position
+    );
 
-      mobile.setMovementPath(path);
-    });
+    mobile.setMovementPath(path);
   }
 
-  mobileMove([mobileId, position, time]) {
+  clickTile(tile) {
+    this.selectedMobiles.forEach((mobile) => this.findMobilePath(mobile, tile));
+  }
+
+  mobileMoveFailed([mobileId, position]) {
     const mobile = this.mobiles.find((m) => m.id === mobileId);
 
     if (!mobile) {
-      //TODO: We don't know about this mobile. Ask server for its details
       return;
+    }
+
+    mobile.movementFailed(position);
+  }
+
+  mobileMove([mobileId, position, time]) {
+    let mobile = this.mobiles.find((m) => m.id === mobileId);
+
+    if (!mobile) {
+      console.log("WHO ARE YOU???");
+      mobile = new ClientMobile(this.gameScene).deserialize({
+        id: mobileId,
+        position,
+      });
+      this.add(mobile);
     }
 
     mobile.setNextMovement(position, time);

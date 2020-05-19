@@ -42,14 +42,6 @@ class ClientMobile {
     return 0x666600;
   }
 
-  getPositionOrNextMovementPosition() {
-    if (this.nextPosition) {
-      return this.nextPosition;
-    } else {
-      return this.getPosition();
-    }
-  }
-
   setPositionAndWorldPosition(position) {
     this.setWorldPosition(position);
     this.setPosition(position);

@@ -9,6 +9,12 @@ class ControllableMobile extends ClientMobile {
     this.mobileLibrary = mobileLibrary;
 
     this.movementPath = null;
+    this.lastRequested = null;
+  }
+
+  requestMovement(position) {
+    this.lastRequested = new Vector(position);
+    this.mobileLibrary.requestMove(this, position);
   }
 
   prunePathUntilAdjacent(position) {
@@ -29,10 +35,25 @@ class ControllableMobile extends ClientMobile {
     this.movementPath = this.movementPath.filter(
       (step) => !toDelete.includes(step)
     );
+
+    return found;
+  }
+
+  movementFailed(position) {
+    console.log("movement failed", position);
+    console.log(this.movementPath);
   }
 
   setNextMovement(nextPosition, nextPositionTime) {
     super.setNextMovement(nextPosition, nextPositionTime);
+
+    if (this.lastRequested && this.lastRequested.equals(nextPosition)) {
+      this.lastRequested = null;
+    }
+
+    if (!this.movementPath) {
+      return;
+    }
 
     this.prunePathUntilAdjacent(nextPosition);
 
@@ -40,8 +61,29 @@ class ControllableMobile extends ClientMobile {
       return;
     }
 
-    this.mobileLibrary.requestMove(this, this.movementPath[0].position);
+    this.requestMovement(this.movementPath[0].position);
     this.movementPath.shift();
+
+    if (this.movementPath.length === 0) {
+      this.movementPath = null;
+    }
+  }
+
+  getLastRequestedOrLastServerMove() {
+    if (this.lastRequested) {
+      return this.lastRequested;
+    }
+
+    const nextStep = this.serverMovementPath.getLastMovementPosition();
+    if (nextStep) {
+      return nextStep;
+    }
+
+    return this.getPosition();
+  }
+
+  getPositionForPathfinding() {
+    return this.getLastRequestedOrLastServerMove();
   }
 
   setMovementPath(path) {
@@ -49,18 +91,23 @@ class ControllableMobile extends ClientMobile {
       return;
     }
 
-    console.log("new movement path", path);
     this.movementPath = path.map((step) => new MovementPathStep(step));
 
-    const nextStep = this.serverMovementPath.getNextMovementPosition();
-    if (nextStep === null) {
-      this.mobileLibrary.requestMove(this, this.movementPath[0].position);
-    } else if (this.movementPath[0].equals(nextStep)) {
+    const nextPosition = this.getLastRequestedOrLastServerMove();
+    if (nextPosition && this.movementPath[0].equals(nextPosition)) {
       return;
+    }
+
+    const found = this.prunePathUntilAdjacent(nextPosition);
+
+    if (!found) {
+      this.mobileLibrary.findMobilePath(
+        this,
+        this.movementPath[this.movementPath.length - 1]
+      );
+      this.movementPath = null;
     } else {
-      //TODO: Cancel only if current position is farther than next step
-      this.mobileLibrary.requestMove(this, null);
-      this.mobileLibrary.requestMove(this, this.movementPath[0].position);
+      this.requestMovement(this.movementPath[0].position);
     }
   }
 
