@@ -51,7 +51,6 @@ class GameServerConnection {
       payload.push(position.x, position.y, position.z);
     }
 
-    console.log("send movement request", payload);
     const connection = await this.connection;
     connection.send(
       JSON.stringify({

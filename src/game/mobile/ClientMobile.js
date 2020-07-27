@@ -88,7 +88,6 @@ class ClientMobile {
   }
 
   setNextMovement(nextPosition, nextPositionTime) {
-    console.log("movement step", nextPosition);
     this.serverMovementPath.addStep(nextPosition, nextPositionTime);
   }
 

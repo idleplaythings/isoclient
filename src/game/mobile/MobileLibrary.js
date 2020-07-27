@@ -29,19 +29,6 @@ class MobileLibrary {
     }
   }
 
-  async findMobilePath(mobile, position) {
-    const path = await this.tileLibrary.findPath(
-      mobile.getPositionForPathfinding(),
-      position
-    );
-
-    mobile.setMovementPath(path);
-  }
-
-  clickTile(tile) {
-    this.selectedMobiles.forEach((mobile) => this.findMobilePath(mobile, tile));
-  }
-
   mobileMoveRequestFailed([mobileId, position]) {
     const mobile = this.mobiles.find((m) => m.id === mobileId);
 
@@ -119,10 +106,6 @@ class MobileLibrary {
     this.mobiles.forEach((mobile) => {
       mobile.render(payload);
     });
-  }
-
-  requestMove(mobile, position) {
-    this.gameServerConnector.sendMoveRequest(mobile, position);
   }
 }
 

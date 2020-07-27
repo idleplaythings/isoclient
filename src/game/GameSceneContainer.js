@@ -69,9 +69,14 @@ class GameSceneContainer extends React.Component {
     event.preventDefault();
     const { game } = this.props;
 
-    game.onMouseUp(
-      getMousePositionInObservedElement(event, this.canvasRef.current)
+    console.log(event.button);
+
+    const position = getMousePositionInObservedElement(
+      event,
+      this.canvasRef.current
     );
+
+    game.onMouseUp(position, event.button);
   }
 
   onMouseMove(event) {
@@ -97,7 +102,14 @@ class GameSceneContainer extends React.Component {
 
   onKeyUp(event) {
     const { game } = this.props;
+
     game.camera.onKeyUp(event);
+  }
+
+  onRightClick(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -105,7 +117,6 @@ class GameSceneContainer extends React.Component {
   }
 
   render() {
-    console.log("Render game scene container");
     return (
       <WebglCanvas
         ref={this.canvasRef}
@@ -113,6 +124,7 @@ class GameSceneContainer extends React.Component {
         onMouseUp={this.onMouseUp.bind(this)}
         onMouseMove={this.onMouseMove.bind(this)}
         onKeyUp={this.onKeyUp.bind(this)}
+        onContextMenu={this.onRightClick.bind(this)}
       />
     );
   }

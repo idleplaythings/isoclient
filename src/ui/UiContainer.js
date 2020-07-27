@@ -1,9 +1,11 @@
 import React, { useContext, useMemo } from "react";
 import { StateStore } from "./UiState";
 import NetworkInfo from "./NetworkInfo";
+import { CreateArea } from "./component/baseManagement/CreateArea";
+import { ContextMenu } from "./component/ContextMenu";
 
 const UiContainer = () => {
-  const { networkStatus } = useContext(StateStore);
+  const { networkStatus, contextMenu } = useContext(StateStore);
 
   console.log(networkStatus);
   //const Error = getError(state)
@@ -23,7 +25,18 @@ const UiContainer = () => {
     [networkStatus]
   );
 
-  return <>{NetworkComponent}</>;
+  return (
+    <>
+      {NetworkComponent}
+      <CreateArea />
+      {contextMenu && (
+        <ContextMenu
+          position={contextMenu.position}
+          items={contextMenu.menuItems}
+        />
+      )}
+    </>
+  );
 };
 
 export default UiContainer;

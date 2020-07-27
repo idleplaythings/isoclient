@@ -19,6 +19,26 @@ class TileLibrary {
     this.dynamicEntities = new DynamicEntitiesCache(); //All known dynamic entities keyed by x-y
   }
 
+  async findEntity(position) {
+    const binaryChunkPosition = getChunkPosition(
+      position,
+      this.binaryChunkSize
+    );
+
+    const key = getChunkKey(binaryChunkPosition);
+
+    if (!this.tileBinaryChunks[key]) {
+      return { prop: null, entities: [] };
+    }
+
+    const binaryChunk = await this.tileBinaryChunks[key];
+    const positionInChunk = binaryChunk.getPositionIn(position);
+    const entities = this.dynamicEntities.getByPosition(position);
+
+    const prop = binaryChunk.getProp(positionInChunk);
+    return { prop, entities };
+  }
+
   addDynamicEntity(entities = []) {
     this.dynamicEntities.addDynamicEntity(entities);
   }

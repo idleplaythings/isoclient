@@ -1,11 +1,14 @@
 import * as THREE from "three";
 import { RenderArea } from "./tile";
 import { getChunkPosition } from "../model/tile/Chunk";
+import { UiStateMessages } from "../ui/UiState";
 
 const CAMERA_OFFSET = new THREE.Vector3(25, -25, 50);
 
 class GameCamera {
-  constructor() {
+  constructor(uiStateDispatch) {
+    this.uiStateDispatch = uiStateDispatch;
+
     this.implementation = null;
     this.scrollingUp = false;
     this.scrollingLeft = false;
@@ -105,6 +108,8 @@ class GameCamera {
     ) {
       return;
     }
+
+    this.uiStateDispatch({ type: UiStateMessages.CLOSE_CONTEXT_MENU });
 
     const vector = new THREE.Vector3(0, 0, 0);
     if (this.scrollingRight) {

@@ -7,6 +7,8 @@ import CoornidateConverter from "./util/CoordinateConverter";
 import GameCursor from "./GameCursor";
 import MobileLibrary from "./mobile/MobileLibrary";
 import GameServerConnection from "../gameServer/GameServerConnection";
+import InteractionService from "./InteractionService";
+import MobileActionService from "./mobile/mobileActions/MobileActionService";
 
 class Game {
   constructor(dispatch, userId) {
@@ -15,7 +17,7 @@ class Game {
     this.uiStateDispatch = dispatch;
     this.userId = userId;
 
-    this.camera = new GameCamera();
+    this.camera = new GameCamera(this.uiStateDispatch);
     this.gameScene = new GameScene(this.camera);
     this.tileLibrary = new TileLibrary();
 
@@ -45,6 +47,19 @@ class Game {
       this.groundChunkSize
     );
 
+    this.mobileActionService = new MobileActionService(
+      this.mobileLibrary,
+      this.tileLibrary,
+      this.gameServerConnector
+    );
+
+    this.interactionService = new InteractionService(
+      this.tileLibrary,
+      this.mobileLibrary,
+      this.coordinateConverter,
+      this.uiStateDispatch,
+      this.mobileActionService
+    );
     this.gameServerConnector.connect();
 
     this.gameCursor = new GameCursor(this.gameScene);
@@ -100,13 +115,11 @@ class Game {
     }
   }
 
-  onMouseUp(position) {
-    const worldPostion = this.coordinateConverter.fromViewPortToGame(position);
-
-    if (worldPostion.mobiles.length > 0) {
-      this.mobileLibrary.clickMobile(worldPostion.mobiles[0]);
+  onMouseUp(position, button) {
+    if (button === 2) {
+      this.interactionService.rightClick(position);
     } else {
-      this.mobileLibrary.clickTile(worldPostion.tile);
+      this.interactionService.leftClick(position);
     }
   }
 }

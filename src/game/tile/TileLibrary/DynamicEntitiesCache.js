@@ -69,6 +69,16 @@ class DynamicEntitiesCache {
     return payload;
   }
 
+  getByPosition(position) {
+    const key = `${position.x}-${position.y}`;
+    const entities = this.entities[key];
+    if (!entities) {
+      return [];
+    }
+
+    return entities;
+  }
+
   getByTypeAndPosition(typeId, position) {
     const key = `${position.x}-${position.y}`;
     return this.entities[key]
