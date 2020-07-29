@@ -2,6 +2,7 @@ class MobileAction {
   constructor() {
     this.executing = false;
     this.cancelled = false;
+    this.done = false;
     this.mobile = null;
   }
 
@@ -21,12 +22,26 @@ class MobileAction {
     return newAction;
   }
 
+  setDone() {
+    this.done = true;
+    if (this.mobile) {
+      this.mobile.actionDone();
+    }
+  }
+
   setMobile(mobile) {
     this.mobile = mobile;
   }
 
   cancel() {
+    if (this.cancelled) {
+      return;
+    }
+
     this.cancelled = true;
+    if (this.mobile) {
+      this.mobile.actionCancelled();
+    }
   }
 
   populate(mobileLibrary, tileLibrary, gameServerConnector) {

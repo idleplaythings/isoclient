@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
+import { DispatchStore, UiStateMessages } from "../UiState";
 
 const PostionElement = styled.div`
   widht: 0;
@@ -30,6 +31,8 @@ const ItemContainer = styled.div`
 `;
 
 export const ContextMenu = ({ position, items }) => {
+  const dispatch = useContext(DispatchStore);
+
   return (
     <PostionElement position={position}>
       <Container
@@ -41,7 +44,10 @@ export const ContextMenu = ({ position, items }) => {
         {items.map((item, i) => (
           <ItemContainer
             key={`context-menu-${i}`}
-            onClick={() => item.execute()}
+            onClick={() => {
+              item.execute();
+              dispatch({ type: UiStateMessages.CLOSE_CONTEXT_MENU });
+            }}
           >
             {item.label}
           </ItemContainer>

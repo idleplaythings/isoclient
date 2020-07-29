@@ -26,7 +26,12 @@ class MobileActionService {
       this.tileLibrary,
       this.gameServerConnector
     );
-    action.queue();
+
+    this.mobileLibrary.selectedMobiles.forEach((mobile) => {
+      const mobileAction = action.cloneFor(mobile);
+      mobile.addAction(mobileAction);
+      mobile.executeActionIfFree();
+    });
   }
 }
 

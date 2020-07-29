@@ -25,6 +25,31 @@ class ControllableMobile extends ClientMobile {
     this.actions[0].execute();
   }
 
+  executeActionIfFree() {
+    if (this.actions.length !== 1) {
+      return;
+    }
+
+    this.actions[0].execute();
+  }
+
+  actionDone() {
+    console.log("action done");
+
+    this.actions.splice(0, 1);
+
+    if (!this.actions[0]) {
+      return;
+    }
+
+    this.actions[0].execute();
+  }
+
+  actionCancelled() {
+    console.log("action cancelled");
+    this.cancelActionQueue();
+  }
+
   movementRequestFailed(position) {
     if (this.actions[0] && this.actions[0].movementRequestFailed) {
       this.actions[0].movementRequestFailed(position);

@@ -5,6 +5,7 @@ import {
   MOBILE_MOVE,
   MOBILE_MOVE_FAILED,
   MOBILE_MOVE_REQUEST_FAILED,
+  WORK_PROP_REQUEST,
 } from "../model/message.mjs";
 import { UiStateMessages } from "../ui/UiState";
 
@@ -56,6 +57,22 @@ class GameServerConnection {
       JSON.stringify({
         type: MOVE_REQUEST,
         payload,
+      })
+    );
+  }
+
+  async sendWorkPropRequest(mobile, position, propTypeId) {
+    console.log("request to harvest", position, propTypeId);
+
+    const connection = await this.connection;
+    connection.send(
+      JSON.stringify({
+        type: WORK_PROP_REQUEST,
+        payload: {
+          mobileId: mobile.id,
+          position: position,
+          propTypeId: propTypeId,
+        },
       })
     );
   }

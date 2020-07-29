@@ -8,6 +8,8 @@ class MoveToMobileAction extends MobileAction {
     super();
     this.position = position;
 
+    console.log("move position", position);
+
     this.movementPath = null;
     this.lastRequested = null;
   }
@@ -22,9 +24,7 @@ class MoveToMobileAction extends MobileAction {
       return;
     }
 
-    this.mobileLibrary.selectedMobiles.forEach((mobile) =>
-      this.findMobilePath(mobile, this.position)
-    );
+    this.findMobilePath(this.position);
   }
 
   movementRequestFailed(position) {
@@ -35,10 +35,24 @@ class MoveToMobileAction extends MobileAction {
   movementFailed(position) {
     this.movementPath = null;
     this.lastRequested = null;
+    this.cancel();
   }
 
   setNextMovement(nextPosition, nextPositionTime) {
     if (this.cancelled) {
+      return;
+    }
+
+    if (this.position.equals(nextPosition)) {
+      this.movementPath = null;
+      this.lastRequested = null;
+
+      const time = nextPositionTime - Date.now() + 250;
+
+      setTimeout(() => {
+        this.setDone();
+      }, time);
+
       return;
     }
 
@@ -96,10 +110,7 @@ class MoveToMobileAction extends MobileAction {
     const found = this.prunePathUntilAdjacent(nextPosition);
 
     if (!found) {
-      this.mobileLibrary.findMobilePath(
-        this,
-        this.movementPath[this.movementPath.length - 1]
-      );
+      this.findMobilePath(this.movementPath[this.movementPath.length - 1]);
       this.movementPath = null;
     } else {
       this.requestMovement(this.movementPath[0].position);
@@ -128,7 +139,7 @@ class MoveToMobileAction extends MobileAction {
     return found;
   }
 
-  async findMobilePath(mobile, position) {
+  async findMobilePath(position) {
     const path = await this.tileLibrary.findPath(
       this.getPositionForPathfinding(),
       position
