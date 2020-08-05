@@ -19,6 +19,10 @@ class TileLibrary {
     this.dynamicEntities = new DynamicEntitiesCache(); //All known dynamic entities keyed by x-y
   }
 
+  addProp(payload) {
+    console.log("add prop", payload);
+  }
+
   async findEntity(position) {
     const binaryChunkPosition = getChunkPosition(
       position,

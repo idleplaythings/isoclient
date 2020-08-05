@@ -8,6 +8,8 @@ import {
   WORK_PROP_REQUEST,
 } from "../model/message.mjs";
 import { UiStateMessages } from "../ui/UiState";
+import { PROP_ADD } from "../model/message.mjs";
+import Vector from "../model/util/Vector.mjs";
 
 class GameServerConnection {
   constructor(game, userId, uiStateDispatch) {
@@ -134,6 +136,13 @@ class GameServerConnection {
 
       case MOBILE_MOVE_REQUEST_FAILED:
         this.game.mobileLibrary.mobileMoveRequestFailed(payload);
+        break;
+
+      case PROP_ADD:
+        this.game.tileLibrary.addProp(
+          payload[0],
+          new Vector(payload[1], payload[2], payload[3])
+        );
         break;
 
       default:
