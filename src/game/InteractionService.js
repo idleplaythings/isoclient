@@ -1,6 +1,8 @@
 import StructureFactory from "../model/structure/StructureFactory";
 import { UiStateMessages } from "../ui/UiState";
 import MoveToMobileAction from "./mobile/mobileActions/MoveToMobileAction";
+import WorkPropMobileAction from "./mobile/mobileActions/WorkPropMobileAction";
+import MenuItem from "../model/ui/MenuItem";
 
 class InteractionService {
   constructor(
@@ -40,6 +42,19 @@ class InteractionService {
           propInstance
         ),
       ];
+    }
+
+    if (menuItems.length === 0) {
+      menuItems.push(
+        new MenuItem("Dig ground", () => {
+          this.mobileActionService.addActionToSelectedMobiles(
+            new MoveToMobileAction(worldPostion.tile)
+          );
+          this.mobileActionService.queueActionToSelectedMobiles(
+            new WorkPropMobileAction(worldPostion.tile, 0)
+          );
+        })
+      );
     }
 
     if (menuItems.length > 0) {

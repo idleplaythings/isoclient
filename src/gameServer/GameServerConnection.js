@@ -68,11 +68,7 @@ class GameServerConnection {
     connection.send(
       JSON.stringify({
         type: WORK_PROP_REQUEST,
-        payload: {
-          mobileId: mobile.id,
-          position: position,
-          propTypeId: propTypeId,
-        },
+        payload: [mobile.id, position.x, position.y, position.z, propTypeId],
       })
     );
   }
